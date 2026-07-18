@@ -14,6 +14,7 @@ click('[data-division="biology"]');
 click('[data-next="profile"]');
 document.querySelector('#grade').value='5';
 document.querySelector('#weeks').value='8';
+document.querySelector('#budget').value='10,000 元';
 click('[data-interest="植物"]');
 click('[data-profile]');
 assert.match(document.querySelector('#app').textContent,/同時符合科別與興趣的題目/);
@@ -23,6 +24,7 @@ assert.match(document.querySelector('#app').textContent,/光的方向與豆苗�
 click('[data-action="teacher"]');
 assert.match(document.querySelector('#app').textContent,/教師確認清單/);
 assert.equal(JSON.parse(dom.window.localStorage.getItem('scienceFairCoachV1')).topicId,'b1');
+assert.equal(JSON.parse(dom.window.localStorage.getItem('scienceFairCoachV1')).budget,'10,000 元');
 click('[data-action="reset"]');
 click('[data-go="division"]');
 click('[data-division="math"]');
