@@ -1,0 +1,6 @@
+{
+  "name": "science-fair-coach",
+  "private": true,
+  "scripts": { "test": "node test.mjs" },
+  "devDependencies": { "jsdom": "^26.1.0" }
+}
