@@ -40,11 +40,17 @@ console.log('✓ 選題流程、教師檢視、本機儲存、科別＋興趣交
 const portalHtml=fs.readFileSync('portal.html','utf8').replace(/<script[^>]*><\/script>/g,'');
 const portalDom=new JSDOM(portalHtml,{url:'https://example.test/portal.html',runScripts:'dangerously'});
 portalDom.window.eval(fs.readFileSync('config.js','utf8'));
+portalDom.window.supabase={createClient:()=>({auth:{
+  getSession:async()=>({data:{session:null}}),
+  onAuthStateChange:()=>({data:{subscription:{unsubscribe(){}}}})
+}})};
 portalDom.window.eval(fs.readFileSync('portal.js','utf8'));
-assert.match(portalDom.window.document.querySelector('#portal').textContent,/後端尚未連線/);
+await new Promise(resolve=>setTimeout(resolve,0));
+assert.doesNotMatch(portalDom.window.document.querySelector('#portal').textContent,/後端尚未連線/);
+assert.equal(portalDom.window.document.querySelector('#google').disabled,false);
 
 const migration=fs.readFileSync('supabase/migrations/202607180001_initial.sql','utf8');
 for(const required of ['enable row level security','365 days','395 days','purge_expired_students','pg_cron','teachers view thought histories'])assert.ok(migration.includes(required),`migration缺少 ${required}`);
 const studentApi=fs.readFileSync('supabase/functions/student-api/index.ts','utf8');
 assert.match(studentApi,/PBKDF2/);assert.match(studentApi,/嘗試次數過多/);
-console.log('✓ 未連線入口、RLS、保存期限、排程刪除、PIN雜湊與登入限速皆存在');
+console.log('✓ 後端連線入口、RLS、保存期限、排程刪除、PIN雜湊與登入限速皆存在');

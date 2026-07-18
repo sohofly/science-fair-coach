@@ -17,8 +17,8 @@ create table public.students (
   profile jsonb not null default '{}'::jsonb,
   selected_topic jsonb,
   created_at timestamptz not null default now(),
-  active_until timestamptz generated always as (created_at + interval '365 days') stored,
-  delete_after timestamptz generated always as (created_at + interval '395 days') stored,
+  active_until timestamptz not null default (now() + interval '365 days'),
+  delete_after timestamptz not null default (now() + interval '395 days'),
   unique(class_id, student_code)
 );
 
