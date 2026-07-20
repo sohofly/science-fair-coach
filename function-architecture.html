@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="zh-Hant">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>科展小助手｜功能架構圖</title>
+<style>
+  :root{color-scheme:light dark;--bg:#f8fafc;--fg:#172033;--muted:#5b6475;--line:#64748b;--student:#dbeafe;--teacher:#ede9fe;--shared:#ccfbf1;--result:#fef3c7;--neutral:#e2e8f0}
+  @media(prefers-color-scheme:dark){:root{--bg:#0f172a;--fg:#e5e7eb;--muted:#a3adbd;--line:#94a3b8;--student:#1e3a8a;--teacher:#4c1d95;--shared:#115e59;--result:#78350f;--neutral:#334155}}
+  *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.45 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+  main{max-width:1320px;margin:28px auto;padding:0 20px 40px}h1{margin:0 0 6px;font-size:26px}.intro{margin:0 0 20px;color:var(--muted)}svg{width:100%;height:auto;display:block}
+  .lane{stroke:var(--line);stroke-width:1;stroke-dasharray:7 5}.lane.student{fill:color-mix(in srgb,var(--student) 22%,transparent)}.lane.teacher{fill:color-mix(in srgb,var(--teacher) 22%,transparent)}
+  .node{stroke:var(--line);stroke-width:1.2}.student-node{fill:var(--student)}.teacher-node{fill:var(--teacher)}.shared-node{fill:var(--shared)}.result-node{fill:var(--result)}.neutral-node{fill:var(--neutral)}
+  .edge{stroke:var(--line);stroke-width:1.8;fill:none}.edge-dash{stroke:var(--line);stroke-width:1.5;fill:none;stroke-dasharray:6 5}.lane-title{font-size:18px;font-weight:750;fill:var(--fg)}.label{font-size:15px;font-weight:750;fill:var(--fg)}.small{font-size:12px;fill:var(--muted)}.step{font-size:12px;font-weight:750;fill:var(--muted)}
+  .outcomes{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:18px}.outcomes section{border:1px solid var(--line);border-radius:12px;padding:14px;background:color-mix(in srgb,var(--neutral) 40%,transparent)}.outcomes h2{font-size:15px;margin:0 0 5px}.outcomes p{margin:0;color:var(--muted)}
+</style>
+<main>
+  <h1>科展小助手：功能架構圖</h1>
+  <p class="intro">從使用者角度理解：學生如何完成科展探索，教師如何陪伴與管理。</p>
+  <svg viewBox="0 0 1280 900" role="img" aria-labelledby="diagram-title diagram-desc">
+    <title id="diagram-title">科展小助手功能架構圖</title>
+    <desc id="diagram-desc">學生由加入班級、探索題目、比較選題、規劃研究到留下實驗紀錄；教師由建立班級、查看思考歷程、提供建議到匯出管理。系統共用功能包含身分與班級、進度保存、隱私保存政策及安全可行性提醒。</desc>
+    <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--line)"/></marker></defs>
+
+    <!-- connectors first -->
+    <path class="edge" marker-end="url(#arrow)" d="M255 206H316"/><path class="edge" marker-end="url(#arrow)" d="M500 206H561"/><path class="edge" marker-end="url(#arrow)" d="M745 206H806"/><path class="edge" marker-end="url(#arrow)" d="M990 206H1051"/>
+    <path class="edge" marker-end="url(#arrow)" d="M255 512H316"/><path class="edge" marker-end="url(#arrow)" d="M500 512H561"/><path class="edge" marker-end="url(#arrow)" d="M745 512H806"/><path class="edge" marker-end="url(#arrow)" d="M990 512H1051"/>
+    <path class="edge-dash" marker-end="url(#arrow)" d="M898 434V320"/><path class="edge-dash" marker-end="url(#arrow)" d="M653 434V320"/>
+    <path class="edge-dash" marker-end="url(#arrow)" d="M640 690V638"/>
+
+    <!-- student lane -->
+    <rect class="lane student" x="20" y="70" width="1240" height="270" rx="18"/><text class="lane-title" x="44" y="105">🧒 學生：把好奇心變成可執行的研究</text>
+    <rect class="node student-node" x="71" y="143" width="184" height="126" rx="14"/><text class="step" x="91" y="167">01</text><text class="label" x="163" y="190" text-anchor="middle">開始／繼續</text><text class="small" x="163" y="216" text-anchor="middle">本機試用或加入班級</text><text class="small" x="163" y="237" text-anchor="middle">使用代號與 PIN 接續進度</text>
+    <rect class="node student-node" x="316" y="143" width="184" height="126" rx="14"/><text class="step" x="336" y="167">02</text><text class="label" x="408" y="190" text-anchor="middle">探索研究方向</text><text class="small" x="408" y="216" text-anchor="middle">選擇科別、興趣與條件</text><text class="small" x="408" y="237" text-anchor="middle">回答生活觀察引導問題</text>
+    <rect class="node student-node" x="561" y="143" width="184" height="126" rx="14"/><text class="step" x="581" y="167">03</text><text class="label" x="653" y="190" text-anchor="middle">比較與選定題目</text><text class="small" x="653" y="216" text-anchor="middle">取得個人化候選題目</text><text class="small" x="653" y="237" text-anchor="middle">比較優缺點、成本與風險</text>
+    <rect class="node student-node" x="806" y="143" width="184" height="126" rx="14"/><text class="step" x="826" y="167">04</text><text class="label" x="898" y="190" text-anchor="middle">建立研究架構</text><text class="small" x="898" y="216" text-anchor="middle">問題、假設、變因與步驟</text><text class="small" x="898" y="237" text-anchor="middle">採用或婉拒教師建議</text>
+    <rect class="node result-node" x="1051" y="143" width="184" height="126" rx="14"/><text class="step" x="1071" y="167">05</text><text class="label" x="1143" y="190" text-anchor="middle">研究紀錄與修正</text><text class="small" x="1143" y="216" text-anchor="middle">記錄做法、結果與附件</text><text class="small" x="1143" y="237" text-anchor="middle">取得回饋並持續改進</text>
+
+    <!-- teacher lane -->
+    <rect class="lane teacher" x="20" y="376" width="1240" height="270" rx="18"/><text class="lane-title" x="44" y="411">👩‍🏫 教師：掌握每位學生的歷程並適時引導</text>
+    <rect class="node teacher-node" x="71" y="449" width="184" height="126" rx="14"/><text class="step" x="91" y="473">01</text><text class="label" x="163" y="496" text-anchor="middle">登入與建立班級</text><text class="small" x="163" y="522" text-anchor="middle">Google 帳號登入</text><text class="small" x="163" y="543" text-anchor="middle">建立班級與取得加入碼</text>
+    <rect class="node teacher-node" x="316" y="449" width="184" height="126" rx="14"/><text class="step" x="336" y="473">02</text><text class="label" x="408" y="496" text-anchor="middle">管理學生</text><text class="small" x="408" y="522" text-anchor="middle">查看匿名學生代號</text><text class="small" x="408" y="543" text-anchor="middle">設定教師辨識標籤</text>
+    <rect class="node teacher-node" x="561" y="449" width="184" height="126" rx="14"/><text class="step" x="581" y="473">03</text><text class="label" x="653" y="496" text-anchor="middle">看見思考歷程</text><text class="small" x="653" y="522" text-anchor="middle">查看選科、回答與選題過程</text><text class="small" x="653" y="543" text-anchor="middle">掌握學生卡住的位置</text>
+    <rect class="node teacher-node" x="806" y="449" width="184" height="126" rx="14"/><text class="step" x="826" y="473">04</text><text class="label" x="898" y="496" text-anchor="middle">提供指導</text><text class="small" x="898" y="522" text-anchor="middle">留言與研究架構修改建議</text><text class="small" x="898" y="543" text-anchor="middle">保留學生的最終決定權</text>
+    <rect class="node result-node" x="1051" y="449" width="184" height="126" rx="14"/><text class="step" x="1071" y="473">05</text><text class="label" x="1143" y="496" text-anchor="middle">整理與匯出</text><text class="small" x="1143" y="522" text-anchor="middle">下載個人或全班紀錄</text><text class="small" x="1143" y="543" text-anchor="middle">JSON、CSV 或 PDF</text>
+
+    <!-- shared services -->
+    <text class="lane-title" x="44" y="704">全程共用功能</text>
+    <rect class="node shared-node" x="71" y="730" width="256" height="108" rx="14"/><text class="label" x="199" y="765" text-anchor="middle">身分與班級連結</text><text class="small" x="199" y="791" text-anchor="middle">教師帳號、班級加入碼</text><text class="small" x="199" y="812" text-anchor="middle">學生匿名代號與 PIN</text>
+    <rect class="node shared-node" x="365" y="730" width="256" height="108" rx="14"/><text class="label" x="493" y="765" text-anchor="middle">進度自動保存</text><text class="small" x="493" y="791" text-anchor="middle">保留選題、對談、研究架構</text><text class="small" x="493" y="812" text-anchor="middle">以及每次實驗紀錄</text>
+    <rect class="node shared-node" x="659" y="730" width="256" height="108" rx="14"/><text class="label" x="787" y="765" text-anchor="middle">安全與可行性提醒</text><text class="small" x="787" y="791" text-anchor="middle">檢查時間、成本、風險與變因</text><text class="small" x="787" y="812" text-anchor="middle">參考歷屆作品避免高度重複</text>
+    <rect class="node shared-node" x="953" y="730" width="282" height="108" rx="14"/><text class="label" x="1094" y="765" text-anchor="middle">隱私與資料保存</text><text class="small" x="1094" y="791" text-anchor="middle">不要求學生姓名｜365 天可編輯</text><text class="small" x="1094" y="812" text-anchor="middle">30 天唯讀匯出後自動刪除</text>
+  </svg>
+  <div class="outcomes">
+    <section><h2>學生最後得到什麼？</h2><p>一個理解得了、做得完、可量測且經過安全檢查的題目，以及能逐步修正的研究架構。</p></section>
+    <section><h2>教師最後掌握什麼？</h2><p>不只看到學生選了哪個題目，也能看見學生怎麼想、在哪裡需要引導，以及研究如何演進。</p></section>
+    <section><h2>系統扮演什麼角色？</h2><p>它是探索與紀錄工具，不代替學生思考，也不取代教師對來源、科別、安全和可行性的判斷。</p></section>
+  </div>
+</main>
+</html>
