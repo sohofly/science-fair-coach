@@ -26,6 +26,15 @@ Deno.serve(async req=>{
       }
       return json({error:'暫時無法建立學生代號'},500);
     }
+    if(action==='list_students'){
+      const classCode=String(body.classCode||'').toUpperCase().trim();
+      const attemptKey=await sha(`list:${req.headers.get('x-forwarded-for')||'unknown'}:${classCode}`);const since=new Date(Date.now()-15*60*1000).toISOString();
+      const {count}=await db.from('student_login_attempts').select('*',{count:'exact',head:true}).eq('attempt_key',attemptKey).gte('attempted_at',since);if((count||0)>=30)return json({error:'查詢次數過多，請15分鐘後再試'},429);
+      await db.from('student_login_attempts').insert({attempt_key:attemptKey});
+      const {data:klass}=await db.from('classes').select('id').eq('join_code',classCode).maybeSingle();if(!klass)return json({error:'班級加入碼不存在'},404);
+      const {data,error}=await db.from('students').select('student_code').eq('class_id',klass.id).gt('delete_after',new Date().toISOString()).order('created_at');if(error)throw error;
+      return json({students:data||[]});
+    }
     if(action==='resume'){
       const classCode=String(body.classCode||'').toUpperCase().trim();const studentCode=String(body.studentCode||'').toUpperCase().trim();
       const attemptKey=await sha(`${req.headers.get('x-forwarded-for')||'unknown'}:${classCode}:${studentCode}`);const since=new Date(Date.now()-15*60*1000).toISOString();
