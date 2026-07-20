@@ -93,6 +93,8 @@ assert.match(studentApi,/PBKDF2/);assert.match(studentApi,/嘗試次數過多/);
 assert.match(studentApi,/action==='list_students'/);assert.match(studentApi,/select\('student_code'\)/);
 const portalJs=fs.readFileSync('portal.js','utf8');
 assert.match(portalJs,/下一步：選擇學生代號/);assert.match(portalJs,/<select name="studentCode"/);
+assert.match(portalJs,/發現問題/);assert.match(portalJs,/拆解問題/);assert.match(portalJs,/用證據判斷/);assert.match(portalJs,/反思與負責/);
+assert.match(portalJs,/學生的原始想法/);assert.match(portalJs,/教師或系統提問/);assert.match(portalJs,/學生提供的證據/);assert.match(portalJs,/想法如何改變/);assert.match(portalJs,/目前仍需追問之處/);assert.match(portalJs,/證據充足/);
 const experimentMigration=fs.readFileSync('supabase/migrations/202607200001_experiment_records.sql','utf8');
 const discussionMigration=fs.readFileSync('supabase/migrations/202607200002_research_discussions.sql','utf8');
 const experimentReview=fs.readFileSync('supabase/functions/experiment-review/index.ts','utf8');
