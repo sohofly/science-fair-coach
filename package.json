@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "test": "node test.mjs && npm run check:functions",
-    "check:functions": "esbuild supabase/functions/student-api/index.ts supabase/functions/recommend-topics/index.ts supabase/functions/purge-expired/index.ts --bundle --platform=neutral --external:https://* --outdir=/tmp/sfc-function-check --log-level=error"
+    "check:functions": "esbuild supabase/functions/student-api/index.ts supabase/functions/recommend-topics/index.ts supabase/functions/experiment-review/index.ts supabase/functions/purge-expired/index.ts --bundle --platform=neutral --external:https://* --outdir=/tmp/sfc-function-check --log-level=error"
   },
   "devDependencies": {
     "esbuild": "^0.25.0",

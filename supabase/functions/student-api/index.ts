@@ -36,7 +36,7 @@ Deno.serve(async req=>{
       const token=crypto.randomUUID()+crypto.randomUUID();await db.from('student_sessions').insert({student_id:data.id,token_hash:await sha(token)});delete data.pin_hash;return json({student:data,token});
     }
     const student:any=await sessionStudent(req);if(!student)return json({error:'學生登入已失效'},401);
-    if(action==='get'){const {data:events}=await db.from('thought_events').select('*').eq('student_id',student.id).order('created_at');delete student.pin_hash;return json({student,events,status:new Date(student.active_until)<=new Date()?'read_only':'active'});}
+    if(action==='get'){const [{data:events},{data:experimentRecords}]=await Promise.all([db.from('thought_events').select('*').eq('student_id',student.id).order('created_at'),db.from('experiment_records').select('id,method,result,file_name,mime_type,ai_review,created_at').eq('student_id',student.id).order('created_at')]);delete student.pin_hash;return json({student,events,experimentRecords,status:new Date(student.active_until)<=new Date()?'read_only':'active'});}
     if(new Date(student.active_until)<=new Date())return json({error:'紀錄已進入唯讀期'},423);
     if(action==='event'){
       const allowed=['division_selected','profile_updated','interest_selected','observation_entered','question_shown','answer_submitted','topics_recommended','topic_selected','topic_rejected','source_opened','plan_created'];
