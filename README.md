@@ -41,3 +41,5 @@ npm test
 
 - `index.html`：可公開瀏覽的設計首頁
 - `wireframe.html`：完整學生流程與主要頁面線框圖
+- `function-architecture.html`：以學生與教師使用流程呈現的功能架構圖
+- `architecture.html`：以技術元件與資料流呈現的系統架構圖
