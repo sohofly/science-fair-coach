@@ -45,8 +45,22 @@ Deno.serve(async req=>{
       const token=crypto.randomUUID()+crypto.randomUUID();await db.from('student_sessions').insert({student_id:data.id,token_hash:await sha(token)});delete data.pin_hash;return json({student:data,token});
     }
     const student:any=await sessionStudent(req);if(!student)return json({error:'學生登入已失效'},401);
-    if(action==='get'){const [{data:events},{data:experimentRecords}]=await Promise.all([db.from('thought_events').select('*').eq('student_id',student.id).order('created_at'),db.from('experiment_records').select('id,record_kind,method,result,file_name,mime_type,ai_review,created_at').eq('student_id',student.id).order('created_at')]);delete student.pin_hash;return json({student,events,experimentRecords,status:new Date(student.active_until)<=new Date()?'read_only':'active'});}
+    if(action==='get'){const [{data:events},{data:experimentRecords},{data:researchPlan},{data:planSuggestions}]=await Promise.all([db.from('thought_events').select('*').eq('student_id',student.id).order('created_at'),db.from('experiment_records').select('id,record_kind,method,result,file_name,mime_type,ai_review,created_at').eq('student_id',student.id).order('created_at'),db.from('research_plans').select('*').eq('student_id',student.id).maybeSingle(),db.from('research_plan_suggestions').select('id,comment,proposed_plan,status,created_at,decided_at').eq('student_id',student.id).order('created_at',{ascending:false})]);delete student.pin_hash;return json({student,events,experimentRecords,researchPlan,planSuggestions,status:new Date(student.active_until)<=new Date()?'read_only':'active'});}
     if(new Date(student.active_until)<=new Date())return json({error:'紀錄已進入唯讀期'},423);
+    if(action==='save_plan'){
+      const plan=body.plan;if(!plan||JSON.stringify(plan).length>30000)return json({error:'研究架構內容不正確'},400);
+      const {data:existing}=await db.from('research_plans').select('student_id').eq('student_id',student.id).maybeSingle();
+      if(!existing){const {error}=await db.from('research_plans').insert({student_id:student.id,system_plan:plan,current_plan:plan});if(error)throw error;await db.from('thought_events').insert({student_id:student.id,event_type:'plan_created',source:'system',content:{plan}});}
+      return json({ok:true});
+    }
+    if(action==='decide_plan_suggestion'){
+      const decision=body.decision==='accept'?'accepted':body.decision==='decline'?'declined':'';if(!decision)return json({error:'決定不正確'},400);
+      const {data:suggestion}=await db.from('research_plan_suggestions').select('*').eq('id',body.suggestionId).eq('student_id',student.id).eq('status','pending').maybeSingle();if(!suggestion)return json({error:'找不到待處理的教師建議'},404);
+      if(decision==='accepted'){const {data:plan}=await db.from('research_plans').select('revision').eq('student_id',student.id).single();await db.from('research_plans').update({current_plan:suggestion.proposed_plan,revision:(plan?.revision||1)+1,updated_at:new Date().toISOString()}).eq('student_id',student.id);}
+      await db.from('research_plan_suggestions').update({status:decision,decided_at:new Date().toISOString()}).eq('id',suggestion.id);
+      await db.from('thought_events').insert({student_id:student.id,event_type:decision==='accepted'?'plan_suggestion_accepted':'plan_suggestion_declined',source:'student',content:{suggestion_id:suggestion.id,comment:suggestion.comment}});
+      return json({ok:true,currentPlan:decision==='accepted'?suggestion.proposed_plan:null});
+    }
     if(action==='event'){
       const allowed=['division_selected','profile_updated','interest_selected','observation_entered','question_shown','answer_submitted','topics_recommended','topic_selected','topic_rejected','source_opened','plan_created'];
       if(!allowed.includes(body.eventType))return json({error:'不允許的紀錄類型'},400);

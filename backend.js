@@ -5,5 +5,7 @@
   async function track(eventType,content={},extra={}){try{return await call({action:'event',eventType,content,...extra})}catch(error){console.warn(error.message);return null}}
   async function recommend(profile,answers=[]){if(!enabled())throw new Error('尚未連接班級後端');const response=await fetch(`${cfg.supabaseUrl}/functions/v1/recommend-topics`,{method:'POST',headers:{'Content-Type':'application/json','apikey':cfg.supabaseAnonKey,'x-student-token':localStorage.getItem(tokenKey)},body:JSON.stringify({profile,answers})});const data=await response.json();if(!response.ok)throw new Error(data.error||'動態推薦失敗');return data.result}
   async function reviewExperiment(payload){if(!enabled())return null;const response=await fetch(`${cfg.supabaseUrl}/functions/v1/experiment-review`,{method:'POST',headers:{'Content-Type':'application/json','apikey':cfg.supabaseAnonKey,'x-student-token':localStorage.getItem(tokenKey)},body:JSON.stringify(payload)});const data=await response.json();if(!response.ok)throw new Error(data.error||'實驗紀錄分析失敗');return data}
-  window.ScienceFairBackend={enabled,track,recommend,reviewExperiment,get:()=>call({action:'get'}),setToken:token=>localStorage.setItem(tokenKey,token),clear:()=>localStorage.removeItem(tokenKey)};
+  async function savePlan(plan){return call({action:'save_plan',plan})}
+  async function decideSuggestion(suggestionId,decision){return call({action:'decide_plan_suggestion',suggestionId,decision})}
+  window.ScienceFairBackend={enabled,track,recommend,reviewExperiment,savePlan,decideSuggestion,get:()=>call({action:'get'}),setToken:token=>localStorage.setItem(tokenKey,token),clear:()=>localStorage.removeItem(tokenKey)};
 })();
