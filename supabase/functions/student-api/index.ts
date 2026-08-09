@@ -15,13 +15,14 @@ Deno.serve(async req=>{
     const body=await req.json();const action=body.action;
     if(action==='join'){
       const classCode=String(body.classCode||'').toUpperCase().trim();
+      const loginEmail=String(body.loginEmail||'').trim().toLowerCase();if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(loginEmail))return json({error:'請輸入有效的學生 Email'},400);
       const attemptKey=await sha(`join:${req.headers.get('x-forwarded-for')||'unknown'}:${classCode}`);const since=new Date(Date.now()-15*60*1000).toISOString();const {count}=await db.from('student_login_attempts').select('*',{count:'exact',head:true}).eq('attempt_key',attemptKey).gte('attempted_at',since);if((count||0)>=20)return json({error:'建立次數過多，請15分鐘後再試'},429);await db.from('student_login_attempts').insert({attempt_key:attemptKey});
       const {data:klass}=await db.from('classes').select('id,name').eq('join_code',classCode).maybeSingle();
       if(!klass)return json({error:'班級加入碼不存在'},404);
       let code=identity();let pin=randomFrom('23456789',6);
       for(let tries=0;tries<5;tries++){
-        const {data,error}=await db.from('students').insert({class_id:klass.id,student_code:code,pin_hash:await hashPin(pin)}).select().single();
-        if(!error&&data){const token=crypto.randomUUID()+crypto.randomUUID();await db.from('student_sessions').insert({student_id:data.id,token_hash:await sha(token)});await db.from('thought_events').insert({student_id:data.id,event_type:'joined',content:{class_name:klass.name},source:'system'});return json({student:{...data,pin_hash:undefined,class_name:klass.name},pin,token});}
+        const {data,error}=await db.from('students').insert({class_id:klass.id,student_code:code,login_email:loginEmail,pin_hash:await hashPin(pin)}).select().single();
+        if(!error&&data){const {data:project}=await db.from('research_projects').insert({student_id:data.id,title:'第一個研究歷程'}).select().single();const token=crypto.randomUUID()+crypto.randomUUID();await db.from('student_sessions').insert({student_id:data.id,token_hash:await sha(token)});await db.from('thought_events').insert({student_id:data.id,research_id:project.id,event_type:'joined',content:{class_name:klass.name},source:'system'});return json({student:{...data,pin_hash:undefined,class_name:klass.name},project,pin,token});}
         code=identity();
       }
       return json({error:'暫時無法建立學生代號'},500);
@@ -36,38 +37,39 @@ Deno.serve(async req=>{
       return json({students:data||[]});
     }
     if(action==='resume'){
-      const classCode=String(body.classCode||'').toUpperCase().trim();const studentCode=String(body.studentCode||'').toUpperCase().trim();
-      const attemptKey=await sha(`${req.headers.get('x-forwarded-for')||'unknown'}:${classCode}:${studentCode}`);const since=new Date(Date.now()-15*60*1000).toISOString();
+      const classCode=String(body.classCode||'').toUpperCase().trim();const studentCode=String(body.studentCode||'').toUpperCase().trim();const loginEmail=String(body.loginEmail||'').trim().toLowerCase();
+      const attemptKey=await sha(`${req.headers.get('x-forwarded-for')||'unknown'}:${classCode}:${loginEmail||studentCode}`);const since=new Date(Date.now()-15*60*1000).toISOString();
       const {count}=await db.from('student_login_attempts').select('*',{count:'exact',head:true}).eq('attempt_key',attemptKey).gte('attempted_at',since);if((count||0)>=10)return json({error:'嘗試次數過多，請15分鐘後再試'},429);
-      const {data}=await db.from('students').select('*,classes!inner(name,join_code)').eq('student_code',studentCode).eq('classes.join_code',classCode).maybeSingle();
+      let query=db.from('students').select('*,classes!inner(name,join_code)').eq('classes.join_code',classCode);query=studentCode?query.eq('student_code',studentCode):query.eq('login_email',loginEmail);const {data}=await query.maybeSingle();
       if(!data||!await verifyPin(String(body.pin||''),data.pin_hash)){await db.from('student_login_attempts').insert({attempt_key:attemptKey});return json({error:'代號或PIN不正確'},401);}
       if(new Date(data.delete_after)<=new Date())return json({error:'紀錄已到期'},410);
-      const token=crypto.randomUUID()+crypto.randomUUID();await db.from('student_sessions').insert({student_id:data.id,token_hash:await sha(token)});delete data.pin_hash;return json({student:data,token});
+      if(studentCode&&loginEmail&&!data.login_email){const {error}=await db.from('students').update({login_email:loginEmail}).eq('id',data.id);if(error)return json({error:'這個 Email 已被使用'},409);data.login_email=loginEmail;}const token=crypto.randomUUID()+crypto.randomUUID();await db.from('student_sessions').insert({student_id:data.id,token_hash:await sha(token)});delete data.pin_hash;return json({student:data,token});
     }
     const student:any=await sessionStudent(req);if(!student)return json({error:'學生登入已失效'},401);
-    if(action==='get'){const [{data:events},{data:experimentRecords},{data:researchPlan},{data:planSuggestions}]=await Promise.all([db.from('thought_events').select('*').eq('student_id',student.id).order('created_at'),db.from('experiment_records').select('id,record_kind,method,result,file_name,mime_type,ai_review,created_at').eq('student_id',student.id).order('created_at'),db.from('research_plans').select('*').eq('student_id',student.id).maybeSingle(),db.from('research_plan_suggestions').select('id,comment,proposed_plan,status,created_at,decided_at').eq('student_id',student.id).order('created_at',{ascending:false})]);delete student.pin_hash;return json({student,events,experimentRecords,researchPlan,planSuggestions,status:new Date(student.active_until)<=new Date()?'read_only':'active'});}
+    if(action==='get'){const {data:projects}=await db.from('research_projects').select('*').eq('student_id',student.id).order('created_at',{ascending:false});const researchId=String(body.researchId||projects?.[0]?.id||'');const [{data:events},{data:experimentRecords},{data:researchPlan},{data:planSuggestions}]=await Promise.all([db.from('thought_events').select('*').eq('student_id',student.id).eq('research_id',researchId).order('created_at'),db.from('experiment_records').select('id,research_id,record_kind,method,result,file_name,mime_type,ai_review,created_at').eq('student_id',student.id).eq('research_id',researchId).order('created_at'),db.from('research_plans').select('*').eq('student_id',student.id).eq('research_id',researchId).maybeSingle(),db.from('research_plan_suggestions').select('id,research_id,comment,proposed_plan,status,created_at,decided_at').eq('student_id',student.id).eq('research_id',researchId).order('created_at',{ascending:false})]);delete student.pin_hash;return json({student,projects,currentProject:projects?.find((p:any)=>p.id===researchId)||null,events,experimentRecords,researchPlan,planSuggestions,status:new Date(student.active_until)<=new Date()?'read_only':'active'});}
     if(new Date(student.active_until)<=new Date())return json({error:'紀錄已進入唯讀期'},423);
+    if(action==='create_project'){const title=String(body.title||'新研究歷程').trim().slice(0,200)||'新研究歷程';const {data:project,error}=await db.from('research_projects').insert({student_id:student.id,title}).select().single();if(error)throw error;return json({project});}
     if(action==='save_plan'){
-      const plan=body.plan;if(!plan||JSON.stringify(plan).length>30000)return json({error:'研究架構內容不正確'},400);
-      const {data:existing}=await db.from('research_plans').select('student_id').eq('student_id',student.id).maybeSingle();
-      if(!existing){const {error}=await db.from('research_plans').insert({student_id:student.id,system_plan:plan,current_plan:plan});if(error)throw error;await db.from('thought_events').insert({student_id:student.id,event_type:'plan_created',source:'system',content:{plan}});}
+      const plan=body.plan,researchId=String(body.researchId||'');if(!plan||!researchId||JSON.stringify(plan).length>30000)return json({error:'研究架構內容不正確'},400);
+      const {data:project}=await db.from('research_projects').select('id').eq('id',researchId).eq('student_id',student.id).maybeSingle();if(!project)return json({error:'找不到研究歷程'},404);const {data:existing}=await db.from('research_plans').select('research_id').eq('research_id',researchId).maybeSingle();
+      if(!existing){const {error}=await db.from('research_plans').insert({student_id:student.id,research_id:researchId,system_plan:plan,current_plan:plan});if(error)throw error;await db.from('thought_events').insert({student_id:student.id,research_id:researchId,event_type:'plan_created',source:'system',content:{plan}});}
       return json({ok:true});
     }
     if(action==='decide_plan_suggestion'){
       const decision=body.decision==='accept'?'accepted':body.decision==='decline'?'declined':'';if(!decision)return json({error:'決定不正確'},400);
       const {data:suggestion}=await db.from('research_plan_suggestions').select('*').eq('id',body.suggestionId).eq('student_id',student.id).eq('status','pending').maybeSingle();if(!suggestion)return json({error:'找不到待處理的教師建議'},404);
-      if(decision==='accepted'){const {data:plan}=await db.from('research_plans').select('revision').eq('student_id',student.id).single();await db.from('research_plans').update({current_plan:suggestion.proposed_plan,revision:(plan?.revision||1)+1,updated_at:new Date().toISOString()}).eq('student_id',student.id);}
+      if(decision==='accepted'){const {data:plan}=await db.from('research_plans').select('revision').eq('research_id',suggestion.research_id).single();await db.from('research_plans').update({current_plan:suggestion.proposed_plan,revision:(plan?.revision||1)+1,updated_at:new Date().toISOString()}).eq('research_id',suggestion.research_id);}
       await db.from('research_plan_suggestions').update({status:decision,decided_at:new Date().toISOString()}).eq('id',suggestion.id);
-      await db.from('thought_events').insert({student_id:student.id,event_type:decision==='accepted'?'plan_suggestion_accepted':'plan_suggestion_declined',source:'student',content:{suggestion_id:suggestion.id,comment:suggestion.comment}});
+      await db.from('thought_events').insert({student_id:student.id,research_id:suggestion.research_id,event_type:decision==='accepted'?'plan_suggestion_accepted':'plan_suggestion_declined',source:'student',content:{suggestion_id:suggestion.id,comment:suggestion.comment}});
       return json({ok:true,currentPlan:decision==='accepted'?suggestion.proposed_plan:null});
     }
     if(action==='event'){
-      const allowed=['division_selected','profile_updated','interest_selected','observation_entered','question_shown','answer_submitted','topics_recommended','topic_selected','topic_rejected','source_opened','plan_created','reflection_added'];
+      const allowed=['division_selected','profile_updated','interest_selected','observation_entered','question_shown','answer_submitted','topics_recommended','topic_selected','topic_rejected','source_opened','plan_created','reflection_added'];const researchId=String(body.researchId||'');const {data:project}=await db.from('research_projects').select('id').eq('id',researchId).eq('student_id',student.id).maybeSingle();if(!project)return json({error:'找不到研究歷程'},404);
       if(!allowed.includes(body.eventType))return json({error:'不允許的紀錄類型'},400);
       if(JSON.stringify(body).length>20000)return json({error:'單次紀錄內容過長'},413);
-      const {error}=await db.from('thought_events').insert({student_id:student.id,event_type:body.eventType,content:body.content||{},source:body.source==='system'?'system':'student'});if(error)throw error;
-      if(body.profile)await db.from('students').update({profile:body.profile}).eq('id',student.id);
-      if(body.selectedTopic)await db.from('students').update({selected_topic:body.selectedTopic}).eq('id',student.id);
+      const {error}=await db.from('thought_events').insert({student_id:student.id,research_id:researchId,event_type:body.eventType,content:body.content||{},source:body.source==='system'?'system':'student'});if(error)throw error;
+      if(body.profile){await db.from('students').update({profile:body.profile}).eq('id',student.id);await db.from('research_projects').update({profile:body.profile,updated_at:new Date().toISOString()}).eq('id',researchId);}
+      if(body.selectedTopic){await db.from('students').update({selected_topic:body.selectedTopic}).eq('id',student.id);await db.from('research_projects').update({selected_topic:body.selectedTopic,title:String(body.selectedTopic.title||'研究歷程').slice(0,200),updated_at:new Date().toISOString()}).eq('id',researchId);}
       return json({ok:true});
     }
     return json({error:'未知操作'},400);
