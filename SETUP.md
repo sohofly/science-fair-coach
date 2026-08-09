@@ -30,6 +30,7 @@ supabase db push
 
 ```sh
 supabase functions deploy student-api --no-verify-jwt
+supabase functions deploy teacher-student-account --no-verify-jwt
 supabase functions deploy recommend-topics --no-verify-jwt
 supabase functions deploy purge-expired --no-verify-jwt
 ```
@@ -63,11 +64,10 @@ window.SFC_CONFIG={
 - 366–395天：後端強制唯讀，教師可下載JSON、CSV或列印PDF。
 - 第395天：每日排程永久刪除學生、歷程、工作階段及AI用量。
 - 教師可在到期前提前永久刪除。
-- 學生代號不包含姓名；PIN只保存PBKDF2雜湊。
+- 學生密碼只保存PBKDF2雜湊，任何人（包括教師）都無法讀取原密碼；教師只能設定新密碼。
 
 ## AI費用控制
 
 - 每位學生每天最多5次動態問答／推薦。
 - 只有動態模式呼叫OpenAI API與Web Search；備援題庫不產生API費用。
 - Responses API的Web Search會產生模型與工具呼叫費用，應在OpenAI Platform設定專案預算與警示。
-
