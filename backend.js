@@ -1,5 +1,6 @@
 (function(){
   const cfg=window.SFC_CONFIG||{};const tokenKey='sfcStudentToken',researchKey='sfcResearchId';
+  const authClient=cfg.supabaseUrl&&cfg.supabaseAnonKey&&window.supabase?supabase.createClient(cfg.supabaseUrl,cfg.supabaseAnonKey):null;
   const enabled=()=>Boolean(cfg.supabaseUrl&&cfg.supabaseAnonKey&&localStorage.getItem(tokenKey));
   async function call(body){if(!enabled())return null;const response=await fetch(`${cfg.supabaseUrl}/functions/v1/student-api`,{method:'POST',headers:{'Content-Type':'application/json','apikey':cfg.supabaseAnonKey,'x-student-token':localStorage.getItem(tokenKey)},body:JSON.stringify(body)});if(!response.ok)throw new Error((await response.json()).error||'後端同步失敗');return response.json()}
   const researchId=()=>localStorage.getItem(researchKey)||'';const setResearchId=id=>id?localStorage.setItem(researchKey,id):localStorage.removeItem(researchKey);
@@ -10,5 +11,6 @@
   async function decideSuggestion(suggestionId,decision){return call({action:'decide_plan_suggestion',suggestionId,decision})}
   async function saveReflection(reflection){return call({action:'event',researchId:researchId(),eventType:'reflection_added',content:reflection})}
   async function createProject(title){const data=await call({action:'create_project',title});setResearchId(data.project.id);return data.project}
-  window.ScienceFairBackend={enabled,track,recommend,reviewExperiment,savePlan,decideSuggestion,saveReflection,createProject,get:(id=researchId())=>call({action:'get',researchId:id}),setResearchId,researchId,setToken:token=>localStorage.setItem(tokenKey,token),clear:()=>{localStorage.removeItem(tokenKey);localStorage.removeItem(researchKey)}};
+  async function teacher(){if(!authClient)return null;const {data}=await authClient.auth.getSession();return data.session?.user||null}
+  window.ScienceFairBackend={enabled,teacher,track,recommend,reviewExperiment,savePlan,decideSuggestion,saveReflection,createProject,get:(id=researchId())=>call({action:'get',researchId:id}),setResearchId,researchId,setToken:token=>localStorage.setItem(tokenKey,token),clear:()=>{localStorage.removeItem(tokenKey);localStorage.removeItem(researchKey)}};
 })();
