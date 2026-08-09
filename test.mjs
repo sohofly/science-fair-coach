@@ -53,8 +53,8 @@ document.querySelector('#record-result').value='平均彎曲角度分別是 10�
 click('[data-record-submit]');await new Promise(resolve=>setTimeout(resolve,0));
 assert.match(document.querySelector('#app').textContent,/教練回覆/);
 click('[data-go="plan"]');
-click('[data-action="teacher"]');
-assert.match(document.querySelector('#app').textContent,/教師確認清單/);
+assert.doesNotMatch(document.querySelector('#app').textContent,/開啟教師檢視/);
+assert.equal(document.querySelector('[data-action="teacher"]').hidden,true);
 assert.equal(JSON.parse(dom.window.localStorage.getItem('scienceFairCoachV1')).topicId,'b1');
 assert.equal(JSON.parse(dom.window.localStorage.getItem('scienceFairCoachV1')).budget,'10,000 元');
 assert.match(document.querySelector('#current-user').textContent,/未登入/);
@@ -64,8 +64,6 @@ document.querySelector('[name="learned"]').value='我學會了每次實驗只能
 document.querySelector('[name="difficult"]').value='控制每一盆植物的水量完全相同很困難';
 document.querySelector('#reflection-form').requestSubmit();await new Promise(resolve=>setTimeout(resolve,0));
 assert.match(document.querySelector('#app').textContent,/每次實驗只能改變一個條件/);
-click('[data-action="teacher"]');
-assert.match(document.querySelector('#app').textContent,/學生心得歷程（1 筆）/);
 assert.match(document.querySelector('#app').textContent,/控制每一盆植物的水量/);
 click('[data-action="reset"]');
 click('[data-go="division"]');
@@ -82,7 +80,7 @@ const recommendation=document.querySelector('#app').textContent;
 assert.match(recommendation,/校園植物葉序與遮蔽率的數學模型/);
 assert.match(recommendation,/生物科更合適/);
 assert.match(recommendation,/向日葵的生長密碼/);
-console.log('✓ 選題流程、教師檢視、本機儲存、科別＋興趣交集與歷屆作品皆通過');
+console.log('✓ 選題流程、學生端角色隔離、本機儲存、科別＋興趣交集與歷屆作品皆通過');
 
 const portalHtml=fs.readFileSync('portal.html','utf8').replace(/<script[^>]*><\/script>/g,'');
 const portalDom=new JSDOM(portalHtml,{url:'https://example.test/portal.html',runScripts:'dangerously'});
