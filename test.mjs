@@ -110,6 +110,8 @@ assert.match(portalJs,/學生的原始想法/);assert.match(portalJs,/教師或�
 assert.match(portalJs,/學生心得歷程/);
 assert.match(portalJs,/帳號管理/);assert.match(portalJs,/不可查看（已加密保存）/);assert.match(portalJs,/teacher-student-account/);
 assert.match(portalJs,/新增學生帳密/);assert.match(fs.readFileSync('supabase/functions/teacher-student-account/index.ts','utf8'),/create_student_account/);
+assert.match(portalJs,/AI 修改建議/);assert.match(portalJs,/尚未寫入資料庫/);assert.match(fs.readFileSync('portal.css','utf8'),/teacher-plan \.portal-form textarea/);
+const teacherAccountFunction=fs.readFileSync('supabase/functions/teacher-student-account/index.ts','utf8');assert.match(teacherAccountFunction,/ai_plan_suggestion/);assert.match(teacherAccountFunction,/OPENAI_API_KEY/);assert.match(teacherAccountFunction,/teacher_plan_suggestion/);
 assert.match(portalJs,/教師個別回饋|一般教師留言/);
 assert.match(portalJs,/chooseResearch/);
 assert.match(portalJs,/research_projects/);
