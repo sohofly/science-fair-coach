@@ -62,7 +62,7 @@ Deno.serve(async req=>{
       return json({ok:true,currentPlan:decision==='accepted'?suggestion.proposed_plan:null});
     }
     if(action==='event'){
-      const allowed=['division_selected','profile_updated','interest_selected','observation_entered','question_shown','answer_submitted','topics_recommended','topic_selected','topic_rejected','source_opened','plan_created'];
+      const allowed=['division_selected','profile_updated','interest_selected','observation_entered','question_shown','answer_submitted','topics_recommended','topic_selected','topic_rejected','source_opened','plan_created','reflection_added'];
       if(!allowed.includes(body.eventType))return json({error:'不允許的紀錄類型'},400);
       if(JSON.stringify(body).length>20000)return json({error:'單次紀錄內容過長'},413);
       const {error}=await db.from('thought_events').insert({student_id:student.id,event_type:body.eventType,content:body.content||{},source:body.source==='system'?'system':'student'});if(error)throw error;

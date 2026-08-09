@@ -1,0 +1,11 @@
+.brand-wrap { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+.current-user { color: var(--muted); font-size: 14px; font-weight: 800; }
+.top-actions { flex-wrap: wrap; justify-content: flex-end; }
+.reflection-form { display: grid; gap: 16px; margin-top: 22px; }
+.reflection-form input,
+.reflection-form textarea { width: 100%; border: 2px solid var(--line); border-radius: 15px; background: #fff; color: var(--ink); padding: 13px; }
+.reflection-form textarea { min-height: 120px; resize: vertical; }
+.reflection-card { background: #fff; border: 2px solid var(--line); border-left: 7px solid var(--mint); border-radius: 18px; padding: 18px; margin: 14px 0; }
+.reflection-card time { color: var(--muted); font-weight: 800; }
+.reflection-card p { white-space: pre-wrap; }
+@media (max-width: 700px) { .brand-wrap { max-width: 48%; } }

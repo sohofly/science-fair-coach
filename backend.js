@@ -7,5 +7,6 @@
   async function reviewExperiment(payload){if(!enabled())return null;const response=await fetch(`${cfg.supabaseUrl}/functions/v1/experiment-review`,{method:'POST',headers:{'Content-Type':'application/json','apikey':cfg.supabaseAnonKey,'x-student-token':localStorage.getItem(tokenKey)},body:JSON.stringify(payload)});const data=await response.json();if(!response.ok)throw new Error(data.error||'實驗紀錄分析失敗');return data}
   async function savePlan(plan){return call({action:'save_plan',plan})}
   async function decideSuggestion(suggestionId,decision){return call({action:'decide_plan_suggestion',suggestionId,decision})}
-  window.ScienceFairBackend={enabled,track,recommend,reviewExperiment,savePlan,decideSuggestion,get:()=>call({action:'get'}),setToken:token=>localStorage.setItem(tokenKey,token),clear:()=>localStorage.removeItem(tokenKey)};
+  async function saveReflection(reflection){return call({action:'event',eventType:'reflection_added',content:reflection})}
+  window.ScienceFairBackend={enabled,track,recommend,reviewExperiment,savePlan,decideSuggestion,saveReflection,get:()=>call({action:'get'}),setToken:token=>localStorage.setItem(tokenKey,token),clear:()=>localStorage.removeItem(tokenKey)};
 })();
