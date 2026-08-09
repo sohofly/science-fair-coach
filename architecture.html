@@ -1,68 +1,92 @@
 <!doctype html>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>科展小助手｜系統架構圖</title>
+<title>科展小助手｜登入角色與心得歷程架構確認圖</title>
 <style>
-  :root{color-scheme:light dark;--bg:#f8fafc;--fg:#172033;--muted:#5b6475;--line:#64748b;--input:#bfdbfe;--process:#c7d2fe;--storage:#99f6e4;--external:#fde68a;--neutral:#e2e8f0;--risk:#fecaca}
-  @media(prefers-color-scheme:dark){:root{--bg:#0f172a;--fg:#e5e7eb;--muted:#a3adbd;--line:#94a3b8;--input:#1d4ed8;--process:#4338ca;--storage:#0f766e;--external:#92400e;--neutral:#334155;--risk:#991b1b}}
+  :root{color-scheme:light dark;--bg:#f8fafc;--fg:#172033;--muted:#5b6475;--line:#64748b;--neutral:#e2e8f0;--input:#bfdbfe;--process:#c7d2fe;--storage:#99f6e4;--external:#fde68a;--risk:#fecaca;--ok:#dcfce7}
+  @media(prefers-color-scheme:dark){:root{--bg:#0f172a;--fg:#e5e7eb;--muted:#a3adbd;--line:#94a3b8;--neutral:#334155;--input:#1d4ed8;--process:#4338ca;--storage:#0f766e;--external:#92400e;--risk:#991b1b;--ok:#166534}}
   body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.45 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
-  main{max-width:1280px;margin:28px auto;padding:0 20px 36px}h1{margin:0 0 6px;font-size:24px}.intro{margin:0 0 20px;color:var(--muted)}svg{width:100%;height:auto;display:block}.title{font-size:18px;font-weight:700;fill:var(--fg)}.zone-title{font-size:15px;font-weight:700;fill:var(--fg)}.label{font-size:14px;font-weight:700;fill:var(--fg)}.small{font-size:12px;fill:var(--muted)}.tiny{font-size:11px;fill:var(--muted)}.node{stroke:var(--line);stroke-width:1}.input{fill:var(--input)}.process{fill:var(--process)}.storage{fill:var(--storage)}.external{fill:var(--external)}.neutral{fill:var(--neutral)}.risk{fill:var(--risk)}.zone{fill:none;stroke:var(--line);stroke-width:1;stroke-dasharray:7 5}.edge{stroke:var(--line);stroke-width:1.6;fill:none}.edge-dash{stroke:var(--line);stroke-width:1.4;fill:none;stroke-dasharray:6 5}.edge-label{font-size:11px;fill:var(--muted)}
-  .notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin-top:20px}.notes section{border:1px solid var(--line);border-radius:12px;padding:14px;background:color-mix(in srgb,var(--neutral) 45%,transparent)}.notes h2{font-size:15px;margin:0 0 6px}.notes p{margin:0;color:var(--muted)}
+  main{max-width:1240px;margin:28px auto;padding:0 20px 36px}h1{margin:0 0 6px;font-size:24px}.intro{margin:0 0 20px;color:var(--muted)}svg{width:100%;height:auto;display:block}.zone-title{font-size:17px;font-weight:700;fill:var(--fg)}.label{font-size:14px;font-weight:700;fill:var(--fg)}.small{font-size:12px;fill:var(--muted)}.node{stroke:var(--line);stroke-width:1}.neutral{fill:var(--neutral)}.input{fill:var(--input)}.process{fill:var(--process)}.storage{fill:var(--storage)}.external{fill:var(--external)}.risk{fill:var(--risk)}.ok{fill:var(--ok)}.zone{fill:none;stroke:var(--line);stroke-width:1;stroke-dasharray:7 5}.edge{stroke:var(--line);stroke-width:1.6;fill:none}.edge-dash{stroke:var(--line);stroke-width:1.4;fill:none;stroke-dasharray:6 5}.edge-label{font-size:11px;fill:var(--muted)}
+  .rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-top:18px}.rules section{border:1px solid var(--line);border-radius:12px;padding:14px;background:color-mix(in srgb,var(--neutral) 45%,transparent)}.rules h2{font-size:15px;margin:0 0 6px}.rules p{margin:0;color:var(--muted)}
 </style>
 <main>
-  <h1>科展小助手：現行系統架構</h1>
-  <p class="intro">依據目前程式碼整理｜靜態前端、Supabase 後端、OpenAI 選用服務｜2026-07-20</p>
-  <svg viewBox="0 0 1240 850" role="img" aria-labelledby="diagram-title diagram-desc">
-    <title id="diagram-title">科展小助手網站系統架構圖</title>
-    <desc id="diagram-desc">學生與教師透過 GitHub Pages 前端使用 Supabase 驗證、Edge Functions、Postgres 與私有檔案儲存，部分分析由 OpenAI Responses API 處理。</desc>
+  <h1>科展小助手：登入角色與心得歷程架構</h1>
+  <p class="intro">修改前確認稿｜此圖只定義畫面顯示、角色權限與操作流程，尚未修改正式程式。</p>
+  <svg viewBox="0 0 1200 900" role="img" aria-labelledby="title desc">
+    <title id="title">未登入、學生登入與教師登入三種角色的畫面及心得歷程流程</title>
+    <desc id="desc">所有畫面左上角顯示登入電子郵件或未登入。只有學生登入後能繼續上次計畫及填寫心得，教師登入後可選學生查看個別心得。</desc>
     <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--line)"/></marker></defs>
 
-    <!-- zones -->
-    <rect class="zone" x="20" y="58" width="180" height="708" rx="16"/><text class="zone-title" x="40" y="88">使用者</text>
-    <rect class="zone" x="224" y="58" width="332" height="708" rx="16"/><text class="zone-title" x="244" y="88">GitHub Pages｜瀏覽器端</text>
-    <rect class="zone" x="580" y="58" width="430" height="708" rx="16"/><text class="zone-title" x="600" y="88">Supabase｜正式後端</text>
-    <rect class="zone" x="1034" y="58" width="186" height="708" rx="16"/><text class="zone-title" x="1054" y="88">外部服務</text>
+    <rect class="zone" x="20" y="50" width="1160" height="190" rx="16"/>
+    <text class="zone-title" x="42" y="80">共用頁首規則</text>
+    <rect class="node neutral" x="54" y="105" width="260" height="92" rx="14"/>
+    <text class="label" x="184" y="137" text-anchor="middle">科展小助手（身分文字）</text>
+    <text class="small" x="184" y="163" text-anchor="middle">已登入：顯示登入 Email</text>
+    <text class="small" x="184" y="181" text-anchor="middle">未登入：顯示「未登入」</text>
+    <rect class="node risk" x="468" y="105" width="260" height="92" rx="14"/>
+    <text class="label" x="598" y="137" text-anchor="middle">禁止顯示</text>
+    <text class="small" x="598" y="163" text-anchor="middle">本機使用者／訪客／裝置名稱</text>
+    <rect class="node process" x="882" y="105" width="260" height="92" rx="14"/>
+    <text class="label" x="1012" y="137" text-anchor="middle">依登入角色切換功能</text>
+    <text class="small" x="1012" y="163" text-anchor="middle">未登入／學生／教師各自顯示</text>
+    <path class="edge" marker-end="url(#arrow)" d="M314 151H468"/>
+    <path class="edge" marker-end="url(#arrow)" d="M728 151H882"/>
 
-    <!-- connectors behind nodes -->
-    <path class="edge" marker-end="url(#arrow)" d="M170 176H262"/><path class="edge" marker-end="url(#arrow)" d="M170 382H262"/>
-    <path class="edge" marker-end="url(#arrow)" d="M508 176H618"/><path class="edge" marker-end="url(#arrow)" d="M508 382H618"/>
-    <path class="edge" marker-end="url(#arrow)" d="M760 176V274"/><path class="edge" marker-end="url(#arrow)" d="M760 382V274"/>
-    <path class="edge" marker-end="url(#arrow)" d="M760 360V476"/><path class="edge" marker-end="url(#arrow)" d="M824 360L858 476"/>
-    <path class="edge" marker-end="url(#arrow)" d="M684 360L666 608"/><path class="edge" marker-end="url(#arrow)" d="M906 360L924 608"/>
-    <path class="edge" marker-end="url(#arrow)" d="M964 306H1064"/>
-    <path class="edge-dash" marker-end="url(#arrow)" d="M1064 540H964V338"/>
-    <path class="edge" marker-end="url(#arrow)" d="M812 690H858"/>
-    <path class="edge-dash" marker-end="url(#arrow)" d="M744 690H704"/>
-    <text class="edge-label" x="177" y="166">操作</text><text class="edge-label" x="177" y="372">管理</text>
-    <text class="edge-label" x="522" y="166">學生 token</text><text class="edge-label" x="519" y="372">Google JWT / RLS</text>
-    <text class="edge-label" x="974" y="296">AI 請求</text><text class="edge-label" x="973" y="529">排程密鑰</text>
+    <rect class="zone" x="20" y="270" width="360" height="560" rx="16"/>
+    <text class="zone-title" x="42" y="302">未登入</text>
+    <rect class="node neutral" x="54" y="330" width="292" height="86" rx="14"/>
+    <text class="label" x="200" y="362" text-anchor="middle">頁首：科展小助手（未登入）</text>
+    <text class="small" x="200" y="388" text-anchor="middle">提供「登入／班級入口」</text>
+    <rect class="node risk" x="54" y="478" width="292" height="112" rx="14"/>
+    <text class="label" x="200" y="511" text-anchor="middle">不顯示學生專屬功能</text>
+    <text class="small" x="200" y="539" text-anchor="middle">不顯示「繼續上次計畫」</text>
+    <text class="small" x="200" y="559" text-anchor="middle">不顯示「心得歷程」填寫入口</text>
+    <path class="edge" marker-end="url(#arrow)" d="M200 416V478"/>
 
-    <!-- users -->
-    <rect class="node input" x="48" y="124" width="122" height="104" rx="14"/><text class="label" x="109" y="157" text-anchor="middle">學生</text><text class="small" x="109" y="181" text-anchor="middle">班級加入碼</text><text class="small" x="109" y="199" text-anchor="middle">代號下拉＋PIN</text>
-    <rect class="node input" x="48" y="330" width="122" height="104" rx="14"/><text class="label" x="109" y="363" text-anchor="middle">教師</text><text class="small" x="109" y="387" text-anchor="middle">Google 登入</text><text class="small" x="109" y="405" text-anchor="middle">班級與歷程管理</text>
+    <rect class="zone" x="420" y="270" width="360" height="560" rx="16"/>
+    <text class="zone-title" x="442" y="302">學生已登入</text>
+    <rect class="node input" x="454" y="330" width="292" height="86" rx="14"/>
+    <text class="label" x="600" y="362" text-anchor="middle">頁首：科展小助手（學生 Email）</text>
+    <text class="small" x="600" y="388" text-anchor="middle">確認為學生 session 後顯示專屬按鈕</text>
+    <rect class="node process" x="454" y="458" width="132" height="86" rx="14"/>
+    <text class="label" x="520" y="490" text-anchor="middle">繼續上次計畫</text>
+    <text class="small" x="520" y="516" text-anchor="middle">僅學生登入可見</text>
+    <rect class="node process" x="614" y="458" width="132" height="86" rx="14"/>
+    <text class="label" x="680" y="490" text-anchor="middle">心得歷程</text>
+    <text class="small" x="680" y="516" text-anchor="middle">開啟填寫表格</text>
+    <rect class="node external" x="454" y="600" width="292" height="144" rx="14"/>
+    <text class="label" x="600" y="632" text-anchor="middle">學生心得填寫表格</text>
+    <text class="small" x="600" y="660" text-anchor="middle">日期：系統自動帶入（唯讀）</text>
+    <text class="small" x="600" y="682" text-anchor="middle">我學到了什麼：多行文字欄位</text>
+    <text class="small" x="600" y="704" text-anchor="middle">我覺得困難的地方：多行文字欄位</text>
+    <text class="small" x="600" y="726" text-anchor="middle">儲存心得</text>
+    <path class="edge" marker-end="url(#arrow)" d="M600 416V438H520V458"/>
+    <path class="edge" marker-end="url(#arrow)" d="M600 416V438H680V458"/>
+    <path class="edge" marker-end="url(#arrow)" d="M680 544V600"/>
 
-    <!-- frontend -->
-    <rect class="node process" x="262" y="112" width="246" height="128" rx="14"/><text class="label" x="385" y="143" text-anchor="middle">學生單頁應用</text><text class="small" x="385" y="167" text-anchor="middle">index.html＋app.js＋backend.js</text><text class="small" x="385" y="187" text-anchor="middle">選科 → 條件 → 2–3 輪對談</text><text class="small" x="385" y="205" text-anchor="middle">備援題目 → 研究架構 → 實驗紀錄</text><text class="tiny" x="385" y="223" text-anchor="middle">localStorage 提供本機試用與進度快取</text>
-    <rect class="node process" x="262" y="318" width="246" height="128" rx="14"/><text class="label" x="385" y="349" text-anchor="middle">教師入口／控制台</text><text class="small" x="385" y="373" text-anchor="middle">portal.html＋portal.js</text><text class="small" x="385" y="393" text-anchor="middle">建立班級、學生清單、思考歷程</text><text class="small" x="385" y="411" text-anchor="middle">研究架構建議、匯出與刪除</text><text class="tiny" x="385" y="429" text-anchor="middle">Supabase JS SDK 直接存取受 RLS 保護資料</text>
-    <rect class="node neutral" x="262" y="550" width="246" height="118" rx="14"/><text class="label" x="385" y="581" text-anchor="middle">前端內建領域知識</text><text class="small" x="385" y="605" text-anchor="middle">8 個科別＋人工整理備援題庫</text><text class="small" x="385" y="625" text-anchor="middle">排序、安全提醒、歷屆作品連結</text><text class="small" x="385" y="645" text-anchor="middle">系統研究架構初稿產生器</text>
+    <rect class="zone" x="820" y="270" width="360" height="560" rx="16"/>
+    <text class="zone-title" x="842" y="302">教師已登入</text>
+    <rect class="node input" x="854" y="330" width="292" height="86" rx="14"/>
+    <text class="label" x="1000" y="362" text-anchor="middle">頁首：科展小助手（教師 Email）</text>
+    <text class="small" x="1000" y="388" text-anchor="middle">進入教師檢視／班級管理</text>
+    <rect class="node process" x="854" y="458" width="292" height="86" rx="14"/>
+    <text class="label" x="1000" y="490" text-anchor="middle">先選班級，再選學生</text>
+    <text class="small" x="1000" y="516" text-anchor="middle">學生清單顯示「查看心得」入口</text>
+    <rect class="node storage" x="854" y="600" width="292" height="144" rx="14"/>
+    <text class="label" x="1000" y="632" text-anchor="middle">個別學生心得歷程</text>
+    <text class="small" x="1000" y="660" text-anchor="middle">只顯示目前選取學生</text>
+    <text class="small" x="1000" y="682" text-anchor="middle">依日期排列每筆心得</text>
+    <text class="small" x="1000" y="704" text-anchor="middle">查看：學到什麼＋困難處</text>
+    <text class="small" x="1000" y="726" text-anchor="middle">教師為檢視模式，不代學生填寫</text>
+    <path class="edge" marker-end="url(#arrow)" d="M1000 416V458"/>
+    <path class="edge" marker-end="url(#arrow)" d="M1000 544V600"/>
 
-    <!-- backend functions -->
-    <rect class="node process" x="618" y="112" width="284" height="124" rx="14"/><text class="label" x="760" y="143" text-anchor="middle">Supabase Auth</text><text class="small" x="760" y="167" text-anchor="middle">教師：Google OAuth</text><text class="small" x="760" y="187" text-anchor="middle">學生：自訂 session token</text><text class="small" x="760" y="207" text-anchor="middle">PIN：PBKDF2 雜湊＋登入頻率限制</text>
-    <rect class="node process" x="618" y="274" width="346" height="86" rx="14"/><text class="label" x="791" y="305" text-anchor="middle">Edge Functions API 層</text><text class="small" x="791" y="329" text-anchor="middle">student-api｜recommend-topics｜experiment-review｜purge-expired</text><text class="small" x="791" y="347" text-anchor="middle">權限驗證、唯讀閘門、AI 配額與輸入檢查</text>
-
-    <!-- storage -->
-    <rect class="node storage" x="610" y="476" width="370" height="108" rx="14"/><text class="label" x="795" y="507" text-anchor="middle">PostgreSQL＋RLS</text><text class="small" x="795" y="531" text-anchor="middle">classes｜students｜student_sessions｜thought_events</text><text class="small" x="795" y="551" text-anchor="middle">experiment_records｜research_plans｜plan_suggestions</text><text class="small" x="795" y="569" text-anchor="middle">ai_usage｜login_attempts</text>
-    <rect class="node storage" x="596" y="608" width="216" height="164" rx="14"/><text class="label" x="704" y="639" text-anchor="middle">私有物件儲存</text><text class="small" x="704" y="663" text-anchor="middle">experiment-records bucket</text><text class="small" x="704" y="683" text-anchor="middle">圖片／PDF／CSV／Excel／文字</text><text class="small" x="704" y="703" text-anchor="middle">單檔上限 8 MB</text><text class="tiny" x="704" y="731" text-anchor="middle">資料列刪除時同步清理附件</text>
-    <rect class="node risk" x="858" y="608" width="134" height="164" rx="14"/><text class="label" x="925" y="639" text-anchor="middle">保存政策</text><text class="small" x="925" y="665" text-anchor="middle">0–365 天</text><text class="small" x="925" y="683" text-anchor="middle">可讀寫</text><text class="small" x="925" y="708" text-anchor="middle">366–395 天</text><text class="small" x="925" y="726" text-anchor="middle">唯讀匯出</text><text class="small" x="925" y="751" text-anchor="middle">第 395 天刪除</text>
-
-    <!-- external -->
-    <rect class="node external" x="1064" y="232" width="130" height="148" rx="14"/><text class="label" x="1129" y="263" text-anchor="middle">OpenAI</text><text class="small" x="1129" y="287" text-anchor="middle">Responses API</text><text class="small" x="1129" y="307" text-anchor="middle">實驗／問題回饋</text><text class="small" x="1129" y="327" text-anchor="middle">選用動態推薦</text><text class="small" x="1129" y="347" text-anchor="middle">Web Search 工具</text><text class="tiny" x="1129" y="367" text-anchor="middle">未設定金鑰仍可用備援題庫</text>
-    <rect class="node external" x="1064" y="486" width="130" height="108" rx="14"/><text class="label" x="1129" y="517" text-anchor="middle">排程觸發</text><text class="small" x="1129" y="541" text-anchor="middle">pg_cron 每日執行</text><text class="small" x="1129" y="561" text-anchor="middle">或外部 cron 呼叫</text><text class="small" x="1129" y="579" text-anchor="middle">到期資料清理</text>
+    <rect class="node ok" x="340" y="852" width="520" height="42" rx="12"/>
+    <text class="label" x="600" y="878" text-anchor="middle">心得資料以學生身分綁定；教師只能查看自己班級中所選學生的紀錄</text>
   </svg>
-  <div class="notes">
-    <section><h2>架構型態</h2><p>無獨立傳統伺服器；前端部署於 GitHub Pages，業務 API、驗證、資料庫與檔案全部由 Supabase 承擔。</p></section>
-    <section><h2>狀態設計</h2><p>本機 localStorage 負責即時畫面狀態；登入班級後，重要事件、題目、研究架構與實驗紀錄同步到後端。</p></section>
-    <section><h2>權限邊界</h2><p>教師使用 Supabase Auth＋RLS；學生使用 Edge Function 驗證的自訂 token。service role 與 OpenAI 金鑰只留在函式環境。</p></section>
-    <section><h2>主要風險</h2><p>app.js 與 portal.js 已偏大型單檔；本機與雲端雙狀態可能不同步；附件目前交給 AI 的只有文字與檔名，並未解析檔案內容。</p></section>
+  <div class="rules">
+    <section><h2>身分顯示</h2><p>頁首只接受後端驗證完成的登入 Email。若尚未登入或 session 無效，一律顯示「未登入」。</p></section>
+    <section><h2>學生入口</h2><p>「繼續上次計畫」與心得填寫表格都以學生登入狀態為顯示條件，不再由本機資料決定。</p></section>
+    <section><h2>教師入口</h2><p>教師端不直接混列所有心得；操作順序固定為選班級／學生，再進入該名學生的個別心得歷程。</p></section>
   </div>
 </main>
