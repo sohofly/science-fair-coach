@@ -11,7 +11,7 @@
 </style>
 <main>
   <h1>科展小助手：登入角色與心得歷程架構</h1>
-  <p class="intro">修改前確認稿｜此圖只定義畫面顯示、角色權限與操作流程，尚未修改正式程式。</p>
+  <p class="intro">修改前確認稿｜新增登入與心得功能時，必須完整保留原有選題、研究、教師回饋與匯出功能；尚未修改正式程式。</p>
   <svg viewBox="0 0 1200 900" role="img" aria-labelledby="title desc">
     <title id="title">未登入、學生登入與教師登入三種角色的畫面及心得歷程流程</title>
     <desc id="desc">所有畫面左上角顯示登入電子郵件或未登入。只有學生登入後能繼續上次計畫及填寫心得，教師登入後可選學生查看個別心得。</desc>
@@ -84,9 +84,75 @@
     <rect class="node ok" x="340" y="852" width="520" height="42" rx="12"/>
     <text class="label" x="600" y="878" text-anchor="middle">心得資料以學生身分綁定；教師只能查看自己班級中所選學生的紀錄</text>
   </svg>
+  <h2>完整功能保留與研究歷程流程</h2>
+  <p class="intro">下列功能是後續修正的驗收範圍；新增功能只能擴充，不可刪除或取代既有流程。</p>
+  <svg viewBox="0 0 1200 690" role="img" aria-labelledby="preserved-title preserved-desc">
+    <title id="preserved-title">科展小助手必須保留的學生與教師完整功能</title>
+    <desc id="preserved-desc">學生可以開始新研究歷程、繼續既有研究、選題、建立研究架構、記錄實驗及心得。教師選擇個別學生後，可以查看歷程、留言、提出研究架構修改建議及匯出資料。每次研究分開保存，舊資料不被覆蓋。</desc>
+
+    <rect class="zone" x="20" y="42" width="1160" height="250" rx="16"/>
+    <text class="zone-title" x="42" y="74">學生已登入｜原有研究流程全部保留</text>
+    <path class="edge" marker-end="url(#arrow)" d="M238 158H278"/>
+    <path class="edge" marker-end="url(#arrow)" d="M458 158H498"/>
+    <path class="edge" marker-end="url(#arrow)" d="M678 158H718"/>
+    <path class="edge" marker-end="url(#arrow)" d="M898 158H938"/>
+    <rect class="node input" x="58" y="108" width="180" height="100" rx="14"/>
+    <text class="label" x="148" y="140" text-anchor="middle">開始／選擇研究</text>
+    <text class="small" x="148" y="166" text-anchor="middle">開始新研究歷程</text>
+    <text class="small" x="148" y="185" text-anchor="middle">繼續上次計畫</text>
+    <rect class="node process" x="278" y="108" width="180" height="100" rx="14"/>
+    <text class="label" x="368" y="140" text-anchor="middle">探索與選題</text>
+    <text class="small" x="368" y="166" text-anchor="middle">科別、條件、引導問答</text>
+    <text class="small" x="368" y="185" text-anchor="middle">備援題目、歷屆作品</text>
+    <rect class="node process" x="498" y="108" width="180" height="100" rx="14"/>
+    <text class="label" x="588" y="140" text-anchor="middle">建立研究架構</text>
+    <text class="small" x="588" y="166" text-anchor="middle">問題、假設、變因、步驟</text>
+    <text class="small" x="588" y="185" text-anchor="middle">安全與資料分析</text>
+    <rect class="node process" x="718" y="108" width="180" height="100" rx="14"/>
+    <text class="label" x="808" y="140" text-anchor="middle">研究與修正</text>
+    <text class="small" x="808" y="166" text-anchor="middle">討論、實驗紀錄、附件</text>
+    <text class="small" x="808" y="185" text-anchor="middle">採用／婉拒教師建議</text>
+    <rect class="node external" x="938" y="108" width="204" height="100" rx="14"/>
+    <text class="label" x="1040" y="140" text-anchor="middle">心得歷程</text>
+    <text class="small" x="1040" y="166" text-anchor="middle">日期自動帶入</text>
+    <text class="small" x="1040" y="185" text-anchor="middle">學到什麼＋困難處</text>
+
+    <rect class="zone" x="20" y="322" width="1160" height="250" rx="16"/>
+    <text class="zone-title" x="42" y="354">教師已登入｜個別學生檢視與回饋功能全部保留</text>
+    <path class="edge" marker-end="url(#arrow)" d="M238 438H278"/>
+    <path class="edge" marker-end="url(#arrow)" d="M458 438H498"/>
+    <path class="edge" marker-end="url(#arrow)" d="M678 438H718"/>
+    <path class="edge" marker-end="url(#arrow)" d="M898 438H938"/>
+    <rect class="node input" x="58" y="388" width="180" height="100" rx="14"/>
+    <text class="label" x="148" y="420" text-anchor="middle">選班級與學生</text>
+    <text class="small" x="148" y="446" text-anchor="middle">班級管理、學生標籤</text>
+    <text class="small" x="148" y="465" text-anchor="middle">只存取自己的班級</text>
+    <rect class="node storage" x="278" y="388" width="180" height="100" rx="14"/>
+    <text class="label" x="368" y="420" text-anchor="middle">查看個別歷程</text>
+    <text class="small" x="368" y="446" text-anchor="middle">思考證據鏈、完整時間軸</text>
+    <text class="small" x="368" y="465" text-anchor="middle">個別心得歷程</text>
+    <rect class="node process" x="498" y="388" width="180" height="100" rx="14"/>
+    <text class="label" x="588" y="420" text-anchor="middle">教師個別回饋</text>
+    <text class="small" x="588" y="446" text-anchor="middle">一般教師留言</text>
+    <text class="small" x="588" y="465" text-anchor="middle">加入學生時間軸</text>
+    <rect class="node process" x="718" y="388" width="180" height="100" rx="14"/>
+    <text class="label" x="808" y="420" text-anchor="middle">研究架構建議</text>
+    <text class="small" x="808" y="446" text-anchor="middle">編輯欄位並說明原因</text>
+    <text class="small" x="808" y="465" text-anchor="middle">由學生決定是否採用</text>
+    <rect class="node neutral" x="938" y="388" width="204" height="100" rx="14"/>
+    <text class="label" x="1040" y="420" text-anchor="middle">管理與匯出</text>
+    <text class="small" x="1040" y="446" text-anchor="middle">JSON／CSV／PDF／全班匯出</text>
+    <text class="small" x="1040" y="465" text-anchor="middle">365＋30 天保存政策</text>
+
+    <rect class="node ok" x="170" y="610" width="860" height="56" rx="14"/>
+    <text class="label" x="600" y="635" text-anchor="middle">每次「開始新研究歷程」建立獨立研究紀錄；舊研究、回饋、心得與實驗資料皆保留</text>
+    <text class="small" x="600" y="654" text-anchor="middle">教師先選學生，再選該生的研究歷程；不同研究不可混在同一條時間軸，也不可被新研究覆蓋</text>
+  </svg>
   <div class="rules">
     <section><h2>身分顯示</h2><p>頁首只接受後端驗證完成的登入 Email。若尚未登入或 session 無效，一律顯示「未登入」。</p></section>
     <section><h2>學生入口</h2><p>「繼續上次計畫」與心得填寫表格都以學生登入狀態為顯示條件，不再由本機資料決定。</p></section>
     <section><h2>教師入口</h2><p>教師端不直接混列所有心得；操作順序固定為選班級／學生，再進入該名學生的個別心得歷程。</p></section>
+    <section><h2>保留舊功能</h2><p>選題引導、備援題目、歷屆作品、研究架構、實驗討論與附件、教師留言、架構建議、學生決定權及各種匯出功能都不得刪除。</p></section>
+    <section><h2>多次研究</h2><p>學生可開始新的研究歷程，也可回到既有研究；每個研究各自保存題目、實驗、心得、教師回饋與版本紀錄。</p></section>
   </div>
 </main>
