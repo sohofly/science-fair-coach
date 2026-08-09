@@ -16,13 +16,15 @@ Deno.serve(async req=>{
     if(action==='join'){
       const classCode=String(body.classCode||'').toUpperCase().trim();
       const loginEmail=String(body.loginEmail||'').trim().toLowerCase();if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(loginEmail))return json({error:'請輸入有效的學生 Email'},400);
+      const password=String(body.password||'');if(password.length<6||password.length>72)return json({error:'密碼至少需要 6 個字元'},400);
       const attemptKey=await sha(`join:${req.headers.get('x-forwarded-for')||'unknown'}:${classCode}`);const since=new Date(Date.now()-15*60*1000).toISOString();const {count}=await db.from('student_login_attempts').select('*',{count:'exact',head:true}).eq('attempt_key',attemptKey).gte('attempted_at',since);if((count||0)>=20)return json({error:'建立次數過多，請15分鐘後再試'},429);await db.from('student_login_attempts').insert({attempt_key:attemptKey});
       const {data:klass}=await db.from('classes').select('id,name').eq('join_code',classCode).maybeSingle();
       if(!klass)return json({error:'班級加入碼不存在'},404);
-      let code=identity();let pin=randomFrom('23456789',6);
+      const {data:existingEmail}=await db.from('students').select('id').eq('login_email',loginEmail).gt('delete_after',new Date().toISOString()).limit(1).maybeSingle();if(existingEmail)return json({error:'這個 Email 已有學生帳號，請直接登入'},409);
+      let code=identity();
       for(let tries=0;tries<5;tries++){
-        const {data,error}=await db.from('students').insert({class_id:klass.id,student_code:code,login_email:loginEmail,pin_hash:await hashPin(pin)}).select().single();
-        if(!error&&data){const {data:project}=await db.from('research_projects').insert({student_id:data.id,title:'第一個研究歷程'}).select().single();const token=crypto.randomUUID()+crypto.randomUUID();await db.from('student_sessions').insert({student_id:data.id,token_hash:await sha(token)});await db.from('thought_events').insert({student_id:data.id,research_id:project.id,event_type:'joined',content:{class_name:klass.name},source:'system'});return json({student:{...data,pin_hash:undefined,class_name:klass.name},project,pin,token});}
+        const {data,error}=await db.from('students').insert({class_id:klass.id,student_code:code,login_email:loginEmail,pin_hash:await hashPin(password)}).select().single();
+        if(!error&&data){const {data:project}=await db.from('research_projects').insert({student_id:data.id,title:'第一個研究歷程'}).select().single();const token=crypto.randomUUID()+crypto.randomUUID();await db.from('student_sessions').insert({student_id:data.id,token_hash:await sha(token)});await db.from('thought_events').insert({student_id:data.id,research_id:project.id,event_type:'joined',content:{class_name:klass.name},source:'system'});return json({student:{...data,pin_hash:undefined,class_name:klass.name},project,token});}
         code=identity();
       }
       return json({error:'暫時無法建立學生代號'},500);
@@ -37,13 +39,13 @@ Deno.serve(async req=>{
       return json({students:data||[]});
     }
     if(action==='resume'){
-      const classCode=String(body.classCode||'').toUpperCase().trim();const studentCode=String(body.studentCode||'').toUpperCase().trim();const loginEmail=String(body.loginEmail||'').trim().toLowerCase();
-      const attemptKey=await sha(`${req.headers.get('x-forwarded-for')||'unknown'}:${classCode}:${loginEmail||studentCode}`);const since=new Date(Date.now()-15*60*1000).toISOString();
+      const loginEmail=String(body.loginEmail||'').trim().toLowerCase();const password=String(body.password||body.pin||'');if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(loginEmail))return json({error:'請輸入有效的學生 Email'},400);
+      const attemptKey=await sha(`${req.headers.get('x-forwarded-for')||'unknown'}:${loginEmail}`);const since=new Date(Date.now()-15*60*1000).toISOString();
       const {count}=await db.from('student_login_attempts').select('*',{count:'exact',head:true}).eq('attempt_key',attemptKey).gte('attempted_at',since);if((count||0)>=10)return json({error:'嘗試次數過多，請15分鐘後再試'},429);
-      let query=db.from('students').select('*,classes!inner(name,join_code)').eq('classes.join_code',classCode);query=studentCode?query.eq('student_code',studentCode):query.eq('login_email',loginEmail);const {data}=await query.maybeSingle();
-      if(!data||!await verifyPin(String(body.pin||''),data.pin_hash)){await db.from('student_login_attempts').insert({attempt_key:attemptKey});return json({error:'代號或PIN不正確'},401);}
+      const {data:matches}=await db.from('students').select('*,classes!inner(name,join_code)').eq('login_email',loginEmail).gt('delete_after',new Date().toISOString()).limit(2);const data=matches?.length===1?matches[0]:null;
+      if(!data||!await verifyPin(password,data.pin_hash)){await db.from('student_login_attempts').insert({attempt_key:attemptKey});return json({error:'Email 或密碼不正確'},401);}
       if(new Date(data.delete_after)<=new Date())return json({error:'紀錄已到期'},410);
-      if(studentCode&&loginEmail&&!data.login_email){const {error}=await db.from('students').update({login_email:loginEmail}).eq('id',data.id);if(error)return json({error:'這個 Email 已被使用'},409);data.login_email=loginEmail;}const token=crypto.randomUUID()+crypto.randomUUID();await db.from('student_sessions').insert({student_id:data.id,token_hash:await sha(token)});delete data.pin_hash;return json({student:data,token});
+      const token=crypto.randomUUID()+crypto.randomUUID();await db.from('student_sessions').insert({student_id:data.id,token_hash:await sha(token)});delete data.pin_hash;return json({student:data,token});
     }
     const student:any=await sessionStudent(req);if(!student)return json({error:'學生登入已失效'},401);
     if(action==='get'){const {data:projects}=await db.from('research_projects').select('*').eq('student_id',student.id).order('created_at',{ascending:false});const researchId=String(body.researchId||projects?.[0]?.id||'');const [{data:events},{data:experimentRecords},{data:researchPlan},{data:planSuggestions}]=await Promise.all([db.from('thought_events').select('*').eq('student_id',student.id).eq('research_id',researchId).order('created_at'),db.from('experiment_records').select('id,research_id,record_kind,method,result,file_name,mime_type,ai_review,created_at').eq('student_id',student.id).eq('research_id',researchId).order('created_at'),db.from('research_plans').select('*').eq('student_id',student.id).eq('research_id',researchId).maybeSingle(),db.from('research_plan_suggestions').select('id,research_id,comment,proposed_plan,status,created_at,decided_at').eq('student_id',student.id).eq('research_id',researchId).order('created_at',{ascending:false})]);delete student.pin_hash;return json({student,projects,currentProject:projects?.find((p:any)=>p.id===researchId)||null,events,experimentRecords,researchPlan,planSuggestions,status:new Date(student.active_until)<=new Date()?'read_only':'active'});}

@@ -8,7 +8,7 @@
   async function reviewExperiment(payload){if(!enabled())return null;const response=await fetch(`${cfg.supabaseUrl}/functions/v1/experiment-review`,{method:'POST',headers:{'Content-Type':'application/json','apikey':cfg.supabaseAnonKey,'x-student-token':localStorage.getItem(tokenKey)},body:JSON.stringify({...payload,researchId:researchId()})});const data=await response.json();if(!response.ok)throw new Error(data.error||'實驗紀錄分析失敗');return data}
   async function savePlan(plan){return call({action:'save_plan',researchId:researchId(),plan})}
   async function decideSuggestion(suggestionId,decision){return call({action:'decide_plan_suggestion',suggestionId,decision})}
-  async function saveReflection(reflection){return call({action:'event',eventType:'reflection_added',content:reflection})}
+  async function saveReflection(reflection){return call({action:'event',researchId:researchId(),eventType:'reflection_added',content:reflection})}
   async function createProject(title){const data=await call({action:'create_project',title});setResearchId(data.project.id);return data.project}
   window.ScienceFairBackend={enabled,track,recommend,reviewExperiment,savePlan,decideSuggestion,saveReflection,createProject,get:(id=researchId())=>call({action:'get',researchId:id}),setResearchId,researchId,setToken:token=>localStorage.setItem(tokenKey,token),clear:()=>{localStorage.removeItem(tokenKey);localStorage.removeItem(researchKey)}};
 })();

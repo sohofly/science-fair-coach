@@ -104,7 +104,7 @@ assert.match(studentApi,/PBKDF2/);assert.match(studentApi,/嘗試次數過多/);
 assert.match(studentApi,/action==='list_students'/);assert.match(studentApi,/select\('student_code'\)/);
 assert.match(studentApi,/reflection_added/);
 const portalJs=fs.readFileSync('portal.js','utf8');
-assert.match(portalJs,/使用 Email 與 PIN 繼續/);assert.match(portalJs,/舊學生代號/);
+assert.match(portalJs,/使用 Email 與密碼登入/);assert.doesNotMatch(portalJs,/舊學生代號/);
 assert.match(portalJs,/發現問題/);assert.match(portalJs,/拆解問題/);assert.match(portalJs,/用證據判斷/);assert.match(portalJs,/反思與負責/);
 assert.match(portalJs,/學生的原始想法/);assert.match(portalJs,/教師或系統提問/);assert.match(portalJs,/學生提供的證據/);assert.match(portalJs,/想法如何改變/);assert.match(portalJs,/目前仍需追問之處/);assert.match(portalJs,/證據充足/);
 assert.match(portalJs,/學生心得歷程/);
