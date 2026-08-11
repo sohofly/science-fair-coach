@@ -85,6 +85,7 @@ console.log('✓ 選題流程、學生端角色隔離、本機儲存、科別＋
 const portalHtml=fs.readFileSync('portal.html','utf8').replace(/<script[^>]*><\/script>/g,'');
 const portalDom=new JSDOM(portalHtml,{url:'https://example.test/portal.html',runScripts:'dangerously'});
 portalDom.window.eval(fs.readFileSync('config.js','utf8'));
+portalDom.window.fetch=async()=>({ok:true,json:async()=>({teacherGoogleLogin:false})});
 portalDom.window.supabase={createClient:()=>({auth:{
   getSession:async()=>({data:{session:null}}),
   onAuthStateChange:()=>({data:{subscription:{unsubscribe(){}}}})
@@ -92,7 +93,8 @@ portalDom.window.supabase={createClient:()=>({auth:{
 portalDom.window.eval(fs.readFileSync('portal.js','utf8'));
 await new Promise(resolve=>setTimeout(resolve,0));
 assert.doesNotMatch(portalDom.window.document.querySelector('#portal').textContent,/後端尚未連線/);
-assert.equal(portalDom.window.document.querySelector('#google').disabled,false);
+assert.equal(portalDom.window.document.querySelector('#google'),null);
+assert.equal(portalDom.window.document.querySelector('#teacher-email').disabled,false);
 assert.match(portalDom.window.document.querySelector('#current-user').textContent,/未登入/);
 
 const migration=fs.readFileSync('supabase/migrations/202607180001_initial.sql','utf8');
@@ -107,6 +109,7 @@ assert.match(portalJs,/發現問題/);assert.match(portalJs,/拆解問題/);asse
 assert.match(portalJs,/學生的原始想法/);assert.match(portalJs,/教師或系統提問/);assert.match(portalJs,/學生提供的證據/);assert.match(portalJs,/想法如何改變/);assert.match(portalJs,/目前仍需追問之處/);assert.match(portalJs,/證據充足/);
 assert.match(portalJs,/學生心得歷程/);
 assert.match(portalJs,/帳號管理/);assert.match(portalJs,/不可查看（已加密保存）/);assert.match(portalJs,/teacher-student-account/);
+assert.match(portalJs,/ensure_teacher_access/);assert.match(portalJs,/使用教師 Email 與密碼登入/);
 assert.match(portalJs,/新增學生帳密/);assert.match(fs.readFileSync('supabase/functions/teacher-student-account/index.ts','utf8'),/create_student_account/);
 assert.match(portalJs,/AI 修改建議/);assert.match(portalJs,/尚未寫入資料庫/);assert.match(fs.readFileSync('portal.css','utf8'),/teacher-plan \.portal-form textarea/);
 const teacherAccountFunction=fs.readFileSync('supabase/functions/teacher-student-account/index.ts','utf8');assert.match(teacherAccountFunction,/ai_plan_suggestion/);assert.match(teacherAccountFunction,/OPENAI_API_KEY/);assert.match(teacherAccountFunction,/teacher_plan_suggestion/);
@@ -139,4 +142,9 @@ const experimentReview=fs.readFileSync('supabase/functions/experiment-review/ind
 for(const required of ['experiment_records','experiment_uploaded','experiment_reviewed','8388608'])assert.ok(experimentMigration.includes(required),`實驗 migration 缺少 ${required}`);
 assert.match(discussionMigration,/record_kind/);assert.match(discussionMigration,/discussion/);
 for(const required of ['研究問題','重複次數','明顯不合理','不可捏造'])assert.ok(experimentReview.includes(required),`實驗分析缺少 ${required}`);
+const adminMigration=fs.readFileSync('supabase/migrations/202608110001_admin_and_teacher_access.sql','utf8');
+for(const required of ['teacher_profiles','teacher_google_login','administrators','admin_sessions','ensure_teacher_access','is_active_teacher'])assert.ok(adminMigration.includes(required),`管理者 migration 缺少 ${required}`);
+const adminApi=fs.readFileSync('supabase/functions/admin-api/index.ts','utf8');
+for(const required of ['change_password','create_teacher','create_class','create_student','set_google_login','PASSWORD_CHANGE_REQUIRED'])assert.ok(adminApi.includes(required),`管理者 API 缺少 ${required}`);
+assert.match(fs.readFileSync('admin.html','utf8'),/總管理者/);assert.match(fs.readFileSync('admin.js','utf8'),/所有教師、班級與學生/);
 console.log('✓ 後端連線入口、RLS、保存期限、排程刪除、PIN雜湊與登入限速皆存在');

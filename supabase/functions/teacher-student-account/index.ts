@@ -20,6 +20,9 @@ Deno.serve(async req=>{
     const {data:{user},error:userError}=await authClient.auth.getUser();
     if(userError||!user)return json({error:'教師登入已失效'},401);
 
+    const {data:teacherProfile}=await db.from('teacher_profiles').select('active').eq('user_id',user.id).maybeSingle();
+    if(!teacherProfile?.active)return json({error:'此教師帳號尚未註冊或已停用'},403);
+
     const body=await req.json();
     if(body.action==='ai_plan_suggestion'){
       const researchId=String(body.researchId||'');
