@@ -54,7 +54,7 @@ click('[data-record-submit]');await new Promise(resolve=>setTimeout(resolve,0));
 assert.match(document.querySelector('#app').textContent,/教練回覆/);
 click('[data-go="plan"]');
 assert.doesNotMatch(document.querySelector('#app').textContent,/開啟教師檢視/);
-assert.equal(document.querySelector('[data-action="teacher"]').hidden,true);
+assert.equal(document.querySelector('[data-action="teacher"]'),null);
 assert.equal(JSON.parse(dom.window.localStorage.getItem('scienceFairCoachV1')).topicId,'b1');
 assert.equal(JSON.parse(dom.window.localStorage.getItem('scienceFairCoachV1')).budget,'10,000 元');
 assert.match(document.querySelector('#current-user').textContent,/未登入/);
