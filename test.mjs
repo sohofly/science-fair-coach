@@ -113,6 +113,9 @@ const teacherAccountFunction=fs.readFileSync('supabase/functions/teacher-student
 assert.match(portalJs,/教師個別回饋|一般教師留言/);
 assert.match(portalJs,/chooseResearch/);
 assert.match(portalJs,/research_projects/);
+assert.match(portalJs,/查看此主題的心得與回饋/);
+assert.match(portalJs,/以下只顯示這個主題的心得、教師回饋與研究紀錄/);
+assert.match(portalJs,/back-student/);
 assert.match(fs.readFileSync('index.html','utf8'),/開始新研究歷程/);
 assert.match(fs.readFileSync('index.html','utf8'),/data-go="projects"[^>]*>📚 主題列表/);
 assert.match(fs.readFileSync('index.html','utf8'),/data-action="logout"[^>]*>登出/);
