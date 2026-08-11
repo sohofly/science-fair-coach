@@ -76,6 +76,19 @@ Deno.serve(async req=>{
     if(body.action==='set_teacher_active'){
       const {error}=await db.from('teacher_profiles').update({active:Boolean(body.active)}).eq('user_id',String(body.teacherId||''));if(error)throw error;return json({ok:true});
     }
+    if(body.action==='reset_teacher_password'){
+      const teacherId=String(body.teacherId||''),password=String(body.password||'');
+      if(password.length<8||password.length>72)return json({error:'教師密碼須為 8 至 72 個字元'},400);
+      const {data:profile}=await db.from('teacher_profiles').select('user_id').eq('user_id',teacherId).maybeSingle();if(!profile)return json({error:'找不到教師帳號'},404);
+      const {error}=await db.auth.admin.updateUserById(teacherId,{password});if(error)return json({error:error.message},400);return json({ok:true});
+    }
+    if(body.action==='reset_student_password'){
+      const studentId=String(body.studentId||''),password=String(body.password||'');
+      if(password.length<6||password.length>72)return json({error:'學生密碼須為 6 至 72 個字元'},400);
+      const {data:student}=await db.from('students').select('id').eq('id',studentId).maybeSingle();if(!student)return json({error:'找不到學生帳號'},404);
+      const {error}=await db.from('students').update({pin_hash:await hashPassword(password)}).eq('id',studentId);if(error)throw error;
+      await db.from('student_sessions').delete().eq('student_id',studentId);return json({ok:true});
+    }
     if(body.action==='create_class'){
       const teacherId=String(body.teacherId||''),name=String(body.name||'').trim();if(!teacherId||!name||name.length>80)return json({error:'班級名稱不正確'},400);
       const {data:profile}=await db.from('teacher_profiles').select('user_id').eq('user_id',teacherId).eq('active',true).maybeSingle();if(!profile)return json({error:'找不到可用的教師帳號'},404);

@@ -145,8 +145,9 @@ for(const required of ['研究問題','重複次數','明顯不合理','不可�
 const adminMigration=fs.readFileSync('supabase/migrations/202608110001_admin_and_teacher_access.sql','utf8');
 for(const required of ['teacher_profiles','teacher_google_login','administrators','admin_sessions','ensure_teacher_access','is_active_teacher'])assert.ok(adminMigration.includes(required),`管理者 migration 缺少 ${required}`);
 const adminApi=fs.readFileSync('supabase/functions/admin-api/index.ts','utf8');
-for(const required of ['change_password','create_teacher','create_class','create_student','set_google_login','student_detail','thought_events','research_plans','experiment_records','PASSWORD_CHANGE_REQUIRED'])assert.ok(adminApi.includes(required),`管理者 API 缺少 ${required}`);
+for(const required of ['change_password','create_teacher','create_class','create_student','set_google_login','student_detail','thought_events','research_plans','experiment_records','reset_teacher_password','reset_student_password','updateUserById','PASSWORD_CHANGE_REQUIRED'])assert.ok(adminApi.includes(required),`管理者 API 缺少 ${required}`);
 assert.ok(!adminApi.includes('classes!inner(id,name,teacher_profiles!inner'),'管理者學生詳情不可使用不存在的班級→教師設定檔外鍵');
 assert.match(fs.readFileSync('admin.html','utf8'),/總管理者/);assert.match(fs.readFileSync('admin.js','utf8'),/所有教師、班級與學生/);
-for(const required of ['查看學習歷程與心得','學生心得歷程','四個主類別的思考證據鏈','完整原始事件時間軸','總管理者唯讀檢視'])assert.ok(fs.readFileSync('admin.js','utf8').includes(required),`管理頁缺少 ${required}`);
+for(const required of ['查看學習歷程與心得','學生心得歷程','四個主類別的思考證據鏈','完整原始事件時間軸','總管理者唯讀檢視','更改教師密碼','更改學生密碼','experimentSection(data.experimentRecords'])assert.ok(fs.readFileSync('admin.js','utf8').includes(required),`管理頁缺少 ${required}`);
+assert.match(fs.readFileSync('admin.html','utf8'),/admin\.js\?v=/);
 console.log('✓ 後端連線入口、RLS、保存期限、排程刪除、PIN雜湊與登入限速皆存在');
