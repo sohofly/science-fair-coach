@@ -47,6 +47,23 @@ Deno.serve(async req=>{
       const tree=(teachers||[]).map((t:any)=>({...t,classes:(classes||[]).filter((c:any)=>c.teacher_id===t.user_id).map((c:any)=>({...c,students:(students||[]).filter((s:any)=>s.class_id===c.id)}))}));
       return json({teachers:tree,teacherGoogleLogin:Boolean(setting?.value)});
     }
+    if(body.action==='student_detail'){
+      const studentId=String(body.studentId||''),researchId=String(body.researchId||'');
+      if(!studentId)return json({error:'缺少學生資料'},400);
+      const {data:student,error:studentError}=await db.from('students').select('id,student_code,login_email,display_label,created_at,active_until,delete_after,classes!inner(id,name,teacher_profiles!inner(display_name,email))').eq('id',studentId).maybeSingle();
+      if(studentError)throw studentError;if(!student)return json({error:'找不到學生'},404);
+      const {data:projects,error:projectsError}=await db.from('research_projects').select('id,title,selected_topic,created_at,updated_at').eq('student_id',studentId).order('created_at',{ascending:false});
+      if(projectsError)throw projectsError;
+      if(!researchId)return json({student,projects:projects||[]});
+      const project=(projects||[]).find((item:any)=>item.id===researchId);if(!project)return json({error:'找不到這位學生的研究主題'},404);
+      const [{data:events,error:eventsError},{data:researchPlan},{data:suggestions},{data:experimentRecords}]=await Promise.all([
+        db.from('thought_events').select('id,event_type,content,source,created_at').eq('student_id',studentId).eq('research_id',researchId).order('created_at'),
+        db.from('research_plans').select('id,current_plan,version,created_at,updated_at').eq('student_id',studentId).eq('research_id',researchId).maybeSingle(),
+        db.from('research_plan_suggestions').select('id,comment,proposed_plan,status,created_at,decided_at').eq('student_id',studentId).eq('research_id',researchId).order('created_at',{ascending:false}),
+        db.from('experiment_records').select('id,record_kind,topic_snapshot,method,result,file_name,mime_type,ai_review,created_at').eq('student_id',studentId).eq('research_id',researchId).order('created_at')
+      ]);if(eventsError)throw eventsError;
+      return json({student,projects:projects||[],currentProject:project,events:events||[],researchPlan:researchPlan||null,suggestions:suggestions||[],experimentRecords:experimentRecords||[]});
+    }
     if(body.action==='set_google_login'){
       const enabled=Boolean(body.enabled);const {error}=await db.from('app_settings').upsert({key:'teacher_google_login',value:enabled,updated_at:new Date().toISOString()});if(error)throw error;return json({ok:true,enabled});
     }
