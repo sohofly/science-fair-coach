@@ -50,7 +50,7 @@ Deno.serve(async req=>{
     if(body.action==='student_detail'){
       const studentId=String(body.studentId||''),researchId=String(body.researchId||'');
       if(!studentId)return json({error:'缺少學生資料'},400);
-      const {data:student,error:studentError}=await db.from('students').select('id,student_code,login_email,display_label,created_at,active_until,delete_after,classes!inner(id,name,teacher_profiles!inner(display_name,email))').eq('id',studentId).maybeSingle();
+      const {data:student,error:studentError}=await db.from('students').select('id,student_code,login_email,display_label,created_at,active_until,delete_after,classes!inner(id,name)').eq('id',studentId).maybeSingle();
       if(studentError)throw studentError;if(!student)return json({error:'找不到學生'},404);
       const {data:projects,error:projectsError}=await db.from('research_projects').select('id,title,selected_topic,created_at,updated_at').eq('student_id',studentId).order('created_at',{ascending:false});
       if(projectsError)throw projectsError;

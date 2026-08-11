@@ -146,6 +146,7 @@ const adminMigration=fs.readFileSync('supabase/migrations/202608110001_admin_and
 for(const required of ['teacher_profiles','teacher_google_login','administrators','admin_sessions','ensure_teacher_access','is_active_teacher'])assert.ok(adminMigration.includes(required),`管理者 migration 缺少 ${required}`);
 const adminApi=fs.readFileSync('supabase/functions/admin-api/index.ts','utf8');
 for(const required of ['change_password','create_teacher','create_class','create_student','set_google_login','student_detail','thought_events','research_plans','experiment_records','PASSWORD_CHANGE_REQUIRED'])assert.ok(adminApi.includes(required),`管理者 API 缺少 ${required}`);
+assert.ok(!adminApi.includes('classes!inner(id,name,teacher_profiles!inner'),'管理者學生詳情不可使用不存在的班級→教師設定檔外鍵');
 assert.match(fs.readFileSync('admin.html','utf8'),/總管理者/);assert.match(fs.readFileSync('admin.js','utf8'),/所有教師、班級與學生/);
 for(const required of ['查看學習歷程與心得','學生心得','教師回饋','完整學習歷程'])assert.ok(fs.readFileSync('admin.js','utf8').includes(required),`管理頁缺少 ${required}`);
 console.log('✓ 後端連線入口、RLS、保存期限、排程刪除、PIN雜湊與登入限速皆存在');
