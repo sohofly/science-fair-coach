@@ -60,7 +60,7 @@ Deno.serve(async req=>{
         db.from('thought_events').select('id,event_type,content,source,created_at').eq('student_id',studentId).eq('research_id',researchId).order('created_at'),
         db.from('research_plans').select('id,current_plan,version,created_at,updated_at').eq('student_id',studentId).eq('research_id',researchId).maybeSingle(),
         db.from('research_plan_suggestions').select('id,comment,proposed_plan,status,created_at,decided_at').eq('student_id',studentId).eq('research_id',researchId).order('created_at',{ascending:false}),
-        db.from('experiment_records').select('id,record_kind,topic_snapshot,method,result,file_name,mime_type,ai_review,created_at').eq('student_id',studentId).eq('research_id',researchId).order('created_at')
+        db.from('experiment_records').select('id,subtopic_id,record_kind,topic_snapshot,method,result,file_name,mime_type,ai_review,created_at').eq('student_id',studentId).eq('research_id',researchId).order('created_at')
       ]);if(eventsError)throw eventsError;
       return json({student,projects:projects||[],currentProject:project,events:events||[],researchPlan:researchPlan||null,suggestions:suggestions||[],experimentRecords:experimentRecords||[]});
     }

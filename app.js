@@ -1,89 +1,1184 @@
-const divisions={
-  math:['數學科','數字、幾何、邏輯、機率與最佳策略'],physics:['物理科','力、運動、聲、光、熱與電磁'],chemistry:['化學科','物質性質、反應、晶體與酸鹼'],biology:['生物科','生物構造、生長、行為與生態'],earth:['地球科學科','氣象、地質、天文、水與土壤'],applied1:['生活與應用科學科（一）','機械、能源、光電、物理、資訊工程應用'],applied2:['生活與應用科學科（二）','生物科技與食品科學'],applied3:['生活與應用科學科（三）','化學工程與環境科學']
+const divisions = {
+  math: ["數學科", "數字、幾何、邏輯、機率與最佳策略"],
+  physics: ["物理科", "力、運動、聲、光、熱與電磁"],
+  chemistry: ["化學科", "物質性質、反應、晶體與酸鹼"],
+  biology: ["生物科", "生物構造、生長、行為與生態"],
+  earth: ["地球科學科", "氣象、地質、天文、水與土壤"],
+  applied1: ["生活與應用科學科（一）", "機械、能源、光電、物理、資訊工程應用"],
+  applied2: ["生活與應用科學科（二）", "生物科技與食品科學"],
+  applied3: ["生活與應用科學科（三）", "化學工程與環境科學"],
 };
-const topics=[
-  {id:'m1',d:'math',i:['遊戲','數字'],title:'障礙格與多人輪流規則如何改變井字棋策略',q:'加入不同障礙格或三人輪流規則後，先手優勢與必勝策略如何改變？',difficulty:'高',time:'4–6 週',cost:'幾乎免費',pros:'不是重做普通井字棋，而是建立新規則、分類局面並尋找可證明的策略。',cons:'已有多件井字棋科展作品；必須清楚說明新規則與前人研究的差異，最好用程式窮舉驗證。',iv:'障礙格位置、棋盤大小或玩家人數',dv:'可達局面數、勝敗和比例、是否存在必勝策略',cv:'連線規則、每位玩家可用棋子、勝負判定',safety:'低風險；若使用程式，保留演算法與測試紀錄。',why:'適合喜歡桌遊、邏輯分類與策略證明的學生。',develop:'先重現普通 3×3 結果作為基準，再只改一項規則；建立對稱局面分類，最後用程式窮舉和人工推理互相驗證。',works:[['第61屆國小數學科第一名〈探討多人玩的井字棋—Otrio是否有必勝方法〉','https://twsf.ntsec.gov.tw/activity/race-1/61/pdf/NPHSF2021-080403.pdf'],['第58屆國小數學科佳作〈棋盤上的奇蹟—奇「雞」連連〉','https://twsf.ntsec.gov.tw/activity/race-1/58/pdf/NPHSF2018-080402.pdf'],['第49屆國小數學科〈棋形怪狀〉','https://twsf.ntsec.gov.tw/activity/race-1/49/pdf/080404.pdf']]},
-  {id:'m2',d:'math',i:['圖形','手作'],title:'不同摺法能把紙分成多少區域',q:'摺疊次數與紙面區域數之間有什麼規律？',difficulty:'中',time:'2–4 週',cost:'100 元內',pros:'可以實作、畫圖並尋找數列規律。',cons:'摺線重疊時容易計數錯誤。',iv:'摺疊次數與方向',dv:'展開後的區域數',cv:'紙張大小、摺疊規則',safety:'使用剪刀時由成人陪同。'},
-  {id:'m3',d:'math',i:['植物','圖形'],title:'校園植物葉序與遮蔽率的數學模型',q:'不同植物的相鄰葉片角度，能否預測從上方觀察時的葉片重疊比例？',difficulty:'中高',time:'4–6 週',cost:'200–500 元',pros:'同時符合數學與植物興趣；核心是角度、比例、統計誤差與模型預測，不只是觀察植物。',cons:'真實葉片是立體且會彎曲，需限定植物種類、拍攝高度與量角方法。',iv:'模型中的葉片夾角，或不同植物種類的實測角度',dv:'投影重疊面積比例、實測值與模型預測的誤差',cv:'葉片數、模型葉片大小、拍攝高度、影像比例尺',safety:'只拍攝或量測校園常見植物，不採集稀有植物；戶外觀察由教師陪同。',why:'「植物」提供真實資料，「數學科」負責建立角度模型、計算遮蔽率並分析預測誤差。',develop:'不要只驗證是否符合費氏數列。先比較 3–5 種校園植物，再用紙片或電腦模型測試 90°、120°、137.5°等角度；最後檢驗哪種模型最能預測真實遮蔽率，並討論不符合黃金角的例外。',works:[['第48屆國小組自然科第三名〈向日葵的生長密碼〉','https://twsf.ntsec.gov.tw/activity/race-1/48/pdf/081544.pdf'],['第49屆高中組數學科第三名〈向日葵裡的黃金項鏈〉','https://twsf.ntsec.gov.tw/activity/race-1/49/pdf/040418.pdf'],['第49屆國中組數學科〈費伯那西？盧卡斯？向日葵到底愛誰？〉','https://twsf.ntsec.gov.tw/activity/race-1/49/pdf/030409.pdf']]},
-  {id:'p1',d:'physics',i:['飛行','玩具'],title:'紙飛機機翼寬度與飛行距離',q:'只改變機翼寬度時，紙飛機的平均飛行距離如何改變？',difficulty:'低',time:'2–3 週',cost:'100 元內',pros:'現象直觀、材料便宜、容易重複。',cons:'投擲力量與風會造成很大誤差。',iv:'機翼寬度',dv:'飛行距離與滯空時間',cv:'紙張、重量、投擲器、場地',safety:'在空曠室內進行，不朝人投擲。'},
-  {id:'p2',d:'physics',i:['聲音','音樂'],title:'生活材料的隔音效果',q:'相同厚度下，哪些常見材料最能降低聲音強度？',difficulty:'中',time:'2–3 週',cost:'300–600 元',pros:'與生活相關，可用手機分貝計初步比較。',cons:'手機不是專業聲級計，環境噪音需控制。',iv:'隔音材料',dv:'量得的相對分貝變化',cv:'聲源、距離、厚度、房間',safety:'避免長時間播放大音量。'},
-  {id:'c1',d:'chemistry',i:['結晶','食物'],title:'溫度與糖晶體生長',q:'不同冷卻條件會如何影響糖晶體的大小與數量？',difficulty:'中',time:'3–4 週',cost:'200–400 元',pros:'變化可拍照，能量測晶體大小。',cons:'蒸發量與雜質會影響結果。',iv:'冷卻或保存溫度',dv:'晶體大小、數量、質量',cv:'糖水濃度、容器、時間',safety:'熱糖液會燙傷，必須由成人協助加熱。'},
-  {id:'c2',d:'chemistry',i:['清潔','生活'],title:'不同酸性液體的除垢效果',q:'相同酸鹼值或濃度下，不同食用酸對水垢的去除效果如何？',difficulty:'中',time:'2–3 週',cost:'200–400 元',pros:'生活性高，可用質量變化比較。',cons:'必須先統一水垢樣本大小。',iv:'食用酸種類',dv:'樣本質量減少量',cv:'液體體積、時間、溫度',safety:'只使用食用級材料，戴護目鏡，不混合清潔劑。'},
-  {id:'b1',d:'biology',i:['植物','光線'],title:'光的方向與豆苗彎曲',q:'不同方向的光會讓豆苗彎曲多少？',difficulty:'低',time:'3–4 週',cost:'200–400 元',pros:'現象明顯，可每日拍照與量角度。',cons:'種子個體差異大，需要足夠樣本。',iv:'光源方向',dv:'彎曲角度與高度',cv:'種子、土壤、水量、溫度、光照時間',safety:'低風險；實驗後妥善處理植物。'},
-  {id:'b2',d:'biology',i:['昆蟲','食物'],title:'螞蟻的覓食選擇',q:'在不傷害螞蟻的條件下，不同糖濃度是否影響螞蟻到訪次數？',difficulty:'中',time:'3–5 週',cost:'100 元內',pros:'可觀察真實行為與重複試驗。',cons:'天氣、蟻群位置和氣味都會干擾。',iv:'糖水濃度',dv:'固定時間內到訪次數',cv:'位置、容器、時間、液體量',safety:'不捕捉、不餵有害物；避免在室內引入蟻群。'},
-  {id:'e1',d:'earth',i:['土壤','環境'],title:'不同土壤的抗沖刷能力',q:'相同坡度與水量下，哪種土壤流失得最少？',difficulty:'中',time:'2–4 週',cost:'300–600 元',pros:'可模擬降雨並量測流失質量。',cons:'土壤含水量和顆粒大小不易完全一致。',iv:'土壤種類',dv:'流失土壤質量、出水混濁度',cv:'坡度、水量、面積、初始含水量',safety:'地面防滑；土壤不入口，操作後洗手。'},
-  {id:'e2',d:'earth',i:['天氣','校園'],title:'校園不同地面的微氣候',q:'草地、泥土與水泥地表的溫度變化有何差異？',difficulty:'低',time:'2–3 週',cost:'200–500 元',pros:'貼近校園生活，能累積時間序列資料。',cons:'陰影、風和測量時刻會造成干擾。',iv:'地表種類',dv:'表面或近地氣溫',cv:'測量時間、高度、儀器、天氣條件',safety:'避免中午曝曬，戶外測量需有同伴。'},
-  {id:'a11',d:'applied1',i:['植物','工程'],title:'節水自動澆水裝置',q:'哪種土壤濕度門檻能在維持植物生長時減少用水？',difficulty:'高',time:'5–8 週',cost:'800–1500 元',pros:'結合感測器、程式與植物生長。',cons:'感測器校正與故障排除需要時間。',iv:'啟動澆水的濕度門檻',dv:'用水量與植物生長',cv:'植物、盆器、土壤、光照',safety:'只使用低電壓設備，水與電路分離，教師監督。'},
-  {id:'a12',d:'applied1',i:['能源','食物'],title:'太陽能烘乾箱的結構改良',q:'不同內壁顏色或通風孔面積如何影響箱內升溫與乾燥速度？',difficulty:'高',time:'4–6 週',cost:'500–1000 元',pros:'能反覆改良裝置並評估能源應用。',cons:'天氣變化大，需要多日重複測量。',iv:'內壁顏色或通風孔面積',dv:'溫度與樣品質量下降速度',cv:'箱體、樣品、日照時段',safety:'避免密閉過熱與食用實驗後樣品。'},
-  {id:'a21',d:'applied2',i:['食物','發酵'],title:'優格發酵溫度與凝固狀態',q:'在安全控溫下，不同發酵溫度如何影響優格的酸度與凝固時間？',difficulty:'高',time:'3–5 週',cost:'500–900 元',pros:'能量測時間、酸鹼值與質地。',cons:'食品衛生與穩定控溫要求高。',iv:'發酵溫度',dv:'pH、凝固時間、流動性',cv:'牛奶、菌種、容器、份量',safety:'需教師或成人監督；實驗樣品不得食用。'},
-  {id:'a22',d:'applied2',i:['食物','保存'],title:'麵包包裝方式與水分散失',q:'不同包裝方式如何影響麵包在短期內的質量與硬度變化？',difficulty:'中',time:'2–3 週',cost:'300–600 元',pros:'材料易得，能以質量與固定壓力變形量比較。',cons:'不能以長黴速度作為主要實驗，避免培養未知微生物。',iv:'包裝方式',dv:'質量變化與壓縮變形',cv:'同批麵包、大小、溫度、時間',safety:'不開啟或嗅聞發霉樣品；密封後由成人丟棄。'},
-  {id:'a31',d:'applied3',i:['水','環境'],title:'簡易濾材對混濁水的改善',q:'砂、礫石與活性碳的排列方式如何影響模擬混濁水的清澈度？',difficulty:'中',time:'3–4 週',cost:'400–800 元',pros:'工程結構可改良，結果容易比較。',cons:'變清澈不代表可以飲用，需明確說明限制。',iv:'濾材種類與排列',dv:'透光度、過濾時間',cv:'模擬水、濾材量、容器',safety:'只用泥土製作模擬污水；過濾水絕對不可飲用。'},
-  {id:'a32',d:'applied3',i:['回收','材料'],title:'再生紙配方與強度',q:'廢紙紙漿中不同天然纖維比例如何影響再生紙的承重能力？',difficulty:'中',time:'3–5 週',cost:'300–700 元',pros:'結合資源再利用與材料測試。',cons:'紙張厚度與乾燥程度要控制。',iv:'添加纖維比例',dv:'厚度、最大承重、吸水性',cv:'紙漿量、紙張面積、乾燥方式',safety:'使用果汁機與剪刀時需成人陪同。'}
+const topics = [
+  {
+    id: "m1",
+    d: "math",
+    i: ["遊戲", "數字"],
+    title: "障礙格與多人輪流規則如何改變井字棋策略",
+    q: "加入不同障礙格或三人輪流規則後，先手優勢與必勝策略如何改變？",
+    difficulty: "高",
+    time: "4–6 週",
+    cost: "幾乎免費",
+    pros: "不是重做普通井字棋，而是建立新規則、分類局面並尋找可證明的策略。",
+    cons: "已有多件井字棋科展作品；必須清楚說明新規則與前人研究的差異，最好用程式窮舉驗證。",
+    iv: "障礙格位置、棋盤大小或玩家人數",
+    dv: "可達局面數、勝敗和比例、是否存在必勝策略",
+    cv: "連線規則、每位玩家可用棋子、勝負判定",
+    safety: "低風險；若使用程式，保留演算法與測試紀錄。",
+    why: "適合喜歡桌遊、邏輯分類與策略證明的學生。",
+    develop: "先重現普通 3×3 結果作為基準，再只改一項規則；建立對稱局面分類，最後用程式窮舉和人工推理互相驗證。",
+    works: [
+      ["第61屆國小數學科第一名〈探討多人玩的井字棋—Otrio是否有必勝方法〉", "https://twsf.ntsec.gov.tw/activity/race-1/61/pdf/NPHSF2021-080403.pdf"],
+      ["第58屆國小數學科佳作〈棋盤上的奇蹟—奇「雞」連連〉", "https://twsf.ntsec.gov.tw/activity/race-1/58/pdf/NPHSF2018-080402.pdf"],
+      ["第49屆國小數學科〈棋形怪狀〉", "https://twsf.ntsec.gov.tw/activity/race-1/49/pdf/080404.pdf"],
+    ],
+  },
+  {
+    id: "m2",
+    d: "math",
+    i: ["圖形", "手作"],
+    title: "不同摺法能把紙分成多少區域",
+    q: "摺疊次數與紙面區域數之間有什麼規律？",
+    difficulty: "中",
+    time: "2–4 週",
+    cost: "100 元內",
+    pros: "可以實作、畫圖並尋找數列規律。",
+    cons: "摺線重疊時容易計數錯誤。",
+    iv: "摺疊次數與方向",
+    dv: "展開後的區域數",
+    cv: "紙張大小、摺疊規則",
+    safety: "使用剪刀時由成人陪同。",
+  },
+  {
+    id: "m3",
+    d: "math",
+    i: ["植物", "圖形"],
+    title: "校園植物葉序與遮蔽率的數學模型",
+    q: "不同植物的相鄰葉片角度，能否預測從上方觀察時的葉片重疊比例？",
+    difficulty: "中高",
+    time: "4–6 週",
+    cost: "200–500 元",
+    pros: "同時符合數學與植物興趣；核心是角度、比例、統計誤差與模型預測，不只是觀察植物。",
+    cons: "真實葉片是立體且會彎曲，需限定植物種類、拍攝高度與量角方法。",
+    iv: "模型中的葉片夾角，或不同植物種類的實測角度",
+    dv: "投影重疊面積比例、實測值與模型預測的誤差",
+    cv: "葉片數、模型葉片大小、拍攝高度、影像比例尺",
+    safety: "只拍攝或量測校園常見植物，不採集稀有植物；戶外觀察由教師陪同。",
+    why: "「植物」提供真實資料，「數學科」負責建立角度模型、計算遮蔽率並分析預測誤差。",
+    develop: "不要只驗證是否符合費氏數列。先比較 3–5 種校園植物，再用紙片或電腦模型測試 90°、120°、137.5°等角度；最後檢驗哪種模型最能預測真實遮蔽率，並討論不符合黃金角的例外。",
+    works: [
+      ["第48屆國小組自然科第三名〈向日葵的生長密碼〉", "https://twsf.ntsec.gov.tw/activity/race-1/48/pdf/081544.pdf"],
+      ["第49屆高中組數學科第三名〈向日葵裡的黃金項鏈〉", "https://twsf.ntsec.gov.tw/activity/race-1/49/pdf/040418.pdf"],
+      ["第49屆國中組數學科〈費伯那西？盧卡斯？向日葵到底愛誰？〉", "https://twsf.ntsec.gov.tw/activity/race-1/49/pdf/030409.pdf"],
+    ],
+  },
+  {
+    id: "p1",
+    d: "physics",
+    i: ["飛行", "玩具"],
+    title: "紙飛機機翼寬度與飛行距離",
+    q: "只改變機翼寬度時，紙飛機的平均飛行距離如何改變？",
+    difficulty: "低",
+    time: "2–3 週",
+    cost: "100 元內",
+    pros: "現象直觀、材料便宜、容易重複。",
+    cons: "投擲力量與風會造成很大誤差。",
+    iv: "機翼寬度",
+    dv: "飛行距離與滯空時間",
+    cv: "紙張、重量、投擲器、場地",
+    safety: "在空曠室內進行，不朝人投擲。",
+  },
+  {
+    id: "p2",
+    d: "physics",
+    i: ["聲音", "音樂"],
+    title: "生活材料的隔音效果",
+    q: "相同厚度下，哪些常見材料最能降低聲音強度？",
+    difficulty: "中",
+    time: "2–3 週",
+    cost: "300–600 元",
+    pros: "與生活相關，可用手機分貝計初步比較。",
+    cons: "手機不是專業聲級計，環境噪音需控制。",
+    iv: "隔音材料",
+    dv: "量得的相對分貝變化",
+    cv: "聲源、距離、厚度、房間",
+    safety: "避免長時間播放大音量。",
+  },
+  {
+    id: "c1",
+    d: "chemistry",
+    i: ["結晶", "食物"],
+    title: "溫度與糖晶體生長",
+    q: "不同冷卻條件會如何影響糖晶體的大小與數量？",
+    difficulty: "中",
+    time: "3–4 週",
+    cost: "200–400 元",
+    pros: "變化可拍照，能量測晶體大小。",
+    cons: "蒸發量與雜質會影響結果。",
+    iv: "冷卻或保存溫度",
+    dv: "晶體大小、數量、質量",
+    cv: "糖水濃度、容器、時間",
+    safety: "熱糖液會燙傷，必須由成人協助加熱。",
+  },
+  {
+    id: "c2",
+    d: "chemistry",
+    i: ["清潔", "生活"],
+    title: "不同酸性液體的除垢效果",
+    q: "相同酸鹼值或濃度下，不同食用酸對水垢的去除效果如何？",
+    difficulty: "中",
+    time: "2–3 週",
+    cost: "200–400 元",
+    pros: "生活性高，可用質量變化比較。",
+    cons: "必須先統一水垢樣本大小。",
+    iv: "食用酸種類",
+    dv: "樣本質量減少量",
+    cv: "液體體積、時間、溫度",
+    safety: "只使用食用級材料，戴護目鏡，不混合清潔劑。",
+  },
+  {
+    id: "b1",
+    d: "biology",
+    i: ["植物", "光線"],
+    title: "光的方向與豆苗彎曲",
+    q: "不同方向的光會讓豆苗彎曲多少？",
+    difficulty: "低",
+    time: "3–4 週",
+    cost: "200–400 元",
+    pros: "現象明顯，可每日拍照與量角度。",
+    cons: "種子個體差異大，需要足夠樣本。",
+    iv: "光源方向",
+    dv: "彎曲角度與高度",
+    cv: "種子、土壤、水量、溫度、光照時間",
+    safety: "低風險；實驗後妥善處理植物。",
+  },
+  {
+    id: "b2",
+    d: "biology",
+    i: ["昆蟲", "食物"],
+    title: "螞蟻的覓食選擇",
+    q: "在不傷害螞蟻的條件下，不同糖濃度是否影響螞蟻到訪次數？",
+    difficulty: "中",
+    time: "3–5 週",
+    cost: "100 元內",
+    pros: "可觀察真實行為與重複試驗。",
+    cons: "天氣、蟻群位置和氣味都會干擾。",
+    iv: "糖水濃度",
+    dv: "固定時間內到訪次數",
+    cv: "位置、容器、時間、液體量",
+    safety: "不捕捉、不餵有害物；避免在室內引入蟻群。",
+  },
+  {
+    id: "e1",
+    d: "earth",
+    i: ["土壤", "環境"],
+    title: "不同土壤的抗沖刷能力",
+    q: "相同坡度與水量下，哪種土壤流失得最少？",
+    difficulty: "中",
+    time: "2–4 週",
+    cost: "300–600 元",
+    pros: "可模擬降雨並量測流失質量。",
+    cons: "土壤含水量和顆粒大小不易完全一致。",
+    iv: "土壤種類",
+    dv: "流失土壤質量、出水混濁度",
+    cv: "坡度、水量、面積、初始含水量",
+    safety: "地面防滑；土壤不入口，操作後洗手。",
+  },
+  {
+    id: "e2",
+    d: "earth",
+    i: ["天氣", "校園"],
+    title: "校園不同地面的微氣候",
+    q: "草地、泥土與水泥地表的溫度變化有何差異？",
+    difficulty: "低",
+    time: "2–3 週",
+    cost: "200–500 元",
+    pros: "貼近校園生活，能累積時間序列資料。",
+    cons: "陰影、風和測量時刻會造成干擾。",
+    iv: "地表種類",
+    dv: "表面或近地氣溫",
+    cv: "測量時間、高度、儀器、天氣條件",
+    safety: "避免中午曝曬，戶外測量需有同伴。",
+  },
+  {
+    id: "a11",
+    d: "applied1",
+    i: ["植物", "工程"],
+    title: "節水自動澆水裝置",
+    q: "哪種土壤濕度門檻能在維持植物生長時減少用水？",
+    difficulty: "高",
+    time: "5–8 週",
+    cost: "800–1500 元",
+    pros: "結合感測器、程式與植物生長。",
+    cons: "感測器校正與故障排除需要時間。",
+    iv: "啟動澆水的濕度門檻",
+    dv: "用水量與植物生長",
+    cv: "植物、盆器、土壤、光照",
+    safety: "只使用低電壓設備，水與電路分離，教師監督。",
+  },
+  {
+    id: "a12",
+    d: "applied1",
+    i: ["能源", "食物"],
+    title: "太陽能烘乾箱的結構改良",
+    q: "不同內壁顏色或通風孔面積如何影響箱內升溫與乾燥速度？",
+    difficulty: "高",
+    time: "4–6 週",
+    cost: "500–1000 元",
+    pros: "能反覆改良裝置並評估能源應用。",
+    cons: "天氣變化大，需要多日重複測量。",
+    iv: "內壁顏色或通風孔面積",
+    dv: "溫度與樣品質量下降速度",
+    cv: "箱體、樣品、日照時段",
+    safety: "避免密閉過熱與食用實驗後樣品。",
+  },
+  {
+    id: "a21",
+    d: "applied2",
+    i: ["食物", "發酵"],
+    title: "優格發酵溫度與凝固狀態",
+    q: "在安全控溫下，不同發酵溫度如何影響優格的酸度與凝固時間？",
+    difficulty: "高",
+    time: "3–5 週",
+    cost: "500–900 元",
+    pros: "能量測時間、酸鹼值與質地。",
+    cons: "食品衛生與穩定控溫要求高。",
+    iv: "發酵溫度",
+    dv: "pH、凝固時間、流動性",
+    cv: "牛奶、菌種、容器、份量",
+    safety: "需教師或成人監督；實驗樣品不得食用。",
+  },
+  {
+    id: "a22",
+    d: "applied2",
+    i: ["食物", "保存"],
+    title: "麵包包裝方式與水分散失",
+    q: "不同包裝方式如何影響麵包在短期內的質量與硬度變化？",
+    difficulty: "中",
+    time: "2–3 週",
+    cost: "300–600 元",
+    pros: "材料易得，能以質量與固定壓力變形量比較。",
+    cons: "不能以長黴速度作為主要實驗，避免培養未知微生物。",
+    iv: "包裝方式",
+    dv: "質量變化與壓縮變形",
+    cv: "同批麵包、大小、溫度、時間",
+    safety: "不開啟或嗅聞發霉樣品；密封後由成人丟棄。",
+  },
+  {
+    id: "a31",
+    d: "applied3",
+    i: ["水", "環境"],
+    title: "簡易濾材對混濁水的改善",
+    q: "砂、礫石與活性碳的排列方式如何影響模擬混濁水的清澈度？",
+    difficulty: "中",
+    time: "3–4 週",
+    cost: "400–800 元",
+    pros: "工程結構可改良，結果容易比較。",
+    cons: "變清澈不代表可以飲用，需明確說明限制。",
+    iv: "濾材種類與排列",
+    dv: "透光度、過濾時間",
+    cv: "模擬水、濾材量、容器",
+    safety: "只用泥土製作模擬污水；過濾水絕對不可飲用。",
+  },
+  {
+    id: "a32",
+    d: "applied3",
+    i: ["回收", "材料"],
+    title: "再生紙配方與強度",
+    q: "廢紙紙漿中不同天然纖維比例如何影響再生紙的承重能力？",
+    difficulty: "中",
+    time: "3–5 週",
+    cost: "300–700 元",
+    pros: "結合資源再利用與材料測試。",
+    cons: "紙張厚度與乾燥程度要控制。",
+    iv: "添加纖維比例",
+    dv: "厚度、最大承重、吸水性",
+    cv: "紙漿量、紙張面積、乾燥方式",
+    safety: "使用果汁機與剪刀時需成人陪同。",
+  },
 ];
-const interestOptions=['植物','動物／昆蟲','食物','水／環境','玩具／工程','聲音／音樂','天氣／星空','數字／圖形'];
-const storeKey='scienceFairCoachV1';
-const flowVersion=2;
-const aiFlowVersion=2;
-let state=load();
-const app=document.querySelector('#app');
-function safeUrl(value){try{const url=new URL(value);return url.protocol==='https:'?url.href:'#'}catch{return '#'}}
-function defaults(){return {flowVersion,aiFlowVersion,screen:'home',division:'',grade:'',weeks:'',budget:'',interests:[],observation:'',topicId:'',subtopics:null,guidance:[],guidanceProfileKey:'',recommendationUnlocked:false,experimentRecords:[],researchPlan:null,planSuggestions:[],reflections:[],projects:[],currentProject:null,studentLoggedIn:false,teacherLoggedIn:false}}
-function load(){try{const saved=JSON.parse(localStorage.getItem(storeKey)||'{}');if(saved.flowVersion!==flowVersion)return {...defaults(),...saved,flowVersion,aiFlowVersion,screen:['recommend','guidance'].includes(saved.screen)?'profile':saved.screen,guidance:[],guidanceProfileKey:'',recommendationUnlocked:false,topicId:'',aiResult:null,aiAnswers:[]};if(saved.aiFlowVersion!==aiFlowVersion)return {...defaults(),...saved,aiFlowVersion,aiResult:null,aiAnswers:[]};return {...defaults(),...saved}}catch{return defaults()}}
-function save(){localStorage.setItem(storeKey,JSON.stringify(state))}
-function captureProfileForm(){const grade=document.querySelector('#grade'),weeks=document.querySelector('#weeks'),budget=document.querySelector('#budget'),observation=document.querySelector('#observation');if(grade)state.grade=grade.value;if(weeks)state.weeks=weeks.value;if(budget)state.budget=budget.value;if(observation)state.observation=observation.value}
-function profileKey(){return JSON.stringify([state.division,state.grade,state.weeks,state.budget,[...state.interests].sort(),state.observation.trim()])}
-function resetRecommendations(){state.guidance=[];state.guidanceProfileKey='';state.recommendationUnlocked=false;state.topicId='';state.aiResult=null;state.aiAnswers=[]}
-function esc(v=''){return String(v).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
-function progress(n){return `<div class="progress" aria-label="目前第 ${n} 步">${[1,2,3,4].map(x=>`<span class="${x<=n?'on':''}"></span>`).join('')}</div>`}
-function render(){if(state.subtopics===null)state.subtopics=Array.isArray(state.currentProject?.selected_topic?.subtopics)?state.currentProject.selected_topic.subtopics:[];if(state.screen==='teacher')state.screen='home';if(state.screen==='projects'&&!state.studentLoggedIn)state.screen='home';const views={home,projects:projectList,division,profile,guidance,recommend,plan,experiment,reflection};app.innerHTML=(views[state.screen]||home)();const loggedIn=state.studentLoggedIn||state.teacherLoggedIn;document.querySelectorAll('.student-only').forEach(el=>el.hidden=!state.studentLoggedIn);document.querySelectorAll('.logged-in-only').forEach(el=>el.hidden=!loggedIn);document.querySelectorAll('.logged-out-only').forEach(el=>el.hidden=loggedIn);const resume=document.querySelector('#resume-plan');if(resume)resume.hidden=!(state.studentLoggedIn&&state.topicId&&state.researchPlan&&state.screen!=='plan');app.focus();window.scrollTo({top:0,behavior:'smooth'})}
-function home(){const projects=state.projects||[];return `<section class="panel hero"><div class="mascot">💡</div><div class="eyebrow">把好奇心變成真正的實驗</div><h1>今天想研究<br>什麼呢？</h1><p>完成三個簡單步驟，找到安全、有趣，而且真的做得完的科展題目。</p><div class="actions"><button class="primary" data-go="division">開始找題目</button>${state.studentLoggedIn?`<button class="secondary" data-go="projects">📚 查看主題列表</button><button class="secondary" data-action="new-research" ${projects.length>=5?'disabled':''}>＋ 開始新研究歷程</button>`:''}${state.topicId?'<button class="secondary" data-go="plan">繼續上次計畫</button>':''}</div></section>`}
-function projectList(){const projects=state.projects||[],canDelete=projects.length>=5;return `<section class="panel project-list"><div class="project-picker-head"><div><div class="eyebrow">學生工具｜主題列表</div><h2>我的研究主題</h2><p>目前保存 ${projects.length}／5 個研究主題。${canDelete?'已達 5 個，可先下載 PDF 再刪除不需要的主題。':'未滿 5 個前不能刪除。'}</p></div><button class="primary" data-action="new-research" ${projects.length>=5?'disabled':''}>＋ 開始新研究歷程</button></div>${projects.length?`<div class="project-grid">${projects.map(p=>`<article class="project-card ${p.id===state.currentProject?.id?'current':''}"><div class="project-status">${p.id===state.currentProject?.id?'目前開啟':'已保存'}</div><h3>${esc(p.title)}</h3><p>${p.selected_topic?.title?esc(p.selected_topic.title):'尚未選定題目'}</p><div class="project-actions"><button class="secondary" data-project-select="${p.id}" ${p.id===state.currentProject?.id?'disabled':''}>${p.id===state.currentProject?.id?'目前開啟':'開啟研究'}</button><button class="secondary" data-project-pdf="${p.id}">下載 PDF</button><button class="danger" data-project-delete="${p.id}" data-project-title="${esc(p.title)}" ${canDelete?'':'disabled'}>刪除</button></div></article>`).join('')}</div>`:'<div class="notice">目前還沒有保存的研究主題。請按「開始新研究歷程」建立第一個主題。</div>'}<div class="actions"><button class="secondary" data-go="home">← 返回首頁</button></div></section>`}
-function division(){return `<section class="panel">${progress(1)}<div class="eyebrow">第 1 步｜可以隨時更換</div><h2>想參加哪一個科別？</h2><p>不確定也沒關係，先選最感興趣的方向。</p><div class="options">${Object.entries(divisions).map(([k,v])=>`<button class="option ${state.division===k?'selected':''}" data-division="${k}"><strong>${v[0]}</strong><small>${v[1]}</small></button>`).join('')}</div><div class="actions"><button class="secondary" data-go="home">返回</button><button class="primary" data-next="profile" ${state.division?'':'disabled'}>下一步</button></div></section>`}
-function profile(){return `<section class="panel">${progress(2)}<div class="eyebrow">第 2 步｜可以返回修改</div><h2>告訴我你的條件</h2><div class="form-grid"><div class="field"><label for="grade">年級</label><select id="grade"><option value="">請選擇</option>${[4,5,6].map(n=>`<option ${String(state.grade)===String(n)?'selected':''}>${n}</option>`).join('')}</select></div><div class="field"><label for="weeks">還有幾週？</label><input id="weeks" type="number" min="1" max="52" value="${esc(state.weeks)}" placeholder="例如：8"></div><div class="field"><label for="budget">材料預算上限</label><select id="budget"><option value="">請選擇</option>${['5,000 元','10,000 元','15,000 元','20,000 元'].map(x=>`<option ${state.budget===x?'selected':''}>${x}</option>`).join('')}</select></div><div class="field wide"><label>你喜歡哪些事物？可複選</label><div class="chips">${interestOptions.map(x=>`<button class="chip ${state.interests.includes(x)?'selected':''}" data-interest="${x}" type="button">${x}</button>`).join('')}</div></div><div class="field wide"><label for="observation">最近有沒有讓你好奇的現象？</label><textarea id="observation" placeholder="例如：窗邊的豆苗好像都朝同一邊長……">${esc(state.observation)}</textarea></div></div><div class="actions"><button class="secondary" data-go="division">← 上一步：選擇科別</button><button class="primary" data-profile>開始 2–3 輪想法對談</button></div></section>`}
-function guideQuestion(n){const observation=state.observation.trim();if(observation){const focus=observation.length>80?`${observation.slice(0,80)}…`:observation;const qs=[`你提到「${focus}」。你是在什麼情況下發現的？當時哪些細節讓你最好奇？`,`針對剛才這個現象，你最想知道哪一個變化的原因？你猜可能是什麼因素造成的？`,`如果要用實驗研究這個現象，你想只改變哪一個條件？又想用數字、照片或次數記錄什麼結果？`];return qs[Math.min(n,2)]}const interest=state.interests[0]||'生活中的事物';const qs=[`你喜歡「${interest}」的哪一部分？請說一個親眼看過、玩過或做過的例子。`,`在這個例子裡，哪一個變化最讓你想知道「為什麼」？你覺得可能是什麼造成的？`,`如果只能改變一個條件來試試看，你會改變什麼？你想用數字、照片或次數觀察什麼結果？`];return qs[Math.min(n,2)]}
-function guidance(){const n=state.guidance.length;return `<section class="panel">${progress(2)}<div class="eyebrow">推薦前的想法對談｜第 ${Math.min(n+1,3)} 輪</div><h2>先把你的好奇心說清楚</h2><p>我會先和你聊 2–3 輪。完成至少兩輪以前，備援題目不會出現；你的原始想法會完整保存。</p><div class="conversation">${state.guidance.map(x=>`<div class="turn coach"><strong>小助手：</strong>${esc(x.question)}</div><div class="turn student"><strong>我：</strong>${esc(x.answer)}</div>`).join('')}${n<3?`<div class="turn coach"><strong>小助手：</strong>${esc(guideQuestion(n))}</div><label class="field"><span class="sr-only">我的回答</span><textarea id="guide-answer" minlength="10" placeholder="請用自己的話多說一點，至少 10 個字……"></textarea></label>`:'<div class="notice">你已完成三輪思考，現在可以查看人工整理的備援題目。</div>'}</div><p id="guide-status"></p><div class="actions"><button class="secondary" data-go="profile">← 上一步：修改條件</button>${n<3?'<button class="primary" data-guide-submit>送出我的想法</button>':''}${n>=2?'<button class="primary" data-guide-finish>查看人工整理的備援題目</button>':''}</div></section>`}
-function ranked(){const list=topics.filter(t=>t.d===state.division);return list.sort((a,b)=>score(b)-score(a)).slice(0,3)}
-function score(t){const joined=(t.i||[]).join('');return state.interests.reduce((n,x)=>n+(joined.includes(x.split('／')[0])?2:0),0)+Math.random()*.01}
-function works(t){if(!t.works?.length)return '';return `<details class="works"><summary>查看科教館歷屆相關作品（${t.works.length}）</summary><ul>${t.works.map(([name,url])=>`<li><a href="${url}" target="_blank" rel="noopener">${name}</a></li>`).join('')}</ul><p>歷屆作品用來了解前人做到哪裡，不可直接複製題目、方法或文字。</p></details>`}
-function topicCard(t){const chosen=state.topicId===t.id;return `<article class="topic ${chosen?'selected':''}"><div class="topic-head"><div><span class="tag">${divisions[t.d][0]}</span><h3>${t.title}</h3></div><button class="secondary" data-topic="${t.id}">${chosen?'已選擇':'選這一題'}</button></div>${t.why?`<p class="match"><strong>為什麼符合：</strong>${t.why}</p>`:''}<p><strong>研究問題：</strong>${t.q}</p><div class="facts"><div class="fact"><small>難度</small>${t.difficulty}</div><div class="fact"><small>時間</small>${t.time}</div><div class="fact"><small>預估材料費</small>${t.cost}</div></div><p><strong>優點：</strong>${t.pros}</p><p><strong>可能困難：</strong>${t.cons}</p>${t.develop?`<div class="development"><strong>創新發展建議：</strong>${t.develop}</div>`:''}${works(t)}<div class="notice"><strong>安全提醒：</strong>${t.safety}</div>${chosen?'<div class="chosen-next"><strong>已鎖定這個研究方向</strong><p>接下來的提問與實驗討論只會圍繞這個題目。</p><button class="primary" data-next="plan">確認題目並繼續</button></div>':''}</article>`}
-function alternateAdvice(){const hasPlant=state.interests.includes('植物');if(state.division==='math'&&hasPlant)return '<div class="advisor"><strong>科別判斷：</strong>若研究重點是角度、數列、遮蔽比例與模型誤差，可留在數學科；若重點是光照造成的生長差異，生物科更合適；若要製作自動栽培裝置，則考慮生活與應用科學科（一）。</div>';const map={'動物／昆蟲':'biology','食物':'applied2','水／環境':'applied3','玩具／工程':'applied1','聲音／音樂':'physics','天氣／星空':'earth','數字／圖形':'math'};const alt=state.interests.map(x=>map[x]).find(x=>x&&x!==state.division);return alt?`<div class="advisor"><strong>也可以考慮：</strong>${divisions[alt][0]}。如果你更重視「${state.interests.find(x=>map[x]===alt)}」本身，而不是目前科別的方法，這個科別可能更合適。</div>`:''}
-function aiPanel(){if(!window.ScienceFairBackend?.enabled())return '<div class="notice"><strong>動態題目尚未連線：</strong>目前顯示經人工整理的安全題庫。</div>';if(!state.aiResult)return '<div class="ai-box"><h3>🌏 搜尋近期議題與科教館作品</h3><p>系統會依照先前對談直接產生候選題目。選定一題後，才會針對該題繼續提問。每位學生每日最多5次。</p><button class="primary" data-ai-start>開始動態找題</button><p id="ai-status"></p></div>';return `<div class="ai-box"><h3>近期議題動態推薦</h3><div class="topics">${state.aiResult.topics.map((t,i)=>{const chosen=state.topicId===`ai:${i}`;return `<article class="topic ${chosen?'selected':''}"><div class="topic-head"><div><span class="tag">${esc(t.division)}</span><h3>${esc(t.title)}</h3></div><button class="secondary" data-ai-topic="${i}">${chosen?'已選擇':'選這一題'}</button></div><p><strong>為什麼符合：</strong>${esc(t.fit)}</p><p><strong>近期議題：</strong>${esc(t.current_issue)}</p><p><strong>研究問題：</strong>${esc(t.research_question)}</p><div class="development"><strong>創新方向：</strong>${esc(t.novelty)}</div><p><strong>變因：</strong>${esc(t.variables)}</p><p><strong>可行性：</strong>${esc(t.feasibility)}</p><div class="notice"><strong>安全：</strong>${esc(t.safety)}</div>${t.prior_works?.length?`<details class="works"><summary>科教館相關作品</summary><ul>${t.prior_works.map(w=>`<li><a href="${esc(safeUrl(w.url))}" target="_blank" rel="noopener">${esc(w.title)}</a>－${esc(w.relationship)}</li>`).join('')}</ul></details>`:'<p>尚未找到可核對的科教館相關作品。</p>'}${chosen?'<div class="chosen-next"><strong>已鎖定這個研究方向</strong><p>後續只討論這個題目。</p><button class="primary" data-next="plan">確認題目並繼續</button></div>':''}</article>`}).join('')}</div>${state.aiResult.sources?.length?`<details class="works"><summary>本次近期議題來源</summary><ul>${state.aiResult.sources.map(s=>`<li><a href="${esc(safeUrl(s.url))}" target="_blank" rel="noopener">${esc(s.title)}</a>｜${esc(s.published_date)}｜${esc(s.kind)}</li>`).join('')}</ul></details>`:''}</div>`}
-function recommend(){if(state.guidance.length<2||state.guidanceProfileKey!==profileKey()||!state.recommendationUnlocked)return guidance();const list=ranked();return `<section class="panel">${progress(3)}<div class="eyebrow">第 3 步｜已完成 ${state.guidance.length} 輪想法對談</div><h2>經人工整理的備援題目</h2><p>以下題目會參考你剛才的回答、所選科別與興趣；對談歷程也已保存。</p>${alternateAdvice()}<div class="topics">${list.map(topicCard).join('')}</div><div class="actions"><button class="secondary" data-go="guidance">← 上一步：查看想法對談</button><button class="secondary" data-reroll>重新排序</button><button class="primary" data-next="plan" ${state.topicId?'':'disabled'}>確認題目並建立摘要</button></div></section>`}
-function selected(){let topic;if(String(state.topicId).startsWith('ai:')){const i=Number(state.topicId.split(':')[1]),x=state.aiResult?.topics?.[i];if(x)topic={id:state.topicId,d:state.division,title:x.title,q:x.research_question,difficulty:'由教師評估',time:x.feasibility,cost:'依器材確認',pros:x.fit,cons:x.novelty,iv:x.variables,dv:'見變因說明',cv:'見變因說明',safety:x.safety,works:x.prior_works}}else topic=topics.find(t=>t.id===state.topicId);return topic?{...topic,subtopics:state.subtopics||[]}:topic}
-function suggestedPlan(t){return {question:t.q,hypothesis:`我預測改變「${t.iv}」時，「${t.dv}」會出現可比較的變化。實驗前先寫下預測方向與理由。`,variables:`操縱變因：${t.iv}\n應變變因：${t.dv}\n控制變因：${t.cv}`,materials:`依題目準備量測工具、相同規格的實驗材料、紀錄表與安全防護用品；正式實驗前先做一次小規模預試。`,procedure:`1. 先固定控制變因並設定各組操縱變因。\n2. 每組用相同方法量測，至少重複 3 次。\n3. 每次立即記錄原始數字、單位與異常情況。\n4. 只在預試後調整方法，正式實驗中不要任意改步驟。`,analysis:`計算各組平均值並畫圖比較，保留每次原始資料；檢查離群值但不可任意刪除，最後判斷結果是否支持原先假設。`,safety:t.safety}}
-function planBlock(p){return `<div class="research-plan"><section class="wide"><h3>研究問題</h3><p>${esc(p.question)}</p></section><section><h3>研究假設</h3><p>${esc(p.hypothesis)}</p></section><section><h3>變因設計</h3><p class="preline">${esc(p.variables)}</p></section><section><h3>材料與工具</h3><p>${esc(p.materials)}</p></section><section><h3>建議步驟</h3><p class="preline">${esc(p.procedure)}</p></section><section><h3>資料整理與判讀</h3><p>${esc(p.analysis)}</p></section><section><h3>安全檢查</h3><p>${esc(p.safety)}</p></section></div>`}
-function planSuggestions(){const pending=(state.planSuggestions||[]).filter(x=>x.status==='pending');if(!pending.length)return '';return `<section class="teacher-suggestions"><h3>👩‍🏫 等待你決定的教師建議</h3>${pending.map(x=>`<article class="suggestion"><p><strong>老師的說明：</strong>${esc(x.comment)}</p>${planBlock(x.proposed_plan)}<p>請先比較修改內容；只有你按下同意後，才會更新上方研究架構。</p><div class="actions"><button class="primary" data-plan-decision="accept" data-suggestion-id="${x.id}">同意並套用</button><button class="secondary" data-plan-decision="decline" data-suggestion-id="${x.id}">暫不採用</button></div></article>`).join('')}</section>`}
-function subtopicPanel(){const items=state.subtopics||[];return `<section class="subtopic-panel"><div class="subtopic-head"><div><h3>這個主題的子題</h3><p>把同一個主題拆成較小、可逐一研究的問題。目前 ${items.length}／10 個。</p></div></div>${items.length?`<ol class="subtopic-list">${items.map(x=>`<li><strong>${esc(x.title)}</strong><p>${esc(x.question)}</p></li>`).join('')}</ol>`:'<div class="notice">還沒有子題，可以從目前研究問題拆出第一個小問題。</div>'}<form id="subtopic-form" class="subtopic-form"><label>子題名稱<input name="title" maxlength="80" required placeholder="例如：不同糖水濃度的到訪次數"></label><label>子題研究問題<textarea name="question" maxlength="300" required placeholder="請寫成可以觀察或量測的問題"></textarea></label><button class="secondary" ${items.length>=10?'disabled':''}>＋ 新增子題</button><p id="subtopic-status"></p></form></section>`}
-function plan(){const t=selected();if(!t)return empty('還沒有選擇題目','recommend');const p=state.researchPlan?.current_plan||state.researchPlan?.currentPlan||suggestedPlan(t);return `<section class="panel">${progress(4)}<div class="eyebrow">題目已確認｜系統建議研究架構${state.researchPlan?.revision?`｜第 ${state.researchPlan.revision} 版`:''}</div><h2>${t.title}</h2><p>這是可討論的研究初稿，不是唯一答案。教師可以提出修訂版本，由學生決定是否採用。</p>${subtopicPanel()}${planBlock(p)}${planSuggestions()}<p class="saved">✓ 題目、子題、研究架構與每次師生修訂決定都會保存</p><div class="actions"><button class="secondary" data-go="recommend">查看備援題目／更換題目</button><button class="primary" data-go="experiment">💬 繼續討論或上傳實驗紀錄</button></div></section>`}
-function experiment(){const t=selected();if(!t)return empty('請先確認研究題目','recommend');return `<section class="panel"><div class="eyebrow">針對已選題目繼續研究</div><h2>${t.title}</h2><div class="research-tools"><section class="discussion-form"><h3>💬 有問題，繼續和 AI 教練討論</h3><p>問題會以目前選定的題目為主，不會跳去其他研究方向。</p><label>我想問……<textarea id="discussion-question" placeholder="例如：倒水角度要分成幾組？聲音應該量頻率還是音量？"></textarea></label><button class="primary" data-discussion-submit>送出問題</button></section><section class="experiment-form"><h3>📎 上傳實驗過程或結果</h3><label>這次做了什麼？<textarea id="record-method" placeholder="日期、組別、材料、步驟、重複次數……"></textarea></label><label>得到什麼結果？<textarea id="record-result" placeholder="請寫數字、單位、觀察到的現象與意外狀況……"></textarea></label><label>附加檔案 <span class="file-hint">支援圖片、PDF、CSV、TXT、XLSX；單檔上限 8 MB</span><input id="record-file" type="file" accept="image/*,.pdf,.csv,.txt,.xlsx"></label><button class="primary" data-record-submit>上傳並請 AI 教練分析</button></section></div><p id="record-status"></p><div class="record-list">${(state.experimentRecords||[]).slice().reverse().map((r,i)=>`<article class="record"><h3>${r.recordKind==='discussion'?'問題討論':'實驗紀錄'} ${state.experimentRecords.length-i}</h3>${r.recordKind==='discussion'?`<p><strong>學生問題：</strong>${esc(r.result)}</p>`:`<p><strong>做法：</strong>${esc(r.method)}</p><p><strong>結果：</strong>${esc(r.result)}</p>${r.fileName?`<p>📎 ${esc(r.fileName)}</p>`:''}`} ${r.review?`<div class="review"><strong>AI 教練回覆</strong><p>${esc(r.review)}</p></div>`:'<p>等待分析中……</p>'}</article>`).join('')||'<div class="notice">還沒有討論或實驗紀錄，可以先提出第一個問題。</div>'}</div><div class="actions"><button class="secondary" data-go="plan">返回研究摘要</button></div></section>`}
-function reflectionCards(items=state.reflections||[]){return items.slice().reverse().map(r=>`<article class="reflection-card"><time>${esc(r.date)}</time><h3>我學到了什麼</h3><p>${esc(r.learned)}</p><h3>我覺得比較困難的地方</h3><p>${esc(r.difficult)}</p></article>`).join('')||'<div class="notice">還沒有心得歷程，完成一次活動後就可以來寫第一篇。</div>'}
-function reflection(){const today=new Intl.DateTimeFormat('zh-TW',{timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());return `<section class="panel"><div class="eyebrow">學生工具｜心得歷程</div><h2>記下今天的發現與挑戰</h2><p>日期已自動帶入。請用自己的話寫，老師也能在你的歷程頁看到這些內容。</p><form class="reflection-form" id="reflection-form"><label>填寫日期<input id="reflection-date" name="date" value="${esc(today)}" readonly></label><label>我學到了什麼<textarea name="learned" maxlength="3000" required placeholder="例如：我學會了要讓每一組只改變一個條件……"></textarea></label><label>我覺得還有什麼是比較困難的<textarea name="difficult" maxlength="3000" required placeholder="例如：每次倒入完全相同的水量還是很困難……"></textarea></label><button class="primary">儲存心得</button></form><p id="reflection-status"></p><h3>我的心得紀錄</h3>${reflectionCards()}</section>`}
-function empty(msg,go){return `<section class="panel empty"><div class="mascot">🧭</div><h2>${msg}</h2><div class="actions"><button class="primary" data-go="${go}">前往選題</button></div></section>`}
-document.addEventListener('submit',async e=>{if(e.target.id!=='subtopic-form')return;e.preventDefault();const form=new FormData(e.target),title=String(form.get('title')||'').trim(),question=String(form.get('question')||'').trim(),status=document.querySelector('#subtopic-status');if(!title||!question){status.textContent='請填寫子題名稱與研究問題。';return}if((state.subtopics||[]).length>=10){status.textContent='每個主題最多可建立 10 個子題。';return}const button=e.target.querySelector('button');button.disabled=true;const item={id:crypto.randomUUID?.()||`subtopic-${Date.now()}`,title,question,createdAt:new Date().toISOString()};state.subtopics=[...(state.subtopics||[]),item];const topic={...selected(),subtopics:state.subtopics};if(state.currentProject){state.currentProject={...state.currentProject,selected_topic:topic};state.projects=(state.projects||[]).map(p=>p.id===state.currentProject.id?state.currentProject:p)}save();try{await window.ScienceFairBackend?.track('topic_selected',{id:topic.id,title:topic.title,subtopic_added:item},{profile:state,selectedTopic:topic});render()}catch(error){state.subtopics=state.subtopics.filter(x=>x.id!==item.id);button.disabled=false;status.textContent=error.message}})
-document.addEventListener('submit',async e=>{if(e.target.id!=='reflection-form')return;e.preventDefault();const form=new FormData(e.target),entry={date:String(form.get('date')||''),learned:String(form.get('learned')||'').trim(),difficult:String(form.get('difficult')||'').trim(),createdAt:new Date().toISOString()},status=document.querySelector('#reflection-status');if(!entry.learned||!entry.difficult){status.textContent='請完成兩個心得欄位。';return}const button=e.target.querySelector('button[type="submit"],button:not([type])');button.disabled=true;try{if(window.ScienceFairBackend?.enabled())await window.ScienceFairBackend.saveReflection(entry);state.reflections=[...(state.reflections||[]),entry];save();render()}catch(error){button.disabled=false;status.textContent=error.message}});
-async function startNewResearch(){if(!state.studentLoggedIn||!window.ScienceFairBackend?.enabled())return;const title=prompt('請為新的研究歷程輸入名稱：','新研究歷程');if(title===null)return;const project=await window.ScienceFairBackend.createProject(title.trim()||'新研究歷程');const loggedIn=state.studentLoggedIn;localStorage.removeItem(storeKey);state={...load(),studentLoggedIn:loggedIn,projects:[project,...(state.projects||[])],currentProject:project,screen:'division'};save();render()}
-function pdfHtml(data){const project=data.currentProject||{},topic=project.selected_topic||{},plan=data.researchPlan?.current_plan||{},events=data.events||[],turns=events.filter(x=>x.event_type==='answer_submitted'),reflections=events.filter(x=>x.event_type==='reflection_added'),records=data.experimentRecords||[];const section=(title,body)=>`<section><h2>${esc(title)}</h2>${body||'<p>尚無資料</p>'}</section>`;return `<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><title>${esc(project.title||'研究主題')}</title><style>body{font-family:Arial,"Noto Sans TC",sans-serif;max-width:850px;margin:32px auto;color:#222;line-height:1.65}h1{border-bottom:3px solid #7754df;padding-bottom:12px}section{break-inside:avoid;margin:24px 0}article{border:1px solid #ccc;border-radius:10px;padding:12px;margin:10px 0}.pre{white-space:pre-wrap}@media print{body{margin:0}}</style></head><body><h1>${esc(project.title||'研究主題')}</h1><p>研究題目：${esc(topic.title||'尚未選定')}</p>${section('子題列表',(topic.subtopics||[]).map(x=>`<article><strong>${esc(x.title)}</strong><div class="pre">${esc(x.question)}</div></article>`).join(''))}${section('研究架構',Object.entries({研究問題:plan.question,研究假設:plan.hypothesis,變因設計:plan.variables,材料與工具:plan.materials,實驗步驟:plan.procedure,資料分析:plan.analysis,安全檢查:plan.safety}).filter(([,v])=>v).map(([k,v])=>`<article><strong>${k}</strong><div class="pre">${esc(v)}</div></article>`).join(''))}${section('想法歷程',turns.map(x=>`<article><strong>AI 教練：</strong>${esc(x.content?.question||'')}<br><strong>學生：</strong>${esc(x.content?.answer||'')}</article>`).join(''))}${section('實驗與討論紀錄',records.map(r=>`<article><strong>${r.record_kind==='discussion'?'問題討論':'實驗紀錄'}</strong><div class="pre">${esc(r.method||'')}\n${esc(r.result||'')}\n${esc(r.ai_review||'')}</div></article>`).join(''))}${section('心得歷程',reflections.map(x=>`<article><strong>${esc(x.content?.date||'')}</strong><p>學到：${esc(x.content?.learned||'')}</p><p>困難：${esc(x.content?.difficult||'')}</p></article>`).join(''))}<script>window.onload=()=>window.print()<\/script></body></html>`}
-async function downloadProjectPdf(id){const popup=window.open('','_blank');if(!popup)throw new Error('瀏覽器阻擋了 PDF 視窗，請允許彈出式視窗後再試');try{const data=await window.ScienceFairBackend.get(id);popup.document.write(pdfHtml(data));popup.document.close()}catch(error){popup.close();throw error}}
-async function deleteResearch(id,title){if((state.projects||[]).length<5)throw new Error('研究主題未滿 5 個，目前不能刪除');if(!confirm(`確定要刪除「${title}」嗎？\n\n刪除後無法復原，建議先按「下載 PDF」備份。`))return;const result=await window.ScienceFairBackend.deleteProject(id);state.projects=result.projects||[];if(id===state.currentProject?.id&&result.nextResearchId){window.ScienceFairBackend.setResearchId(result.nextResearchId);await switchResearch(result.nextResearchId,true)}else{save();render()}}
-async function switchResearch(id,force=false){if(!state.studentLoggedIn||(!force&&id===state.currentProject?.id))return;window.ScienceFairBackend.setResearchId(id);const data=await window.ScienceFairBackend.get(id),project=data.currentProject;state={...defaults(),...(project?.profile||{}),studentLoggedIn:true,projects:data.projects||[],currentProject:project,topicId:project?.selected_topic?.id||'',researchPlan:data.researchPlan||null,planSuggestions:data.planSuggestions||[],experimentRecords:(data.experimentRecords||[]).map(r=>({id:r.id,recordKind:r.record_kind||'experiment',method:r.method,result:r.result,fileName:r.file_name,review:r.ai_review,createdAt:r.created_at})),reflections:(data.events||[]).filter(e=>e.event_type==='reflection_added').map(e=>({...e.content,createdAt:e.created_at})),screen:'home'};save();render()}
-async function logout(){await window.ScienceFairBackend?.logout();localStorage.removeItem(storeKey);state=defaults();document.querySelector('#current-user').textContent='（未登入）';render()}
-document.addEventListener('click',e=>{const b=e.target.closest('button,[data-go]');if(!b)return;if(b.dataset.go){state.screen=b.dataset.go;save();render()}if(b.dataset.action==='home'){state.screen='home';render()}if(b.dataset.action==='teacher'){state.screen='teacher';render()}if(b.dataset.projectSelect)switchResearch(b.dataset.projectSelect).catch(error=>alert(error.message));if(b.dataset.projectPdf)downloadProjectPdf(b.dataset.projectPdf).catch(error=>alert(error.message));if(b.dataset.projectDelete)deleteResearch(b.dataset.projectDelete,b.dataset.projectTitle).catch(error=>alert(error.message));if(b.dataset.action==='new-research')startNewResearch().catch(error=>alert(error.message));if(b.dataset.action==='reset'&&confirm('要清除目前的選題紀錄並重新開始嗎？')){const loggedIn=state.studentLoggedIn,projects=state.projects,currentProject=state.currentProject;localStorage.removeItem(storeKey);state={...load(),studentLoggedIn:loggedIn,projects,currentProject};render()}if(b.dataset.division){if(state.division!==b.dataset.division)resetRecommendations();state.division=b.dataset.division;save();render()}if(b.dataset.interest){captureProfileForm();state.interests=state.interests.includes(b.dataset.interest)?state.interests.filter(x=>x!==b.dataset.interest):[...state.interests,b.dataset.interest];save();render()}if(b.dataset.profile!==undefined){captureProfileForm();state.observation=state.observation.trim();const key=profileKey();if(state.guidanceProfileKey&&state.guidanceProfileKey!==key)resetRecommendations();state.guidanceProfileKey=key;state.recommendationUnlocked=false;state.screen='guidance';save();render()}if(b.dataset.topic){state.topicId=b.dataset.topic;state.researchPlan=null;state.planSuggestions=[];save();render()}if(b.dataset.next){state.screen=b.dataset.next;if(b.dataset.next==='plan'){const p=suggestedPlan(selected());state.researchPlan=state.researchPlan||{system_plan:p,current_plan:p,revision:1};window.ScienceFairBackend?.savePlan(p)?.catch(console.warn)}save();render()}if(b.dataset.reroll!==undefined)render()});
-document.addEventListener('click',e=>{const b=e.target.closest('button');if(b&&(b.dataset.topic!==undefined||b.dataset.aiTopic!==undefined))state.subtopics=[]},true)
-document.addEventListener('click',e=>{const b=e.target.closest('[data-action="logout"]');if(b){b.disabled=true;logout().catch(error=>{b.disabled=false;alert(`登出失敗：${error.message}`)})}});
-document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.division)window.ScienceFairBackend?.track('division_selected',{division:b.dataset.division},{profile:state});if(b.dataset.interest)window.ScienceFairBackend?.track('interest_selected',{interest:b.dataset.interest,selected:state.interests.includes(b.dataset.interest)},{profile:state});if(b.dataset.profile!==undefined){window.ScienceFairBackend?.track('profile_updated',{grade:state.grade,weeks:state.weeks,budget:state.budget},{profile:state});if(state.observation)window.ScienceFairBackend?.track('observation_entered',{text:state.observation},{profile:state});}if(b.dataset.topic){const t=selected();window.ScienceFairBackend?.track('topic_selected',{id:t?.id,title:t?.title},{profile:state,selectedTopic:t});}if(b.dataset.next==='plan'){const t=selected();window.ScienceFairBackend?.track('plan_created',{id:t?.id,title:t?.title},{profile:state,selectedTopic:t});}});
-document.addEventListener('click',e=>{const link=e.target.closest('.works a');if(link)window.ScienceFairBackend?.track('source_opened',{title:link.textContent,url:link.href})});
-document.addEventListener('click',async e=>{const b=e.target.closest('button');if(!b)return;const status=()=>document.querySelector('#ai-status');if(b.dataset.aiStart!==undefined){b.disabled=true;if(status())status().textContent='正在判斷還需要問什麼…';try{state.aiResult=await window.ScienceFairBackend.recommend(state,state.aiAnswers||[]);save();render()}catch(error){b.disabled=false;if(status())status().textContent=error.message}}if(b.dataset.aiSubmit!==undefined){const answers=[...document.querySelectorAll('[data-ai-answer]')].map((el,i)=>({question:state.aiResult.questions[i],answer:el.value.trim()}));if(answers.some(x=>!x.answer)){if(status())status().textContent='請先回答每一題。';return}b.disabled=true;if(status())status().textContent='正在搜尋近期議題與歷屆作品…';try{state.aiAnswers=[...(state.aiAnswers||[]),...answers];state.aiResult=await window.ScienceFairBackend.recommend(state,state.aiAnswers);save();render()}catch(error){b.disabled=false;if(status())status().textContent=error.message}}if(b.dataset.aiTopic!==undefined){state.topicId=`ai:${b.dataset.aiTopic}`;const t=selected();save();window.ScienceFairBackend.track('topic_selected',{id:t.id,title:t.title,mode:'dynamic'},{profile:state,selectedTopic:t});render()}});
-document.addEventListener('click',async e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.guideSubmit!==undefined){const input=document.querySelector('#guide-answer'),answer=input?.value.trim()||'',status=document.querySelector('#guide-status');if(answer.length<10){status.textContent='請再多說一點，至少 10 個字，讓我真的了解你的想法。';return}const turn={question:guideQuestion(state.guidance.length),answer,round:state.guidance.length+1,createdAt:new Date().toISOString()};state.guidance.push(turn);state.recommendationUnlocked=false;save();await window.ScienceFairBackend?.track('answer_submitted',turn,{profile:state});render()}if(b.dataset.guideFinish!==undefined){if(state.guidance.length<2||state.guidanceProfileKey!==profileKey())return;state.recommendationUnlocked=true;state.screen='recommend';save();window.ScienceFairBackend?.track('topics_recommended',{topic_ids:ranked().map(t=>t.id),guidance_rounds:state.guidance.length},{profile:state});render()}if(b.dataset.discussionSubmit!==undefined){const question=document.querySelector('#discussion-question').value.trim(),status=document.querySelector('#record-status');if(question.length<5){status.textContent='請把問題再說清楚一點，至少 5 個字。';return}b.disabled=true;status.textContent='教練正在依照已選題目回答……';try{const record={recordKind:'discussion',method:'研究問題討論',result:question,createdAt:new Date().toISOString()};const response=await window.ScienceFairBackend?.reviewExperiment({...record,topic:selected()});record.review=response?.review||`這個問題需要以「${selected().q}」為範圍和老師一起討論。`;record.id=response?.recordId;state.experimentRecords=[...(state.experimentRecords||[]),record];save();render()}catch(error){b.disabled=false;status.textContent=error.message}}if(b.dataset.recordSubmit!==undefined){const method=document.querySelector('#record-method').value.trim(),result=document.querySelector('#record-result').value.trim(),file=document.querySelector('#record-file').files[0],status=document.querySelector('#record-status');if(!method||!result){status.textContent='請先填寫這次的做法和結果。';return}if(file&&file.size>8*1024*1024){status.textContent='檔案超過 8 MB，請縮小後再上傳。';return}b.disabled=true;status.textContent='正在保存紀錄並檢查研究方向、實驗設計與結果……';try{const record={recordKind:'experiment',method,result,fileName:file?.name||'',mimeType:file?.type||'',createdAt:new Date().toISOString()};const payload={...record,topic:selected(),fileData:file?await fileToBase64(file):''};const response=await window.ScienceFairBackend?.reviewExperiment(payload);record.review=response?.review||localExperimentReview(record,selected());record.id=response?.recordId;state.experimentRecords=[...(state.experimentRecords||[]),record];save();render()}catch(error){b.disabled=false;status.textContent=error.message}}});
-document.addEventListener('click',async e=>{const b=e.target.closest('[data-plan-decision]');if(!b)return;b.disabled=true;try{const result=await window.ScienceFairBackend?.decideSuggestion(b.dataset.suggestionId,b.dataset.planDecision);const item=state.planSuggestions.find(x=>x.id===b.dataset.suggestionId);if(item)item.status=b.dataset.planDecision==='accept'?'accepted':'declined';if(b.dataset.planDecision==='accept'&&item){state.researchPlan={...(state.researchPlan||{}),current_plan:item.proposed_plan,revision:(state.researchPlan?.revision||1)+1}}save();render()}catch(error){b.disabled=false;alert(error.message)}});
-document.addEventListener('click',e=>{const button=e.target.closest('button');if(!button)return;if(button.dataset.recordSubmit!==undefined){const file=document.querySelector('#record-file')?.files[0];if(file&&!isAllowedRecordFile(file)){e.preventDefault();e.stopImmediatePropagation();document.querySelector('#record-status').textContent='不支援此檔案類型。請選擇圖片、PDF、CSV、TXT 或 XLSX 檔案。'}}if(button.dataset.discussionSubmit!==undefined)queueMicrotask(()=>{const status=document.querySelector('#record-status');if(status?.textContent.startsWith('教練正在'))status.textContent=status.textContent.replace('教練正在','AI 教練正在')})},true)
-function isAllowedRecordFile(file){return /\.(pdf|csv|txt|xlsx)$/i.test(file.name)||file.type.startsWith('image/')}
-function fileToBase64(file){return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result).split(',')[1]||'');reader.onerror=()=>reject(new Error('無法讀取檔案'));reader.readAsDataURL(file)})}
-function localExperimentReview(record,t){const notes=[];if(!/\d/.test(record.result))notes.push('結果中沒有看到數字，建議補上量測值、單位與重複次數，才容易判斷差異。');if(!/重複|次|組/.test(record.method))notes.push('做法中未清楚交代分組或重複次數，請確認是否有足夠重複試驗。');notes.push(`請再次確認只改變「${t.iv}」，並保持「${t.cv}」一致。`);return `方向檢查：這份紀錄仍需用「${t.q}」來解釋。${notes.join('')}`}
+const interestOptions = ["植物", "動物／昆蟲", "食物", "水／環境", "玩具／工程", "聲音／音樂", "天氣／星空", "數字／圖形"];
+const storeKey = "scienceFairCoachV1";
+const flowVersion = 2;
+const aiFlowVersion = 2;
+let state = load();
+const app = document.querySelector("#app");
+function safeUrl(value) {
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" ? url.href : "#";
+  } catch {
+    return "#";
+  }
+}
+function defaults() {
+  return {
+    flowVersion,
+    aiFlowVersion,
+    screen: "home",
+    division: "",
+    grade: "",
+    weeks: "",
+    budget: "",
+    interests: [],
+    observation: "",
+    topicId: "",
+    subtopics: null,
+    activeSubtopicId: "",
+    guidance: [],
+    guidanceProfileKey: "",
+    recommendationUnlocked: false,
+    experimentRecords: [],
+    researchPlan: null,
+    planSuggestions: [],
+    reflections: [],
+    projects: [],
+    currentProject: null,
+    studentLoggedIn: false,
+    teacherLoggedIn: false,
+  };
+}
+function load() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(storeKey) || "{}");
+    if (saved.flowVersion !== flowVersion)
+      return {
+        ...defaults(),
+        ...saved,
+        flowVersion,
+        aiFlowVersion,
+        screen: ["recommend", "guidance"].includes(saved.screen) ? "profile" : saved.screen,
+        guidance: [],
+        guidanceProfileKey: "",
+        recommendationUnlocked: false,
+        topicId: "",
+        aiResult: null,
+        aiAnswers: [],
+      };
+    if (saved.aiFlowVersion !== aiFlowVersion)
+      return {
+        ...defaults(),
+        ...saved,
+        aiFlowVersion,
+        aiResult: null,
+        aiAnswers: [],
+      };
+    return { ...defaults(), ...saved };
+  } catch {
+    return defaults();
+  }
+}
+function save() {
+  localStorage.setItem(storeKey, JSON.stringify(state));
+}
+function captureProfileForm() {
+  const grade = document.querySelector("#grade"),
+    weeks = document.querySelector("#weeks"),
+    budget = document.querySelector("#budget"),
+    observation = document.querySelector("#observation");
+  if (grade) state.grade = grade.value;
+  if (weeks) state.weeks = weeks.value;
+  if (budget) state.budget = budget.value;
+  if (observation) state.observation = observation.value;
+}
+function profileKey() {
+  return JSON.stringify([state.division, state.grade, state.weeks, state.budget, [...state.interests].sort(), state.observation.trim()]);
+}
+function resetRecommendations() {
+  state.guidance = [];
+  state.guidanceProfileKey = "";
+  state.recommendationUnlocked = false;
+  state.topicId = "";
+  state.aiResult = null;
+  state.aiAnswers = [];
+}
+function esc(v = "") {
+  return String(v).replace(/[&<>'"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" })[c]);
+}
+function progress(n) {
+  return `<div class="progress" aria-label="目前第 ${n} 步">${[1, 2, 3, 4].map((x) => `<span class="${x <= n ? "on" : ""}"></span>`).join("")}</div>`;
+}
+function render() {
+  if (state.subtopics === null) state.subtopics = Array.isArray(state.currentProject?.selected_topic?.subtopics) ? state.currentProject.selected_topic.subtopics : [];
+  if (state.screen === "teacher") state.screen = "home";
+  if (state.screen === "projects" && !state.studentLoggedIn) state.screen = "home";
+  if (state.screen === "subtopic" && !activeSubtopic()) state.screen = "plan";
+  const views = {
+    home,
+    projects: projectList,
+    division,
+    profile,
+    guidance,
+    recommend,
+    plan,
+    experiment,
+    subtopic: subtopicWorkspace,
+    reflection,
+  };
+  app.innerHTML = (views[state.screen] || home)();
+  const loggedIn = state.studentLoggedIn || state.teacherLoggedIn;
+  document.querySelectorAll(".student-only").forEach((el) => (el.hidden = !state.studentLoggedIn));
+  document.querySelectorAll(".logged-in-only").forEach((el) => (el.hidden = !loggedIn));
+  document.querySelectorAll(".logged-out-only").forEach((el) => (el.hidden = loggedIn));
+  const resume = document.querySelector("#resume-plan");
+  if (resume) resume.hidden = !(state.studentLoggedIn && state.topicId && state.researchPlan && !["plan", "subtopic"].includes(state.screen));
+  app.focus();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+function home() {
+  const projects = state.projects || [];
+  return `<section class="panel hero"><div class="mascot">💡</div><div class="eyebrow">把好奇心變成真正的實驗</div><h1>今天想研究<br>什麼呢？</h1><p>完成三個簡單步驟，找到安全、有趣，而且真的做得完的科展題目。</p><div class="actions"><button class="primary" data-go="division">開始找題目</button>${state.studentLoggedIn ? `<button class="secondary" data-go="projects">📚 查看主題列表</button><button class="secondary" data-action="new-research" ${projects.length >= 5 ? "disabled" : ""}>＋ 開始新研究歷程</button>` : ""}${state.topicId ? '<button class="secondary" data-go="plan">繼續上次計畫</button>' : ""}</div></section>`;
+}
+function projectList() {
+  const projects = state.projects || [],
+    canDelete = projects.length >= 5;
+  return `<section class="panel project-list"><div class="project-picker-head"><div><div class="eyebrow">學生工具｜主題列表</div><h2>我的研究主題</h2><p>目前保存 ${projects.length}／5 個研究主題。${canDelete ? "已達 5 個，可先下載 PDF 再刪除不需要的主題。" : "未滿 5 個前不能刪除。"}</p></div><button class="primary" data-action="new-research" ${projects.length >= 5 ? "disabled" : ""}>＋ 開始新研究歷程</button></div>${projects.length ? `<div class="project-grid">${projects.map((p) => `<article class="project-card ${p.id === state.currentProject?.id ? "current" : ""}"><div class="project-status">${p.id === state.currentProject?.id ? "目前開啟" : "已保存"}</div><h3>${esc(p.title)}</h3><p>${p.selected_topic?.title ? esc(p.selected_topic.title) : "尚未選定題目"}</p><div class="project-actions"><button class="secondary" data-project-select="${p.id}" ${p.id === state.currentProject?.id ? "disabled" : ""}>${p.id === state.currentProject?.id ? "目前開啟" : "開啟研究"}</button><button class="secondary" data-project-pdf="${p.id}">下載 PDF</button><button class="danger" data-project-delete="${p.id}" data-project-title="${esc(p.title)}" ${canDelete ? "" : "disabled"}>刪除</button></div></article>`).join("")}</div>` : '<div class="notice">目前還沒有保存的研究主題。請按「開始新研究歷程」建立第一個主題。</div>'}<div class="actions"><button class="secondary" data-go="home">← 返回首頁</button></div></section>`;
+}
+function division() {
+  return `<section class="panel">${progress(1)}<div class="eyebrow">第 1 步｜可以隨時更換</div><h2>想參加哪一個科別？</h2><p>不確定也沒關係，先選最感興趣的方向。</p><div class="options">${Object.entries(divisions)
+    .map(([k, v]) => `<button class="option ${state.division === k ? "selected" : ""}" data-division="${k}"><strong>${v[0]}</strong><small>${v[1]}</small></button>`)
+    .join("")}</div><div class="actions"><button class="secondary" data-go="home">返回</button><button class="primary" data-next="profile" ${state.division ? "" : "disabled"}>下一步</button></div></section>`;
+}
+function profile() {
+  return `<section class="panel">${progress(2)}<div class="eyebrow">第 2 步｜可以返回修改</div><h2>告訴我你的條件</h2><div class="form-grid"><div class="field"><label for="grade">年級</label><select id="grade"><option value="">請選擇</option>${[4, 5, 6].map((n) => `<option ${String(state.grade) === String(n) ? "selected" : ""}>${n}</option>`).join("")}</select></div><div class="field"><label for="weeks">還有幾週？</label><input id="weeks" type="number" min="1" max="52" value="${esc(state.weeks)}" placeholder="例如：8"></div><div class="field"><label for="budget">材料預算上限</label><select id="budget"><option value="">請選擇</option>${["5,000 元", "10,000 元", "15,000 元", "20,000 元"].map((x) => `<option ${state.budget === x ? "selected" : ""}>${x}</option>`).join("")}</select></div><div class="field wide"><label>你喜歡哪些事物？可複選</label><div class="chips">${interestOptions.map((x) => `<button class="chip ${state.interests.includes(x) ? "selected" : ""}" data-interest="${x}" type="button">${x}</button>`).join("")}</div></div><div class="field wide"><label for="observation">最近有沒有讓你好奇的現象？</label><textarea id="observation" placeholder="例如：窗邊的豆苗好像都朝同一邊長……">${esc(state.observation)}</textarea></div></div><div class="actions"><button class="secondary" data-go="division">← 上一步：選擇科別</button><button class="primary" data-profile>開始 2–3 輪想法對談</button></div></section>`;
+}
+function guideQuestion(n) {
+  const observation = state.observation.trim();
+  if (observation) {
+    const focus = observation.length > 80 ? `${observation.slice(0, 80)}…` : observation;
+    const qs = [`你提到「${focus}」。你是在什麼情況下發現的？當時哪些細節讓你最好奇？`, `針對剛才這個現象，你最想知道哪一個變化的原因？你猜可能是什麼因素造成的？`, `如果要用實驗研究這個現象，你想只改變哪一個條件？又想用數字、照片或次數記錄什麼結果？`];
+    return qs[Math.min(n, 2)];
+  }
+  const interest = state.interests[0] || "生活中的事物";
+  const qs = [`你喜歡「${interest}」的哪一部分？請說一個親眼看過、玩過或做過的例子。`, `在這個例子裡，哪一個變化最讓你想知道「為什麼」？你覺得可能是什麼造成的？`, `如果只能改變一個條件來試試看，你會改變什麼？你想用數字、照片或次數觀察什麼結果？`];
+  return qs[Math.min(n, 2)];
+}
+function guidance() {
+  const n = state.guidance.length;
+  return `<section class="panel">${progress(2)}<div class="eyebrow">推薦前的想法對談｜第 ${Math.min(n + 1, 3)} 輪</div><h2>先把你的好奇心說清楚</h2><p>我會先和你聊 2–3 輪。完成至少兩輪以前，備援題目不會出現；你的原始想法會完整保存。</p><div class="conversation">${state.guidance.map((x) => `<div class="turn coach"><strong>小助手：</strong>${esc(x.question)}</div><div class="turn student"><strong>我：</strong>${esc(x.answer)}</div>`).join("")}${n < 3 ? `<div class="turn coach"><strong>小助手：</strong>${esc(guideQuestion(n))}</div><label class="field"><span class="sr-only">我的回答</span><textarea id="guide-answer" minlength="10" placeholder="請用自己的話多說一點，至少 10 個字……"></textarea></label>` : '<div class="notice">你已完成三輪思考，現在可以查看人工整理的備援題目。</div>'}</div><p id="guide-status"></p><div class="actions"><button class="secondary" data-go="profile">← 上一步：修改條件</button>${n < 3 ? '<button class="primary" data-guide-submit>送出我的想法</button>' : ""}${n >= 2 ? '<button class="primary" data-guide-finish>查看人工整理的備援題目</button>' : ""}</div></section>`;
+}
+function ranked() {
+  const list = topics.filter((t) => t.d === state.division);
+  return list.sort((a, b) => score(b) - score(a)).slice(0, 3);
+}
+function score(t) {
+  const joined = (t.i || []).join("");
+  return state.interests.reduce((n, x) => n + (joined.includes(x.split("／")[0]) ? 2 : 0), 0) + Math.random() * 0.01;
+}
+function works(t) {
+  if (!t.works?.length) return "";
+  return `<details class="works"><summary>查看科教館歷屆相關作品（${t.works.length}）</summary><ul>${t.works.map(([name, url]) => `<li><a href="${url}" target="_blank" rel="noopener">${name}</a></li>`).join("")}</ul><p>歷屆作品用來了解前人做到哪裡，不可直接複製題目、方法或文字。</p></details>`;
+}
+function topicCard(t) {
+  const chosen = state.topicId === t.id;
+  return `<article class="topic ${chosen ? "selected" : ""}"><div class="topic-head"><div><span class="tag">${divisions[t.d][0]}</span><h3>${t.title}</h3></div><button class="secondary" data-topic="${t.id}">${chosen ? "已選擇" : "選這一題"}</button></div>${t.why ? `<p class="match"><strong>為什麼符合：</strong>${t.why}</p>` : ""}<p><strong>研究問題：</strong>${t.q}</p><div class="facts"><div class="fact"><small>難度</small>${t.difficulty}</div><div class="fact"><small>時間</small>${t.time}</div><div class="fact"><small>預估材料費</small>${t.cost}</div></div><p><strong>優點：</strong>${t.pros}</p><p><strong>可能困難：</strong>${t.cons}</p>${t.develop ? `<div class="development"><strong>創新發展建議：</strong>${t.develop}</div>` : ""}${works(t)}<div class="notice"><strong>安全提醒：</strong>${t.safety}</div>${chosen ? '<div class="chosen-next"><strong>已鎖定這個研究方向</strong><p>接下來的提問與實驗討論只會圍繞這個題目。</p><button class="primary" data-next="plan">確認題目並繼續</button></div>' : ""}</article>`;
+}
+function alternateAdvice() {
+  const hasPlant = state.interests.includes("植物");
+  if (state.division === "math" && hasPlant) return '<div class="advisor"><strong>科別判斷：</strong>若研究重點是角度、數列、遮蔽比例與模型誤差，可留在數學科；若重點是光照造成的生長差異，生物科更合適；若要製作自動栽培裝置，則考慮生活與應用科學科（一）。</div>';
+  const map = {
+    "動物／昆蟲": "biology",
+    食物: "applied2",
+    "水／環境": "applied3",
+    "玩具／工程": "applied1",
+    "聲音／音樂": "physics",
+    "天氣／星空": "earth",
+    "數字／圖形": "math",
+  };
+  const alt = state.interests.map((x) => map[x]).find((x) => x && x !== state.division);
+  return alt ? `<div class="advisor"><strong>也可以考慮：</strong>${divisions[alt][0]}。如果你更重視「${state.interests.find((x) => map[x] === alt)}」本身，而不是目前科別的方法，這個科別可能更合適。</div>` : "";
+}
+function aiPanel() {
+  if (!window.ScienceFairBackend?.enabled()) return '<div class="notice"><strong>動態題目尚未連線：</strong>目前顯示經人工整理的安全題庫。</div>';
+  if (!state.aiResult) return '<div class="ai-box"><h3>🌏 搜尋近期議題與科教館作品</h3><p>系統會依照先前對談直接產生候選題目。選定一題後，才會針對該題繼續提問。每位學生每日最多5次。</p><button class="primary" data-ai-start>開始動態找題</button><p id="ai-status"></p></div>';
+  return `<div class="ai-box"><h3>近期議題動態推薦</h3><div class="topics">${state.aiResult.topics
+    .map((t, i) => {
+      const chosen = state.topicId === `ai:${i}`;
+      return `<article class="topic ${chosen ? "selected" : ""}"><div class="topic-head"><div><span class="tag">${esc(t.division)}</span><h3>${esc(t.title)}</h3></div><button class="secondary" data-ai-topic="${i}">${chosen ? "已選擇" : "選這一題"}</button></div><p><strong>為什麼符合：</strong>${esc(t.fit)}</p><p><strong>近期議題：</strong>${esc(t.current_issue)}</p><p><strong>研究問題：</strong>${esc(t.research_question)}</p><div class="development"><strong>創新方向：</strong>${esc(t.novelty)}</div><p><strong>變因：</strong>${esc(t.variables)}</p><p><strong>可行性：</strong>${esc(t.feasibility)}</p><div class="notice"><strong>安全：</strong>${esc(t.safety)}</div>${t.prior_works?.length ? `<details class="works"><summary>科教館相關作品</summary><ul>${t.prior_works.map((w) => `<li><a href="${esc(safeUrl(w.url))}" target="_blank" rel="noopener">${esc(w.title)}</a>－${esc(w.relationship)}</li>`).join("")}</ul></details>` : "<p>尚未找到可核對的科教館相關作品。</p>"}${chosen ? '<div class="chosen-next"><strong>已鎖定這個研究方向</strong><p>後續只討論這個題目。</p><button class="primary" data-next="plan">確認題目並繼續</button></div>' : ""}</article>`;
+    })
+    .join("")}</div>${state.aiResult.sources?.length ? `<details class="works"><summary>本次近期議題來源</summary><ul>${state.aiResult.sources.map((s) => `<li><a href="${esc(safeUrl(s.url))}" target="_blank" rel="noopener">${esc(s.title)}</a>｜${esc(s.published_date)}｜${esc(s.kind)}</li>`).join("")}</ul></details>` : ""}</div>`;
+}
+function recommend() {
+  if (state.guidance.length < 2 || state.guidanceProfileKey !== profileKey() || !state.recommendationUnlocked) return guidance();
+  const list = ranked();
+  return `<section class="panel">${progress(3)}<div class="eyebrow">第 3 步｜已完成 ${state.guidance.length} 輪想法對談</div><h2>經人工整理的備援題目</h2><p>以下題目會參考你剛才的回答、所選科別與興趣；對談歷程也已保存。</p>${alternateAdvice()}<div class="topics">${list.map(topicCard).join("")}</div><div class="actions"><button class="secondary" data-go="guidance">← 上一步：查看想法對談</button><button class="secondary" data-reroll>重新排序</button><button class="primary" data-next="plan" ${state.topicId ? "" : "disabled"}>確認題目並建立摘要</button></div></section>`;
+}
+function selected() {
+  let topic;
+  if (String(state.topicId).startsWith("ai:")) {
+    const i = Number(state.topicId.split(":")[1]),
+      x = state.aiResult?.topics?.[i];
+    if (x)
+      topic = {
+        id: state.topicId,
+        d: state.division,
+        title: x.title,
+        q: x.research_question,
+        difficulty: "由教師評估",
+        time: x.feasibility,
+        cost: "依器材確認",
+        pros: x.fit,
+        cons: x.novelty,
+        iv: x.variables,
+        dv: "見變因說明",
+        cv: "見變因說明",
+        safety: x.safety,
+        works: x.prior_works,
+      };
+  } else topic = topics.find((t) => t.id === state.topicId);
+  return topic ? { ...topic, subtopics: state.subtopics || [] } : topic;
+}
+function suggestedPlan(t) {
+  return {
+    question: t.q,
+    hypothesis: `我預測改變「${t.iv}」時，「${t.dv}」會出現可比較的變化。實驗前先寫下預測方向與理由。`,
+    variables: `操縱變因：${t.iv}\n應變變因：${t.dv}\n控制變因：${t.cv}`,
+    materials: `依題目準備量測工具、相同規格的實驗材料、紀錄表與安全防護用品；正式實驗前先做一次小規模預試。`,
+    procedure: `1. 先固定控制變因並設定各組操縱變因。\n2. 每組用相同方法量測，至少重複 3 次。\n3. 每次立即記錄原始數字、單位與異常情況。\n4. 只在預試後調整方法，正式實驗中不要任意改步驟。`,
+    analysis: `計算各組平均值並畫圖比較，保留每次原始資料；檢查離群值但不可任意刪除，最後判斷結果是否支持原先假設。`,
+    safety: t.safety,
+  };
+}
+function planBlock(p) {
+  return `<div class="research-plan"><section class="wide"><h3>研究問題</h3><p>${esc(p.question)}</p></section><section><h3>研究假設</h3><p>${esc(p.hypothesis)}</p></section><section><h3>變因設計</h3><p class="preline">${esc(p.variables)}</p></section><section><h3>材料與工具</h3><p>${esc(p.materials)}</p></section><section><h3>建議步驟</h3><p class="preline">${esc(p.procedure)}</p></section><section><h3>資料整理與判讀</h3><p>${esc(p.analysis)}</p></section><section><h3>安全檢查</h3><p>${esc(p.safety)}</p></section></div>`;
+}
+function planSuggestions() {
+  const pending = (state.planSuggestions || []).filter((x) => x.status === "pending");
+  if (!pending.length) return "";
+  return `<section class="teacher-suggestions"><h3>👩‍🏫 等待你決定的教師建議</h3>${pending.map((x) => `<article class="suggestion"><p><strong>老師的說明：</strong>${esc(x.comment)}</p>${planBlock(x.proposed_plan)}<p>請先比較修改內容；只有你按下同意後，才會更新上方研究架構。</p><div class="actions"><button class="primary" data-plan-decision="accept" data-suggestion-id="${x.id}">同意並套用</button><button class="secondary" data-plan-decision="decline" data-suggestion-id="${x.id}">暫不採用</button></div></article>`).join("")}</section>`;
+}
+function subtopicPanel() {
+  const items = state.subtopics || [];
+  return `<section class="subtopic-panel"><div class="subtopic-head"><div><h3>這個主題的子題</h3><p>把同一個主題拆成較小、可逐一研究的問題。目前 ${items.length}／10 個。點選子題可查看它的討論與上傳資料。</p></div></div>${items.length ? `<ol class="subtopic-list">${items.map((x) => `<li><button class="subtopic-link" data-subtopic-open="${esc(x.id)}"><span><strong>${esc(x.title)}</strong><small>${esc(x.question)}</small></span><span aria-hidden="true">進入子題 →</span></button></li>`).join("")}</ol>` : '<div class="notice">還沒有子題，可以從目前研究問題拆出第一個小問題。</div>'}<form id="subtopic-form" class="subtopic-form"><label>子題名稱<input name="title" maxlength="80" required placeholder="例如：不同糖水濃度的到訪次數"></label><label>子題研究問題<textarea name="question" maxlength="300" required placeholder="請寫成可以觀察或量測的問題"></textarea></label><button class="secondary" ${items.length >= 10 ? "disabled" : ""}>＋ 新增子題</button><p id="subtopic-status"></p></form></section>`;
+}
+function plan() {
+  const t = selected();
+  if (!t) return empty("還沒有選擇題目", "recommend");
+  const p = state.researchPlan?.current_plan || state.researchPlan?.currentPlan || suggestedPlan(t);
+  return `<section class="panel">${progress(4)}<div class="eyebrow">題目已確認｜系統建議研究架構${state.researchPlan?.revision ? `｜第 ${state.researchPlan.revision} 版` : ""}</div><h2>${t.title}</h2><p>這是可討論的研究初稿，不是唯一答案。教師可以提出修訂版本，由學生決定是否採用。</p>${subtopicPanel()}${planBlock(p)}${planSuggestions()}<p class="saved">✓ 題目、子題、研究架構與每次師生修訂決定都會保存</p><div class="actions"><button class="secondary" data-go="recommend">查看備援題目／更換題目</button><button class="primary" data-go="experiment">💬 繼續討論或上傳實驗紀錄</button></div></section>`;
+}
+function activeSubtopic() {
+  return (state.subtopics || []).find((x) => x.id === state.activeSubtopicId);
+}
+function experiment() {
+  state.activeSubtopicId = "";
+  return researchWorkspace(null);
+}
+function subtopicWorkspace() {
+  return researchWorkspace(activeSubtopic());
+}
+function researchWorkspace(subtopic) {
+  const t = selected();
+  if (!t) return empty("請先確認研究題目", "recommend");
+  const records = (state.experimentRecords || []).filter((r) => (subtopic ? r.subtopicId === subtopic.id : !r.subtopicId));
+  return `<section class="panel"><div class="eyebrow">${subtopic ? "子題研究工作區" : "針對已選題目繼續研究"}</div><h2>${esc(subtopic?.title || t.title)}</h2>${subtopic ? `<div class="subtopic-question"><strong>子題研究問題</strong><p>${esc(subtopic.question)}</p></div>` : ""}<div class="research-tools"><section class="discussion-form"><h3>💬 有問題，繼續和 AI 教練討論</h3><p>問題會以${subtopic ? `子題「${esc(subtopic.title)}」` : "目前選定的主題"}為主，並只顯示這裡的討論紀錄。</p><label>我想問……<textarea id="discussion-question" placeholder="例如：倒水角度要分成幾組？聲音應該量頻率還是音量？"></textarea></label><button class="primary" data-discussion-submit>送出問題</button></section><section class="experiment-form"><h3>📎 上傳實驗過程或結果</h3><label>這次做了什麼？<textarea id="record-method" placeholder="日期、組別、材料、步驟、重複次數……"></textarea></label><label>得到什麼結果？<textarea id="record-result" placeholder="請寫數字、單位、觀察到的現象與意外狀況……"></textarea></label><label>附加檔案 <span class="file-hint">支援圖片、PDF、CSV、TXT、XLSX；單檔上限 8 MB</span><input id="record-file" type="file" accept="image/*,.pdf,.csv,.txt,.xlsx"></label><button class="primary" data-record-submit>上傳並請 AI 教練分析</button></section></div><p id="record-status"></p><div class="record-list">${
+    records
+      .slice()
+      .reverse()
+      .map((r, i) => `<article class="record"><h3>${r.recordKind === "discussion" ? "問題討論" : "實驗紀錄"} ${records.length - i}</h3>${r.recordKind === "discussion" ? `<p><strong>學生問題：</strong>${esc(r.result)}</p>` : `<p><strong>做法：</strong>${esc(r.method)}</p><p><strong>結果：</strong>${esc(r.result)}</p>${r.fileName ? `<p>📎 ${esc(r.fileName)}</p>` : ""}`} ${r.review ? `<div class="review"><strong>AI 教練回覆</strong><p>${esc(r.review)}</p></div>` : "<p>等待分析中……</p>"}</article>`)
+      .join("") || `<div class="notice">這個${subtopic ? "子題" : "主題"}還沒有討論或上傳資料，可以先提出第一個問題。</div>`
+  }</div><div class="actions"><button class="secondary" data-go="plan">← 返回研究摘要與子題列表</button></div></section>`;
+}
+function reflectionCards(items = state.reflections || []) {
+  return (
+    items
+      .slice()
+      .reverse()
+      .map((r) => `<article class="reflection-card"><time>${esc(r.date)}</time><h3>我學到了什麼</h3><p>${esc(r.learned)}</p><h3>我覺得比較困難的地方</h3><p>${esc(r.difficult)}</p></article>`)
+      .join("") || '<div class="notice">還沒有心得歷程，完成一次活動後就可以來寫第一篇。</div>'
+  );
+}
+function reflection() {
+  const today = new Intl.DateTimeFormat("zh-TW", {
+    timeZone: "Asia/Taipei",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
+  return `<section class="panel"><div class="eyebrow">學生工具｜心得歷程</div><h2>記下今天的發現與挑戰</h2><p>日期已自動帶入。請用自己的話寫，老師也能在你的歷程頁看到這些內容。</p><form class="reflection-form" id="reflection-form"><label>填寫日期<input id="reflection-date" name="date" value="${esc(today)}" readonly></label><label>我學到了什麼<textarea name="learned" maxlength="3000" required placeholder="例如：我學會了要讓每一組只改變一個條件……"></textarea></label><label>我覺得還有什麼是比較困難的<textarea name="difficult" maxlength="3000" required placeholder="例如：每次倒入完全相同的水量還是很困難……"></textarea></label><button class="primary">儲存心得</button></form><p id="reflection-status"></p><h3>我的心得紀錄</h3>${reflectionCards()}</section>`;
+}
+function empty(msg, go) {
+  return `<section class="panel empty"><div class="mascot">🧭</div><h2>${msg}</h2><div class="actions"><button class="primary" data-go="${go}">前往選題</button></div></section>`;
+}
+document.addEventListener("submit", async (e) => {
+  if (e.target.id !== "subtopic-form") return;
+  e.preventDefault();
+  const form = new FormData(e.target),
+    title = String(form.get("title") || "").trim(),
+    question = String(form.get("question") || "").trim(),
+    status = document.querySelector("#subtopic-status");
+  if (!title || !question) {
+    status.textContent = "請填寫子題名稱與研究問題。";
+    return;
+  }
+  if ((state.subtopics || []).length >= 10) {
+    status.textContent = "每個主題最多可建立 10 個子題。";
+    return;
+  }
+  const button = e.target.querySelector("button");
+  button.disabled = true;
+  const item = {
+    id: crypto.randomUUID?.() || `subtopic-${Date.now()}`,
+    title,
+    question,
+    createdAt: new Date().toISOString(),
+  };
+  state.subtopics = [...(state.subtopics || []), item];
+  const topic = { ...selected(), subtopics: state.subtopics };
+  if (state.currentProject) {
+    state.currentProject = { ...state.currentProject, selected_topic: topic };
+    state.projects = (state.projects || []).map((p) => (p.id === state.currentProject.id ? state.currentProject : p));
+  }
+  save();
+  try {
+    await window.ScienceFairBackend?.track("topic_selected", { id: topic.id, title: topic.title, subtopic_added: item }, { profile: state, selectedTopic: topic });
+    render();
+  } catch (error) {
+    state.subtopics = state.subtopics.filter((x) => x.id !== item.id);
+    button.disabled = false;
+    status.textContent = error.message;
+  }
+});
+document.addEventListener("submit", async (e) => {
+  if (e.target.id !== "reflection-form") return;
+  e.preventDefault();
+  const form = new FormData(e.target),
+    entry = {
+      date: String(form.get("date") || ""),
+      learned: String(form.get("learned") || "").trim(),
+      difficult: String(form.get("difficult") || "").trim(),
+      createdAt: new Date().toISOString(),
+    },
+    status = document.querySelector("#reflection-status");
+  if (!entry.learned || !entry.difficult) {
+    status.textContent = "請完成兩個心得欄位。";
+    return;
+  }
+  const button = e.target.querySelector('button[type="submit"],button:not([type])');
+  button.disabled = true;
+  try {
+    if (window.ScienceFairBackend?.enabled()) await window.ScienceFairBackend.saveReflection(entry);
+    state.reflections = [...(state.reflections || []), entry];
+    save();
+    render();
+  } catch (error) {
+    button.disabled = false;
+    status.textContent = error.message;
+  }
+});
+async function startNewResearch() {
+  if (!state.studentLoggedIn || !window.ScienceFairBackend?.enabled()) return;
+  const title = prompt("請為新的研究歷程輸入名稱：", "新研究歷程");
+  if (title === null) return;
+  const project = await window.ScienceFairBackend.createProject(title.trim() || "新研究歷程");
+  const loggedIn = state.studentLoggedIn;
+  localStorage.removeItem(storeKey);
+  state = {
+    ...load(),
+    studentLoggedIn: loggedIn,
+    projects: [project, ...(state.projects || [])],
+    currentProject: project,
+    screen: "division",
+  };
+  save();
+  render();
+}
+function pdfHtml(data) {
+  const project = data.currentProject || {},
+    topic = project.selected_topic || {},
+    plan = data.researchPlan?.current_plan || {},
+    events = data.events || [],
+    turns = events.filter((x) => x.event_type === "answer_submitted"),
+    reflections = events.filter((x) => x.event_type === "reflection_added"),
+    records = data.experimentRecords || [];
+  const section = (title, body) => `<section><h2>${esc(title)}</h2>${body || "<p>尚無資料</p>"}</section>`;
+  return `<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><title>${esc(project.title || "研究主題")}</title><style>body{font-family:Arial,"Noto Sans TC",sans-serif;max-width:850px;margin:32px auto;color:#222;line-height:1.65}h1{border-bottom:3px solid #7754df;padding-bottom:12px}section{break-inside:avoid;margin:24px 0}article{border:1px solid #ccc;border-radius:10px;padding:12px;margin:10px 0}.pre{white-space:pre-wrap}@media print{body{margin:0}}</style></head><body><h1>${esc(project.title || "研究主題")}</h1><p>研究題目：${esc(topic.title || "尚未選定")}</p>${section("子題列表", (topic.subtopics || []).map((x) => `<article><strong>${esc(x.title)}</strong><div class="pre">${esc(x.question)}</div></article>`).join(""))}${section(
+    "研究架構",
+    Object.entries({
+      研究問題: plan.question,
+      研究假設: plan.hypothesis,
+      變因設計: plan.variables,
+      材料與工具: plan.materials,
+      實驗步驟: plan.procedure,
+      資料分析: plan.analysis,
+      安全檢查: plan.safety,
+    })
+      .filter(([, v]) => v)
+      .map(([k, v]) => `<article><strong>${k}</strong><div class="pre">${esc(v)}</div></article>`)
+      .join(""),
+  )}${section("想法歷程", turns.map((x) => `<article><strong>AI 教練：</strong>${esc(x.content?.question || "")}<br><strong>學生：</strong>${esc(x.content?.answer || "")}</article>`).join(""))}${section("實驗與討論紀錄", records.map((r) => `<article><strong>${r.record_kind === "discussion" ? "問題討論" : "實驗紀錄"}</strong><div class="pre">${esc(r.method || "")}\n${esc(r.result || "")}\n${esc(r.ai_review || "")}</div></article>`).join(""))}${section("心得歷程", reflections.map((x) => `<article><strong>${esc(x.content?.date || "")}</strong><p>學到：${esc(x.content?.learned || "")}</p><p>困難：${esc(x.content?.difficult || "")}</p></article>`).join(""))}<script>window.onload=()=>window.print()<\/script></body></html>`;
+}
+async function downloadProjectPdf(id) {
+  const popup = window.open("", "_blank");
+  if (!popup) throw new Error("瀏覽器阻擋了 PDF 視窗，請允許彈出式視窗後再試");
+  try {
+    const data = await window.ScienceFairBackend.get(id);
+    popup.document.write(pdfHtml(data));
+    popup.document.close();
+  } catch (error) {
+    popup.close();
+    throw error;
+  }
+}
+async function deleteResearch(id, title) {
+  if ((state.projects || []).length < 5) throw new Error("研究主題未滿 5 個，目前不能刪除");
+  if (!confirm(`確定要刪除「${title}」嗎？\n\n刪除後無法復原，建議先按「下載 PDF」備份。`)) return;
+  const result = await window.ScienceFairBackend.deleteProject(id);
+  state.projects = result.projects || [];
+  if (id === state.currentProject?.id && result.nextResearchId) {
+    window.ScienceFairBackend.setResearchId(result.nextResearchId);
+    await switchResearch(result.nextResearchId, true);
+  } else {
+    save();
+    render();
+  }
+}
+async function switchResearch(id, force = false) {
+  if (!state.studentLoggedIn || (!force && id === state.currentProject?.id)) return;
+  window.ScienceFairBackend.setResearchId(id);
+  const data = await window.ScienceFairBackend.get(id),
+    project = data.currentProject;
+  state = {
+    ...defaults(),
+    ...(project?.profile || {}),
+    studentLoggedIn: true,
+    projects: data.projects || [],
+    currentProject: project,
+    topicId: project?.selected_topic?.id || "",
+    researchPlan: data.researchPlan || null,
+    planSuggestions: data.planSuggestions || [],
+    experimentRecords: (data.experimentRecords || []).map((r) => ({
+      id: r.id,
+      recordKind: r.record_kind || "experiment",
+      subtopicId: r.subtopic_id || "",
+      method: r.method,
+      result: r.result,
+      fileName: r.file_name,
+      review: r.ai_review,
+      createdAt: r.created_at,
+    })),
+    reflections: (data.events || []).filter((e) => e.event_type === "reflection_added").map((e) => ({ ...e.content, createdAt: e.created_at })),
+    screen: "home",
+  };
+  save();
+  render();
+}
+async function logout() {
+  await window.ScienceFairBackend?.logout();
+  localStorage.removeItem(storeKey);
+  state = defaults();
+  document.querySelector("#current-user").textContent = "（未登入）";
+  render();
+}
+document.addEventListener("click", (e) => {
+  const b = e.target.closest("button,[data-go]");
+  if (!b) return;
+  if (b.dataset.go) {
+    state.screen = b.dataset.go;
+    save();
+    render();
+  }
+  if (b.dataset.subtopicOpen) {
+    state.activeSubtopicId = b.dataset.subtopicOpen;
+    state.screen = "subtopic";
+    save();
+    render();
+  }
+  if (b.dataset.action === "home") {
+    state.screen = "home";
+    render();
+  }
+  if (b.dataset.action === "teacher") {
+    state.screen = "teacher";
+    render();
+  }
+  if (b.dataset.projectSelect) switchResearch(b.dataset.projectSelect).catch((error) => alert(error.message));
+  if (b.dataset.projectPdf) downloadProjectPdf(b.dataset.projectPdf).catch((error) => alert(error.message));
+  if (b.dataset.projectDelete) deleteResearch(b.dataset.projectDelete, b.dataset.projectTitle).catch((error) => alert(error.message));
+  if (b.dataset.action === "new-research") startNewResearch().catch((error) => alert(error.message));
+  if (b.dataset.action === "reset" && confirm("要清除目前的選題紀錄並重新開始嗎？")) {
+    const loggedIn = state.studentLoggedIn,
+      projects = state.projects,
+      currentProject = state.currentProject;
+    localStorage.removeItem(storeKey);
+    state = { ...load(), studentLoggedIn: loggedIn, projects, currentProject };
+    render();
+  }
+  if (b.dataset.division) {
+    if (state.division !== b.dataset.division) resetRecommendations();
+    state.division = b.dataset.division;
+    save();
+    render();
+  }
+  if (b.dataset.interest) {
+    captureProfileForm();
+    state.interests = state.interests.includes(b.dataset.interest) ? state.interests.filter((x) => x !== b.dataset.interest) : [...state.interests, b.dataset.interest];
+    save();
+    render();
+  }
+  if (b.dataset.profile !== undefined) {
+    captureProfileForm();
+    state.observation = state.observation.trim();
+    const key = profileKey();
+    if (state.guidanceProfileKey && state.guidanceProfileKey !== key) resetRecommendations();
+    state.guidanceProfileKey = key;
+    state.recommendationUnlocked = false;
+    state.screen = "guidance";
+    save();
+    render();
+  }
+  if (b.dataset.topic) {
+    state.topicId = b.dataset.topic;
+    state.researchPlan = null;
+    state.planSuggestions = [];
+    save();
+    render();
+  }
+  if (b.dataset.next) {
+    state.screen = b.dataset.next;
+    if (b.dataset.next === "plan") {
+      const p = suggestedPlan(selected());
+      state.researchPlan = state.researchPlan || {
+        system_plan: p,
+        current_plan: p,
+        revision: 1,
+      };
+      window.ScienceFairBackend?.savePlan(p)?.catch(console.warn);
+    }
+    save();
+    render();
+  }
+  if (b.dataset.reroll !== undefined) render();
+});
+document.addEventListener(
+  "click",
+  (e) => {
+    const b = e.target.closest("button");
+    if (b && (b.dataset.topic !== undefined || b.dataset.aiTopic !== undefined)) state.subtopics = [];
+  },
+  true,
+);
+document.addEventListener("click", (e) => {
+  const b = e.target.closest('[data-action="logout"]');
+  if (b) {
+    b.disabled = true;
+    logout().catch((error) => {
+      b.disabled = false;
+      alert(`登出失敗：${error.message}`);
+    });
+  }
+});
+document.addEventListener("click", (e) => {
+  const b = e.target.closest("button");
+  if (!b) return;
+  if (b.dataset.division) window.ScienceFairBackend?.track("division_selected", { division: b.dataset.division }, { profile: state });
+  if (b.dataset.interest)
+    window.ScienceFairBackend?.track(
+      "interest_selected",
+      {
+        interest: b.dataset.interest,
+        selected: state.interests.includes(b.dataset.interest),
+      },
+      { profile: state },
+    );
+  if (b.dataset.profile !== undefined) {
+    window.ScienceFairBackend?.track("profile_updated", { grade: state.grade, weeks: state.weeks, budget: state.budget }, { profile: state });
+    if (state.observation) window.ScienceFairBackend?.track("observation_entered", { text: state.observation }, { profile: state });
+  }
+  if (b.dataset.topic) {
+    const t = selected();
+    window.ScienceFairBackend?.track("topic_selected", { id: t?.id, title: t?.title }, { profile: state, selectedTopic: t });
+  }
+  if (b.dataset.next === "plan") {
+    const t = selected();
+    window.ScienceFairBackend?.track("plan_created", { id: t?.id, title: t?.title }, { profile: state, selectedTopic: t });
+  }
+});
+document.addEventListener("click", (e) => {
+  const link = e.target.closest(".works a");
+  if (link)
+    window.ScienceFairBackend?.track("source_opened", {
+      title: link.textContent,
+      url: link.href,
+    });
+});
+document.addEventListener("click", async (e) => {
+  const b = e.target.closest("button");
+  if (!b) return;
+  const status = () => document.querySelector("#ai-status");
+  if (b.dataset.aiStart !== undefined) {
+    b.disabled = true;
+    if (status()) status().textContent = "正在判斷還需要問什麼…";
+    try {
+      state.aiResult = await window.ScienceFairBackend.recommend(state, state.aiAnswers || []);
+      save();
+      render();
+    } catch (error) {
+      b.disabled = false;
+      if (status()) status().textContent = error.message;
+    }
+  }
+  if (b.dataset.aiSubmit !== undefined) {
+    const answers = [...document.querySelectorAll("[data-ai-answer]")].map((el, i) => ({
+      question: state.aiResult.questions[i],
+      answer: el.value.trim(),
+    }));
+    if (answers.some((x) => !x.answer)) {
+      if (status()) status().textContent = "請先回答每一題。";
+      return;
+    }
+    b.disabled = true;
+    if (status()) status().textContent = "正在搜尋近期議題與歷屆作品…";
+    try {
+      state.aiAnswers = [...(state.aiAnswers || []), ...answers];
+      state.aiResult = await window.ScienceFairBackend.recommend(state, state.aiAnswers);
+      save();
+      render();
+    } catch (error) {
+      b.disabled = false;
+      if (status()) status().textContent = error.message;
+    }
+  }
+  if (b.dataset.aiTopic !== undefined) {
+    state.topicId = `ai:${b.dataset.aiTopic}`;
+    const t = selected();
+    save();
+    window.ScienceFairBackend.track("topic_selected", { id: t.id, title: t.title, mode: "dynamic" }, { profile: state, selectedTopic: t });
+    render();
+  }
+});
+document.addEventListener("click", async (e) => {
+  const b = e.target.closest("button");
+  if (!b) return;
+  if (b.dataset.guideSubmit !== undefined) {
+    const input = document.querySelector("#guide-answer"),
+      answer = input?.value.trim() || "",
+      status = document.querySelector("#guide-status");
+    if (answer.length < 10) {
+      status.textContent = "請再多說一點，至少 10 個字，讓我真的了解你的想法。";
+      return;
+    }
+    const turn = {
+      question: guideQuestion(state.guidance.length),
+      answer,
+      round: state.guidance.length + 1,
+      createdAt: new Date().toISOString(),
+    };
+    state.guidance.push(turn);
+    state.recommendationUnlocked = false;
+    save();
+    await window.ScienceFairBackend?.track("answer_submitted", turn, {
+      profile: state,
+    });
+    render();
+  }
+  if (b.dataset.guideFinish !== undefined) {
+    if (state.guidance.length < 2 || state.guidanceProfileKey !== profileKey()) return;
+    state.recommendationUnlocked = true;
+    state.screen = "recommend";
+    save();
+    window.ScienceFairBackend?.track(
+      "topics_recommended",
+      {
+        topic_ids: ranked().map((t) => t.id),
+        guidance_rounds: state.guidance.length,
+      },
+      { profile: state },
+    );
+    render();
+  }
+  if (b.dataset.discussionSubmit !== undefined) {
+    const question = document.querySelector("#discussion-question").value.trim(),
+      status = document.querySelector("#record-status");
+    if (question.length < 5) {
+      status.textContent = "請把問題再說清楚一點，至少 5 個字。";
+      return;
+    }
+    b.disabled = true;
+    status.textContent = "教練正在依照已選題目回答……";
+    try {
+      const record = {
+        recordKind: "discussion",
+        method: "研究問題討論",
+        result: question,
+        subtopicId: activeSubtopic()?.id || "",
+        createdAt: new Date().toISOString(),
+      };
+      const response = await window.ScienceFairBackend?.reviewExperiment({
+        ...record,
+        topic: selected(),
+      });
+      record.review = response?.review || `這個問題需要以「${selected().q}」為範圍和老師一起討論。`;
+      record.id = response?.recordId;
+      state.experimentRecords = [...(state.experimentRecords || []), record];
+      save();
+      render();
+    } catch (error) {
+      b.disabled = false;
+      status.textContent = error.message;
+    }
+  }
+  if (b.dataset.recordSubmit !== undefined) {
+    const method = document.querySelector("#record-method").value.trim(),
+      result = document.querySelector("#record-result").value.trim(),
+      file = document.querySelector("#record-file").files[0],
+      status = document.querySelector("#record-status");
+    if (!method || !result) {
+      status.textContent = "請先填寫這次的做法和結果。";
+      return;
+    }
+    if (file && file.size > 8 * 1024 * 1024) {
+      status.textContent = "檔案超過 8 MB，請縮小後再上傳。";
+      return;
+    }
+    b.disabled = true;
+    status.textContent = "正在保存紀錄並檢查研究方向、實驗設計與結果……";
+    try {
+      const record = {
+        recordKind: "experiment",
+        method,
+        result,
+        subtopicId: activeSubtopic()?.id || "",
+        fileName: file?.name || "",
+        mimeType: file?.type || "",
+        createdAt: new Date().toISOString(),
+      };
+      const payload = {
+        ...record,
+        topic: selected(),
+        fileData: file ? await fileToBase64(file) : "",
+      };
+      const response = await window.ScienceFairBackend?.reviewExperiment(payload);
+      record.review = response?.review || localExperimentReview(record, selected());
+      record.id = response?.recordId;
+      state.experimentRecords = [...(state.experimentRecords || []), record];
+      save();
+      render();
+    } catch (error) {
+      b.disabled = false;
+      status.textContent = error.message;
+    }
+  }
+});
+document.addEventListener("click", async (e) => {
+  const b = e.target.closest("[data-plan-decision]");
+  if (!b) return;
+  b.disabled = true;
+  try {
+    const result = await window.ScienceFairBackend?.decideSuggestion(b.dataset.suggestionId, b.dataset.planDecision);
+    const item = state.planSuggestions.find((x) => x.id === b.dataset.suggestionId);
+    if (item) item.status = b.dataset.planDecision === "accept" ? "accepted" : "declined";
+    if (b.dataset.planDecision === "accept" && item) {
+      state.researchPlan = {
+        ...(state.researchPlan || {}),
+        current_plan: item.proposed_plan,
+        revision: (state.researchPlan?.revision || 1) + 1,
+      };
+    }
+    save();
+    render();
+  } catch (error) {
+    b.disabled = false;
+    alert(error.message);
+  }
+});
+document.addEventListener(
+  "click",
+  (e) => {
+    const button = e.target.closest("button");
+    if (!button) return;
+    if (button.dataset.recordSubmit !== undefined) {
+      const file = document.querySelector("#record-file")?.files[0];
+      if (file && !isAllowedRecordFile(file)) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        document.querySelector("#record-status").textContent = "不支援此檔案類型。請選擇圖片、PDF、CSV、TXT 或 XLSX 檔案。";
+      }
+    }
+    if (button.dataset.discussionSubmit !== undefined)
+      queueMicrotask(() => {
+        const status = document.querySelector("#record-status");
+        if (status?.textContent.startsWith("教練正在")) status.textContent = status.textContent.replace("教練正在", "AI 教練正在");
+      });
+  },
+  true,
+);
+function isAllowedRecordFile(file) {
+  return /\.(pdf|csv|txt|xlsx)$/i.test(file.name) || file.type.startsWith("image/");
+}
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result).split(",")[1] || "");
+    reader.onerror = () => reject(new Error("無法讀取檔案"));
+    reader.readAsDataURL(file);
+  });
+}
+function localExperimentReview(record, t) {
+  const notes = [];
+  if (!/\d/.test(record.result)) notes.push("結果中沒有看到數字，建議補上量測值、單位與重複次數，才容易判斷差異。");
+  if (!/重複|次|組/.test(record.method)) notes.push("做法中未清楚交代分組或重複次數，請確認是否有足夠重複試驗。");
+  notes.push(`請再次確認只改變「${t.iv}」，並保持「${t.cv}」一致。`);
+  return `方向檢查：這份紀錄仍需用「${t.q}」來解釋。${notes.join("")}`;
+}
 render();
-async function restoreSignedInUser(){
-  const teacher=await window.ScienceFairBackend?.teacher?.().catch(()=>null);
-  if(teacher){document.querySelector('#current-user').textContent=`（教師 ${teacher.email}）`;state.studentLoggedIn=false;state.teacherLoggedIn=true;render();return}
-  if(!window.ScienceFairBackend?.enabled()){document.querySelector('#current-user').textContent='（未登入）';state.studentLoggedIn=false;state.teacherLoggedIn=false;render();return}
-  try{const data=await window.ScienceFairBackend.get();if(!data?.student)throw new Error('學生登入已失效');document.querySelector('#current-user').textContent=`（${data.student.login_email||`學生 ${data.student.student_code}（待綁定 Email）`}）`;state.studentLoggedIn=true;state.teacherLoggedIn=false;state.projects=data.projects||[];state.currentProject=data.currentProject||null;if(data.currentProject?.id)window.ScienceFairBackend.setResearchId(data.currentProject.id);if(data.currentProject?.profile)state={...state,...data.currentProject.profile,aiFlowVersion,studentLoggedIn:true,teacherLoggedIn:false,projects:data.projects||[],currentProject:data.currentProject||null};if(data.currentProject?.selected_topic?.id)state.topicId=data.currentProject.selected_topic.id;if(data.experimentRecords)state.experimentRecords=data.experimentRecords.map(r=>({id:r.id,recordKind:r.record_kind||'experiment',method:r.method,result:r.result,fileName:r.file_name,review:r.ai_review,createdAt:r.created_at}));if(data.researchPlan)state.researchPlan=data.researchPlan;if(data.planSuggestions)state.planSuggestions=data.planSuggestions;if(data.events)state.reflections=data.events.filter(e=>e.event_type==='reflection_added').map(e=>({...e.content,createdAt:e.created_at}));save();render()}catch{window.ScienceFairBackend.clear();document.querySelector('#current-user').textContent='（未登入）';state.studentLoggedIn=false;state.teacherLoggedIn=false;render()}
+async function restoreSignedInUser() {
+  const teacher = await window.ScienceFairBackend?.teacher?.().catch(() => null);
+  if (teacher) {
+    document.querySelector("#current-user").textContent = `（教師 ${teacher.email}）`;
+    state.studentLoggedIn = false;
+    state.teacherLoggedIn = true;
+    render();
+    return;
+  }
+  if (!window.ScienceFairBackend?.enabled()) {
+    document.querySelector("#current-user").textContent = "（未登入）";
+    state.studentLoggedIn = false;
+    state.teacherLoggedIn = false;
+    render();
+    return;
+  }
+  try {
+    const data = await window.ScienceFairBackend.get();
+    if (!data?.student) throw new Error("學生登入已失效");
+    document.querySelector("#current-user").textContent = `（${data.student.login_email || `學生 ${data.student.student_code}（待綁定 Email）`}）`;
+    state.studentLoggedIn = true;
+    state.teacherLoggedIn = false;
+    state.projects = data.projects || [];
+    state.currentProject = data.currentProject || null;
+    if (data.currentProject?.id) window.ScienceFairBackend.setResearchId(data.currentProject.id);
+    if (data.currentProject?.profile)
+      state = {
+        ...state,
+        ...data.currentProject.profile,
+        aiFlowVersion,
+        studentLoggedIn: true,
+        teacherLoggedIn: false,
+        projects: data.projects || [],
+        currentProject: data.currentProject || null,
+      };
+    if (data.currentProject?.selected_topic?.id) state.topicId = data.currentProject.selected_topic.id;
+    if (data.experimentRecords)
+      state.experimentRecords = data.experimentRecords.map((r) => ({
+        id: r.id,
+        recordKind: r.record_kind || "experiment",
+        subtopicId: r.subtopic_id || "",
+        method: r.method,
+        result: r.result,
+        fileName: r.file_name,
+        review: r.ai_review,
+        createdAt: r.created_at,
+      }));
+    if (data.researchPlan) state.researchPlan = data.researchPlan;
+    if (data.planSuggestions) state.planSuggestions = data.planSuggestions;
+    if (data.events) state.reflections = data.events.filter((e) => e.event_type === "reflection_added").map((e) => ({ ...e.content, createdAt: e.created_at }));
+    save();
+    render();
+  } catch {
+    window.ScienceFairBackend.clear();
+    document.querySelector("#current-user").textContent = "（未登入）";
+    state.studentLoggedIn = false;
+    state.teacherLoggedIn = false;
+    render();
+  }
 }
 restoreSignedInUser();
