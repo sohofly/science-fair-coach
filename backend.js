@@ -13,5 +13,6 @@
   async function createProject(title){const data=await call({action:'create_project',title});setResearchId(data.project.id);return data.project}
   async function deleteProject(id){return call({action:'delete_project',researchId:id})}
   async function teacher(){if(!authClient)return null;const {data}=await authClient.auth.getSession();return data.session?.user||null}
-  window.ScienceFairBackend={enabled,teacher,track,recommend,reviewExperiment,savePlan,decideSuggestion,saveReflection,createProject,deleteProject,get:(id=researchId())=>call({action:'get',researchId:id}),setResearchId,researchId,setToken:token=>localStorage.setItem(tokenKey,token),clear:()=>{localStorage.removeItem(tokenKey);localStorage.removeItem(researchKey)}};
+  async function logout(){if(authClient)await authClient.auth.signOut();localStorage.removeItem(tokenKey);localStorage.removeItem(researchKey)}
+  window.ScienceFairBackend={enabled,teacher,track,recommend,reviewExperiment,savePlan,decideSuggestion,saveReflection,createProject,deleteProject,get:(id=researchId())=>call({action:'get',researchId:id}),setResearchId,researchId,setToken:token=>localStorage.setItem(tokenKey,token),logout,clear:()=>{localStorage.removeItem(tokenKey);localStorage.removeItem(researchKey)}};
 })();
