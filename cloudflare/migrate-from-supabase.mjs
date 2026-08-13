@@ -1,5 +1,6 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { execFileSync } from "node:child_process";
+import { pbkdf2Sync, randomBytes } from "node:crypto";
 
 const sourceUrl = (
   process.env.SUPABASE_URL || "https://mzdcbcpartvuwyvdunrn.supabase.co"
@@ -43,6 +44,11 @@ const quote = (value) =>
     : `'${String(typeof value === "object" ? JSON.stringify(value) : value).replaceAll("'", "''")}'`;
 const insert = (table, row) =>
   `INSERT OR REPLACE INTO ${table}(${Object.keys(row).join(",")}) VALUES(${Object.values(row).map(quote).join(",")});`;
+const resetPasswordHash = () => {
+  const salt = randomBytes(12).toString("base64url");
+  const hash = pbkdf2Sync("admin", salt, 100000, 32, "sha256").toString("hex");
+  return `pbkdf2-sha256$100000$${salt}$${hash}`;
+};
 // `wrangler d1 execute --file` already submits the statements as a D1 batch.
 // D1 rejects explicit SQL transaction statements such as BEGIN/COMMIT.
 const sql = ["PRAGMA foreign_keys=OFF;"];
@@ -125,7 +131,14 @@ for (const item of rows.experiment_records)
   );
 for (const item of rows.ai_usage) sql.push(insert("ai_usage", item));
 for (const item of rows.administrators)
-  sql.push(insert("administrators", item));
+  sql.push(
+    insert("administrators", {
+      ...item,
+      username: String(item.username || "admin").trim().toLowerCase(),
+      password_hash: resetPasswordHash(),
+      must_change_password: 1,
+    }),
+  );
 for (const item of rows.app_settings)
   sql.push(
     insert("app_settings", {

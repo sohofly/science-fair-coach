@@ -42,7 +42,7 @@ function login() {
     try {
       const data = await api({
         action: "login",
-        username: f.get("username"),
+        username: String(f.get("username") || "").trim().toLowerCase(),
         password: f.get("password"),
       });
       token = data.token;

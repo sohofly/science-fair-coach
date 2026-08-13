@@ -39,13 +39,13 @@ async function passwordHash(
     {
       name: "PBKDF2",
       salt: enc.encode(salt),
-      iterations: 210000,
+      iterations: 100000,
       hash: "SHA-256",
     },
     key,
     256,
   );
-  return `pbkdf2-sha256$210000$${salt}$${hex(bits)}`;
+  return `pbkdf2-sha256$100000$${salt}$${hex(bits)}`;
 }
 async function passwordOK(password, stored = "") {
   if (!stored.startsWith("pbkdf2-sha256$")) {
@@ -501,10 +501,11 @@ async function adminApi(req, env, body) {
     return reply(req, env, { ok: true });
   }
   if (body.action === "login") {
+    const username = String(body.username || "").trim().toLowerCase();
     const a = await env.DB.prepare(
-      "SELECT * FROM administrators WHERE username=?",
+      "SELECT * FROM administrators WHERE lower(username)=?",
     )
-      .bind(String(body.username || ""))
+      .bind(username)
       .first();
     if (!a || !(await passwordOK(String(body.password || ""), a.password_hash)))
       return reply(req, env, { error: "管理者帳號或密碼錯誤" }, 401);
