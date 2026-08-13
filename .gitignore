@@ -1,2 +1,6 @@
+.wrangler/
+.migration/
+.dev.vars
+cloudflare/exports/
 node_modules/
 supabase/.temp/
