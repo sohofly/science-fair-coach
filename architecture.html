@@ -1,158 +1,89 @@
 <!doctype html>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>科展小助手｜登入角色與心得歷程架構確認圖</title>
-<style>
-  :root{color-scheme:light dark;--bg:#f8fafc;--fg:#172033;--muted:#5b6475;--line:#64748b;--neutral:#e2e8f0;--input:#bfdbfe;--process:#c7d2fe;--storage:#99f6e4;--external:#fde68a;--risk:#fecaca;--ok:#dcfce7}
-  @media(prefers-color-scheme:dark){:root{--bg:#0f172a;--fg:#e5e7eb;--muted:#a3adbd;--line:#94a3b8;--neutral:#334155;--input:#1d4ed8;--process:#4338ca;--storage:#0f766e;--external:#92400e;--risk:#991b1b;--ok:#166534}}
-  body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.45 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
-  main{max-width:1240px;margin:28px auto;padding:0 20px 36px}h1{margin:0 0 6px;font-size:24px}.intro{margin:0 0 20px;color:var(--muted)}svg{width:100%;height:auto;display:block}.zone-title{font-size:17px;font-weight:700;fill:var(--fg)}.label{font-size:14px;font-weight:700;fill:var(--fg)}.small{font-size:12px;fill:var(--muted)}.node{stroke:var(--line);stroke-width:1}.neutral{fill:var(--neutral)}.input{fill:var(--input)}.process{fill:var(--process)}.storage{fill:var(--storage)}.external{fill:var(--external)}.risk{fill:var(--risk)}.ok{fill:var(--ok)}.zone{fill:none;stroke:var(--line);stroke-width:1;stroke-dasharray:7 5}.edge{stroke:var(--line);stroke-width:1.6;fill:none}.edge-dash{stroke:var(--line);stroke-width:1.4;fill:none;stroke-dasharray:6 5}.edge-label{font-size:11px;fill:var(--muted)}
-  .rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-top:18px}.rules section{border:1px solid var(--line);border-radius:12px;padding:14px;background:color-mix(in srgb,var(--neutral) 45%,transparent)}.rules h2{font-size:15px;margin:0 0 6px}.rules p{margin:0;color:var(--muted)}
-</style>
-<main>
-  <h1>科展小助手：登入角色與心得歷程架構</h1>
-  <p class="intro">修改前確認稿｜新增登入與心得功能時，必須完整保留原有選題、研究、教師回饋與匯出功能；尚未修改正式程式。</p>
-  <svg viewBox="0 0 1200 900" role="img" aria-labelledby="title desc">
-    <title id="title">未登入、學生登入與教師登入三種角色的畫面及心得歷程流程</title>
-    <desc id="desc">所有畫面左上角顯示登入電子郵件或未登入。只有學生登入後能繼續上次計畫及填寫心得，教師登入後可選學生查看個別心得。</desc>
-    <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--line)"/></marker></defs>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="科展小助手的前端、Supabase、AI 服務、資料模型與權限架構。">
+  <title>科展小助手｜系統架構</title>
+  <style>
+    :root{--bg:#f6f8fc;--ink:#172033;--muted:#5b6475;--line:#d8deea;--paper:#fff;--client:#eaf2ff;--service:#f1edff;--data:#e5faf5;--external:#fff5d9;--danger:#fff0f0;--shadow:0 12px 34px rgba(35,48,75,.08)}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.65 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}a{color:inherit}header,main,footer{max-width:1180px;margin:auto;padding-inline:22px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:20px;padding-block:22px}.brand{font-weight:850;text-decoration:none}.nav{display:flex;gap:8px;flex-wrap:wrap}.nav a{padding:7px 12px;border-radius:999px;text-decoration:none;color:var(--muted)}.nav a[aria-current="page"]{background:var(--ink);color:#fff}.hero{padding-block:58px 42px}.eyebrow{font-size:12px;font-weight:850;letter-spacing:.14em;color:#7c3aed}h1{max-width:850px;margin:10px 0 16px;font-size:clamp(34px,6vw,66px);line-height:1.05;letter-spacing:-.04em}.lede{max-width:790px;margin:0;color:var(--muted);font-size:18px}.chips{display:flex;gap:9px;flex-wrap:wrap;margin-top:25px}.chip{padding:7px 12px;border:1px solid var(--line);border-radius:999px;background:#fff;font-weight:700;font-size:13px}section{padding-block:38px}.section-head{display:flex;align-items:end;justify-content:space-between;gap:20px;margin-bottom:20px}.section-head h2{margin:0;font-size:clamp(25px,4vw,38px);letter-spacing:-.025em}.section-head p{max-width:540px;margin:0;color:var(--muted)}.stack{display:grid;gap:12px}.layer{display:grid;grid-template-columns:180px 1fr;gap:14px;align-items:stretch}.layer-label{display:flex;align-items:center;padding:22px;border-radius:18px;font-size:18px;font-weight:850}.layer-content{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:12px;border:1px solid var(--line);border-radius:18px}.layer-content article{padding:17px;background:rgba(255,255,255,.78);border:1px solid rgba(216,222,234,.9);border-radius:13px}.layer-content b{display:block;margin-bottom:4px}.layer-content span{color:var(--muted);font-size:14px}.client .layer-label,.client .layer-content{background:var(--client)}.service .layer-label,.service .layer-content{background:var(--service)}.data .layer-label,.data .layer-content{background:var(--data)}.external .layer-label,.external .layer-content{background:var(--external)}.flow-note{text-align:center;color:var(--muted);font-size:13px}.flows{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.flow{counter-reset:item;padding:23px;border:1px solid var(--line);border-radius:18px;background:var(--paper);box-shadow:var(--shadow)}.flow h3{margin:0 0 16px;font-size:20px}.flow ol{margin:0;padding:0;list-style:none}.flow li{counter-increment:item;display:grid;grid-template-columns:27px 1fr;gap:9px;padding:9px 0;border-top:1px solid var(--line)}.flow li:before{content:counter(item);display:grid;place-items:center;width:23px;height:23px;border-radius:50%;background:var(--ink);color:#fff;font-size:11px;font-weight:800}.model{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.entity{padding:18px;border:1px solid var(--line);border-radius:16px;background:var(--paper)}.entity strong{display:block;font-size:17px}.entity code{color:#0f766e;font-size:12px}.entity p{margin:8px 0 0;color:var(--muted);font-size:14px}.entity.core{grid-column:span 2;background:var(--data)}.legend{margin-top:14px;color:var(--muted);font-size:13px}.security-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.security-card{padding:22px;border:1px solid var(--line);border-radius:18px;background:var(--paper)}.security-card h3{margin:0 0 8px}.security-card p{margin:0;color:var(--muted)}.security-card.warning{background:var(--danger)}.retention{display:grid;grid-template-columns:365fr 30fr;min-height:100px;border:1px solid var(--line);border-radius:18px;overflow:hidden}.retention div{display:flex;flex-direction:column;justify-content:center;padding:20px}.retention .active{background:var(--data)}.retention .readonly{min-width:185px;background:var(--external)}.retention strong{font-size:18px}.retention span{color:var(--muted)}.delete{margin-top:10px;padding:14px;text-align:center;border-radius:14px;background:var(--danger);font-weight:750}footer{padding-block:46px;color:var(--muted);font-size:13px}.footer-inner{display:flex;justify-content:space-between;gap:20px;border-top:1px solid var(--line);padding-top:22px}.footer-inner a{font-weight:750}.skip{position:absolute;left:-9999px}.skip:focus{left:10px;top:10px;z-index:10;background:#fff;padding:10px}
+    @media(max-width:900px){.layer{grid-template-columns:1fr}.layer-content,.flows{grid-template-columns:1fr}.model{grid-template-columns:repeat(2,1fr)}.entity.core{grid-column:span 1}}
+    @media(max-width:560px){.topbar,.section-head,.footer-inner{align-items:flex-start;flex-direction:column}.hero{padding-top:34px}.layer-content,.model,.security-grid{grid-template-columns:1fr}.nav{font-size:13px}.retention{grid-template-columns:1fr}.retention .readonly{min-width:0}}
+  </style>
+</head>
+<body>
+  <a class="skip" href="#content">跳到主要內容</a>
+  <header class="topbar">
+    <a class="brand" href="index.html">🔎 科展小助手</a>
+    <nav class="nav" aria-label="架構文件">
+      <a href="function-architecture.html">功能藍圖</a>
+      <a href="architecture.html" aria-current="page">系統架構</a>
+      <a href="index.html">開啟網站</a>
+    </nav>
+  </header>
+  <main id="content">
+    <div class="hero">
+      <div class="eyebrow">SYSTEM ARCHITECTURE · 系統架構</div>
+      <h1>靜態前端，受控後端，研究資料逐層隔離。</h1>
+      <p class="lede">GitHub Pages 負責三個操作介面；Supabase 負責身分、資料、檔案與 Edge Functions；OpenAI 只在需要動態建議時由後端呼叫，API 金鑰不進入瀏覽器。</p>
+      <div class="chips" aria-label="技術摘要"><span class="chip">GitHub Pages</span><span class="chip">Vanilla HTML / CSS / JS</span><span class="chip">Supabase Auth + PostgreSQL</span><span class="chip">Edge Functions</span><span class="chip">OpenAI Responses API</span></div>
+    </div>
 
-    <rect class="zone" x="20" y="50" width="1160" height="190" rx="16"/>
-    <text class="zone-title" x="42" y="80">共用頁首規則</text>
-    <rect class="node neutral" x="54" y="105" width="260" height="92" rx="14"/>
-    <text class="label" x="184" y="137" text-anchor="middle">科展小助手（身分文字）</text>
-    <text class="small" x="184" y="163" text-anchor="middle">已登入：顯示登入 Email</text>
-    <text class="small" x="184" y="181" text-anchor="middle">未登入：顯示「未登入」</text>
-    <rect class="node risk" x="468" y="105" width="260" height="92" rx="14"/>
-    <text class="label" x="598" y="137" text-anchor="middle">禁止顯示</text>
-    <text class="small" x="598" y="163" text-anchor="middle">本機使用者／訪客／裝置名稱</text>
-    <rect class="node process" x="882" y="105" width="260" height="92" rx="14"/>
-    <text class="label" x="1012" y="137" text-anchor="middle">依登入角色切換功能</text>
-    <text class="small" x="1012" y="163" text-anchor="middle">未登入／學生／教師各自顯示</text>
-    <path class="edge" marker-end="url(#arrow)" d="M314 151H468"/>
-    <path class="edge" marker-end="url(#arrow)" d="M728 151H882"/>
+    <section aria-labelledby="stack-title">
+      <div class="section-head"><h2 id="stack-title">系統分層</h2><p>箭頭方向為瀏覽器提出請求；教師可在 RLS 保護下讀寫授權資料，學生的自訂 session 則一律經 Edge Function 驗證。</p></div>
+      <div class="stack">
+        <div class="layer client"><div class="layer-label">① 操作介面</div><div class="layer-content"><article><b>學生網站</b><span>index.html：探索、選題、研究計畫、子題、實驗與心得</span></article><article><b>教師入口</b><span>portal.html：Google 登入、班級、歷程、回饋與匯出</span></article><article><b>總管理者</b><span>admin.html：教師核准、帳號設定與全站管理</span></article></div></div>
+        <div class="flow-note">HTTPS / Supabase SDK / JSON API ↓</div>
+        <div class="layer service"><div class="layer-label">② 服務與授權</div><div class="layer-content"><article><b>Supabase Auth</b><span>教師 Google OAuth；登入後仍檢查 teacher_profiles 核准狀態</span></article><article><b>Edge Functions</b><span>學生帳號、推薦、實驗檢核、教師帳號操作、管理與清除排程</span></article><article><b>RLS 與角色檢查</b><span>教師僅可操作自己的班級；管理 API 另以管理者 session 保護</span></article></div></div>
+        <div class="flow-note">Service role 僅留在伺服器端 ↓</div>
+        <div class="layer data"><div class="layer-label">③ 資料與檔案</div><div class="layer-content"><article><b>PostgreSQL</b><span>班級、學生、研究主題、事件、計畫、建議、實驗與用量</span></article><article><b>Storage</b><span>私有 experiment-files bucket；限制檔案大小與允許類型</span></article><article><b>排程清除</b><span>purge-expired 依 active_until / delete_after 執行保存政策</span></article></div></div>
+        <div class="flow-note">只有伺服器端按需呼叫 ↓</div>
+        <div class="layer external"><div class="layer-label">④ 外部服務</div><div class="layer-content"><article><b>Google OAuth</b><span>驗證教師 Google 身分，不作為學生登入方式</span></article><article><b>OpenAI Responses API</b><span>動態題目、Web Search、實驗回饋與教師架構草稿</span></article><article><b>科教館與公開來源</b><span>作為研究背景線索；作品、日期、科別與網址仍需人工核對</span></article></div></div>
+      </div>
+    </section>
 
-    <rect class="zone" x="20" y="270" width="360" height="560" rx="16"/>
-    <text class="zone-title" x="42" y="302">未登入</text>
-    <rect class="node neutral" x="54" y="330" width="292" height="86" rx="14"/>
-    <text class="label" x="200" y="362" text-anchor="middle">頁首：科展小助手（未登入）</text>
-    <text class="small" x="200" y="388" text-anchor="middle">提供「登入／班級入口」</text>
-    <rect class="node risk" x="54" y="478" width="292" height="112" rx="14"/>
-    <text class="label" x="200" y="511" text-anchor="middle">不顯示學生專屬功能</text>
-    <text class="small" x="200" y="539" text-anchor="middle">不顯示「繼續上次計畫」</text>
-    <text class="small" x="200" y="559" text-anchor="middle">不顯示「心得歷程」填寫入口</text>
-    <path class="edge" marker-end="url(#arrow)" d="M200 416V478"/>
+    <section aria-labelledby="flows-title">
+      <div class="section-head"><h2 id="flows-title">三條關鍵資料流</h2><p>不同身分使用不同驗證方式，避免讓學生自訂憑證直接存取資料庫。</p></div>
+      <div class="flows">
+        <article class="flow"><h3>學生研究流程</h3><ol><li>學生帳號登入取得不透明 session token</li><li>瀏覽器以 x-student-token 呼叫 student-api</li><li>函式驗證 token 雜湊、期限與研究擁有權</li><li>更新研究資料並追加 thought_events</li><li>需要 AI 時再由專用函式呼叫模型</li></ol></article>
+        <article class="flow"><h3>教師指導流程</h3><ol><li>Google OAuth 取得 Supabase JWT</li><li>確認教師已核准且狀態有效</li><li>RLS 限制為教師自己的班級與學生</li><li>查看單一學生、單一研究的完整證據鏈</li><li>留言或送出建議，等待學生採用／婉拒</li></ol></article>
+        <article class="flow"><h3>AI 建議流程</h3><ol><li>後端先驗證身分、研究與每日用量</li><li>只整理該研究所需的最小脈絡</li><li>以 JSON Schema 限定結構化輸出</li><li>結果作為建議或草稿，不自動代替決策</li><li>記錄來源事件與 AI 用量供追蹤</li></ol></article>
+      </div>
+    </section>
 
-    <rect class="zone" x="420" y="270" width="360" height="560" rx="16"/>
-    <text class="zone-title" x="442" y="302">學生已登入</text>
-    <rect class="node input" x="454" y="330" width="292" height="86" rx="14"/>
-    <text class="label" x="600" y="362" text-anchor="middle">頁首：科展小助手（學生 Email）</text>
-    <text class="small" x="600" y="388" text-anchor="middle">確認為學生 session 後顯示專屬按鈕</text>
-    <rect class="node process" x="454" y="458" width="132" height="86" rx="14"/>
-    <text class="label" x="520" y="490" text-anchor="middle">繼續上次計畫</text>
-    <text class="small" x="520" y="516" text-anchor="middle">僅學生登入可見</text>
-    <rect class="node process" x="614" y="458" width="132" height="86" rx="14"/>
-    <text class="label" x="680" y="490" text-anchor="middle">心得歷程</text>
-    <text class="small" x="680" y="516" text-anchor="middle">開啟填寫表格</text>
-    <rect class="node external" x="454" y="600" width="292" height="144" rx="14"/>
-    <text class="label" x="600" y="632" text-anchor="middle">學生心得填寫表格</text>
-    <text class="small" x="600" y="660" text-anchor="middle">日期：系統自動帶入（唯讀）</text>
-    <text class="small" x="600" y="682" text-anchor="middle">我學到了什麼：多行文字欄位</text>
-    <text class="small" x="600" y="704" text-anchor="middle">我覺得困難的地方：多行文字欄位</text>
-    <text class="small" x="600" y="726" text-anchor="middle">儲存心得</text>
-    <path class="edge" marker-end="url(#arrow)" d="M600 416V438H520V458"/>
-    <path class="edge" marker-end="url(#arrow)" d="M600 416V438H680V458"/>
-    <path class="edge" marker-end="url(#arrow)" d="M680 544V600"/>
+    <section aria-labelledby="model-title">
+      <div class="section-head"><h2 id="model-title">核心資料模型</h2><p>資料的主幹是「班級 → 學生 → 研究主題」。所有研究內容都帶 research_id，因此新增主題不會覆蓋舊歷程。</p></div>
+      <div class="model">
+        <article class="entity"><strong>班級</strong><code>classes</code><p>屬於一位教師；提供加入碼。</p></article>
+        <article class="entity"><strong>學生</strong><code>students / student_sessions</code><p>匿名代號、登入帳號、密碼雜湊與保留期限。</p></article>
+        <article class="entity core"><strong>研究主題（資料主幹）</strong><code>research_projects</code><p>一位學生可有多個研究；保存題目、條件與目前選擇。</p></article>
+        <article class="entity"><strong>思考時間軸</strong><code>thought_events</code><p>追加式保存問答、選擇、心得、留言與系統事件。</p></article>
+        <article class="entity"><strong>研究架構</strong><code>research_plans</code><p>系統初版、目前版本與修訂版號。</p></article>
+        <article class="entity"><strong>教師建議</strong><code>research_plan_suggestions</code><p>修改草稿、理由、狀態及學生決定時間。</p></article>
+        <article class="entity"><strong>子題與實驗</strong><code>experiment_records</code><p>以 subtopic_id 分組問題、做法、結果、附件與 AI 回饋。</p></article>
+        <article class="entity"><strong>AI 用量</strong><code>ai_usage</code><p>限制每日動態請求並保留模型與 request ID。</p></article>
+        <article class="entity"><strong>治理資料</strong><code>teacher_profiles / administrators / app_settings</code><p>教師核准狀態、管理者 session 與全站登入設定。</p></article>
+      </div>
+      <p class="legend">關聯刪除以資料庫外鍵 cascade 為主；清除單一研究時，該研究的事件、計畫、建議與實驗紀錄一併移除。</p>
+    </section>
 
-    <rect class="zone" x="820" y="270" width="360" height="560" rx="16"/>
-    <text class="zone-title" x="842" y="302">教師已登入</text>
-    <rect class="node input" x="854" y="330" width="292" height="86" rx="14"/>
-    <text class="label" x="1000" y="362" text-anchor="middle">頁首：科展小助手（教師 Email）</text>
-    <text class="small" x="1000" y="388" text-anchor="middle">進入教師檢視／班級管理</text>
-    <rect class="node process" x="854" y="458" width="292" height="86" rx="14"/>
-    <text class="label" x="1000" y="490" text-anchor="middle">先選班級，再選學生</text>
-    <text class="small" x="1000" y="516" text-anchor="middle">學生清單顯示「查看心得」入口</text>
-    <rect class="node storage" x="854" y="600" width="292" height="144" rx="14"/>
-    <text class="label" x="1000" y="632" text-anchor="middle">個別學生心得歷程</text>
-    <text class="small" x="1000" y="660" text-anchor="middle">只顯示目前選取學生</text>
-    <text class="small" x="1000" y="682" text-anchor="middle">依日期排列每筆心得</text>
-    <text class="small" x="1000" y="704" text-anchor="middle">查看：學到什麼＋困難處</text>
-    <text class="small" x="1000" y="726" text-anchor="middle">教師為檢視模式，不代學生填寫</text>
-    <path class="edge" marker-end="url(#arrow)" d="M1000 416V458"/>
-    <path class="edge" marker-end="url(#arrow)" d="M1000 544V600"/>
+    <section aria-labelledby="security-title">
+      <div class="section-head"><h2 id="security-title">權限與安全邊界</h2></div>
+      <div class="security-grid">
+        <article class="security-card"><h3>瀏覽器可以持有</h3><p>Supabase URL、公開 anon key、教師 JWT、學生不透明 session token，以及本機介面狀態。公開 anon key 不是管理權限。</p></article>
+        <article class="security-card warning"><h3>永遠留在伺服器</h3><p>SUPABASE_SERVICE_ROLE_KEY、OPENAI_API_KEY、CRON_SECRET、學生密碼雜湊與管理者密碼雜湊，不寫入 GitHub Pages。</p></article>
+        <article class="security-card"><h3>學生存取</h3><p>PIN／密碼只存 PBKDF2 雜湊；session token 也以雜湊比對。每個請求再次確認學生與 research_id 的擁有關係。</p></article>
+        <article class="security-card"><h3>教師與管理者存取</h3><p>Google 登入不等於教師授權；teacher_profiles 必須為有效狀態。管理者使用獨立 API 與 session，不共用教師權限。</p></article>
+      </div>
+    </section>
 
-    <rect class="node ok" x="340" y="852" width="520" height="42" rx="12"/>
-    <text class="label" x="600" y="878" text-anchor="middle">心得資料以學生身分綁定；教師只能查看自己班級中所選學生的紀錄</text>
-  </svg>
-  <h2>完整功能保留與研究歷程流程</h2>
-  <p class="intro">下列功能是後續修正的驗收範圍；新增功能只能擴充，不可刪除或取代既有流程。</p>
-  <svg viewBox="0 0 1200 690" role="img" aria-labelledby="preserved-title preserved-desc">
-    <title id="preserved-title">科展小助手必須保留的學生與教師完整功能</title>
-    <desc id="preserved-desc">學生可以開始新研究歷程、繼續既有研究、選題、建立研究架構、記錄實驗及心得。教師選擇個別學生後，可以查看歷程、留言、提出研究架構修改建議及匯出資料。每次研究分開保存，舊資料不被覆蓋。</desc>
-
-    <rect class="zone" x="20" y="42" width="1160" height="250" rx="16"/>
-    <text class="zone-title" x="42" y="74">學生已登入｜原有研究流程全部保留</text>
-    <path class="edge" marker-end="url(#arrow)" d="M238 158H278"/>
-    <path class="edge" marker-end="url(#arrow)" d="M458 158H498"/>
-    <path class="edge" marker-end="url(#arrow)" d="M678 158H718"/>
-    <path class="edge" marker-end="url(#arrow)" d="M898 158H938"/>
-    <rect class="node input" x="58" y="108" width="180" height="100" rx="14"/>
-    <text class="label" x="148" y="140" text-anchor="middle">開始／選擇研究</text>
-    <text class="small" x="148" y="166" text-anchor="middle">開始新研究歷程</text>
-    <text class="small" x="148" y="185" text-anchor="middle">繼續上次計畫</text>
-    <rect class="node process" x="278" y="108" width="180" height="100" rx="14"/>
-    <text class="label" x="368" y="140" text-anchor="middle">探索與選題</text>
-    <text class="small" x="368" y="166" text-anchor="middle">科別、條件、引導問答</text>
-    <text class="small" x="368" y="185" text-anchor="middle">備援題目、歷屆作品</text>
-    <rect class="node process" x="498" y="108" width="180" height="100" rx="14"/>
-    <text class="label" x="588" y="140" text-anchor="middle">建立研究架構</text>
-    <text class="small" x="588" y="166" text-anchor="middle">問題、假設、變因、步驟</text>
-    <text class="small" x="588" y="185" text-anchor="middle">安全與資料分析</text>
-    <rect class="node process" x="718" y="108" width="180" height="100" rx="14"/>
-    <text class="label" x="808" y="140" text-anchor="middle">研究與修正</text>
-    <text class="small" x="808" y="166" text-anchor="middle">討論、實驗紀錄、附件</text>
-    <text class="small" x="808" y="185" text-anchor="middle">採用／婉拒教師建議</text>
-    <rect class="node external" x="938" y="108" width="204" height="100" rx="14"/>
-    <text class="label" x="1040" y="140" text-anchor="middle">心得歷程</text>
-    <text class="small" x="1040" y="166" text-anchor="middle">日期自動帶入</text>
-    <text class="small" x="1040" y="185" text-anchor="middle">學到什麼＋困難處</text>
-
-    <rect class="zone" x="20" y="322" width="1160" height="250" rx="16"/>
-    <text class="zone-title" x="42" y="354">教師已登入｜個別學生檢視與回饋功能全部保留</text>
-    <path class="edge" marker-end="url(#arrow)" d="M238 438H278"/>
-    <path class="edge" marker-end="url(#arrow)" d="M458 438H498"/>
-    <path class="edge" marker-end="url(#arrow)" d="M678 438H718"/>
-    <path class="edge" marker-end="url(#arrow)" d="M898 438H938"/>
-    <rect class="node input" x="58" y="388" width="180" height="100" rx="14"/>
-    <text class="label" x="148" y="420" text-anchor="middle">選班級與學生</text>
-    <text class="small" x="148" y="446" text-anchor="middle">班級管理、學生標籤</text>
-    <text class="small" x="148" y="465" text-anchor="middle">只存取自己的班級</text>
-    <rect class="node storage" x="278" y="388" width="180" height="100" rx="14"/>
-    <text class="label" x="368" y="420" text-anchor="middle">查看個別歷程</text>
-    <text class="small" x="368" y="446" text-anchor="middle">思考證據鏈、完整時間軸</text>
-    <text class="small" x="368" y="465" text-anchor="middle">個別心得歷程</text>
-    <rect class="node process" x="498" y="388" width="180" height="100" rx="14"/>
-    <text class="label" x="588" y="420" text-anchor="middle">教師個別回饋</text>
-    <text class="small" x="588" y="446" text-anchor="middle">一般教師留言</text>
-    <text class="small" x="588" y="465" text-anchor="middle">加入學生時間軸</text>
-    <rect class="node process" x="718" y="388" width="180" height="100" rx="14"/>
-    <text class="label" x="808" y="420" text-anchor="middle">研究架構建議</text>
-    <text class="small" x="808" y="446" text-anchor="middle">編輯欄位並說明原因</text>
-    <text class="small" x="808" y="465" text-anchor="middle">由學生決定是否採用</text>
-    <rect class="node neutral" x="938" y="388" width="204" height="100" rx="14"/>
-    <text class="label" x="1040" y="420" text-anchor="middle">管理與匯出</text>
-    <text class="small" x="1040" y="446" text-anchor="middle">JSON／CSV／PDF／全班匯出</text>
-    <text class="small" x="1040" y="465" text-anchor="middle">365＋30 天保存政策</text>
-
-    <rect class="node ok" x="170" y="610" width="860" height="56" rx="14"/>
-    <text class="label" x="600" y="635" text-anchor="middle">每次「開始新研究歷程」建立獨立研究紀錄；舊研究、回饋、心得與實驗資料皆保留</text>
-    <text class="small" x="600" y="654" text-anchor="middle">教師先選學生，再選該生的研究歷程；不同研究不可混在同一條時間軸，也不可被新研究覆蓋</text>
-  </svg>
-  <div class="rules">
-    <section><h2>身分顯示</h2><p>頁首只接受後端驗證完成的登入 Email。若尚未登入或 session 無效，一律顯示「未登入」。</p></section>
-    <section><h2>學生入口</h2><p>「繼續上次計畫」與心得填寫表格都以學生登入狀態為顯示條件，不再由本機資料決定。</p></section>
-    <section><h2>教師入口</h2><p>教師端不直接混列所有心得；操作順序固定為選班級／學生，再進入該名學生的個別心得歷程。</p></section>
-    <section><h2>保留舊功能</h2><p>選題引導、備援題目、歷屆作品、研究架構、實驗討論與附件、教師留言、架構建議、學生決定權及各種匯出功能都不得刪除。</p></section>
-    <section><h2>多次研究</h2><p>學生可開始新的研究歷程，也可回到既有研究；每個研究各自保存題目、實驗、心得、教師回饋與版本紀錄。</p></section>
-  </div>
-</main>
+    <section aria-labelledby="retention-title">
+      <div class="section-head"><h2 id="retention-title">資料生命週期</h2><p>期限以學生資料為單位，由後端強制執行；前端顯示不能取代資料庫與排程限制。</p></div>
+      <div class="retention"><div class="active"><strong>第 0–365 天｜可編輯</strong><span>學生持續研究；教師查看、回饋與匯出。</span></div><div class="readonly"><strong>第 366–395 天</strong><span>唯讀，供教師匯出。</span></div></div>
+      <div class="delete">第 395 天｜排程永久刪除學生、研究、事件、檔案、session 與 AI 用量</div>
+    </section>
+  </main>
+  <footer><div class="footer-inner"><span>架構依目前程式碼與 Supabase migrations 整理</span><span><a href="function-architecture.html">← 回到功能藍圖</a></span></div></footer>
+</body>
+</html>
