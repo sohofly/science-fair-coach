@@ -43,7 +43,9 @@ const quote = (value) =>
     : `'${String(typeof value === "object" ? JSON.stringify(value) : value).replaceAll("'", "''")}'`;
 const insert = (table, row) =>
   `INSERT OR REPLACE INTO ${table}(${Object.keys(row).join(",")}) VALUES(${Object.values(row).map(quote).join(",")});`;
-const sql = ["PRAGMA foreign_keys=OFF;", "BEGIN;"];
+// `wrangler d1 execute --file` already submits the statements as a D1 batch.
+// D1 rejects explicit SQL transaction statements such as BEGIN/COMMIT.
+const sql = ["PRAGMA foreign_keys=OFF;"];
 for (const item of rows.teacher_profiles)
   sql.push(
     insert("teachers", {
@@ -134,7 +136,7 @@ for (const item of rows.app_settings)
           : JSON.stringify(item.value),
     }),
   );
-sql.push("COMMIT;", "PRAGMA foreign_keys=ON;");
+sql.push("PRAGMA foreign_keys=ON;");
 
 await mkdir(".migration", { recursive: true });
 await writeFile(".migration/supabase-to-d1.sql", `${sql.join("\n")}\n`, {

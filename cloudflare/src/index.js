@@ -1025,9 +1025,12 @@ async function teacherApi(req, env, body) {
     });
   }
   if (
-    ["research_detail", "teacher_comment", "plan_suggestion"].includes(
-      body.action,
-    )
+    [
+      "research_detail",
+      "teacher_comment",
+      "plan_suggestion",
+      "ai_plan_suggestion",
+    ].includes(body.action)
   ) {
     const project = await ownsResearch(String(body.researchId || ""));
     if (!project)
@@ -1068,6 +1071,74 @@ async function teacherApi(req, env, body) {
         ),
       ]);
       return reply(req, env, { ok: true });
+    }
+    if (body.action === "ai_plan_suggestion") {
+      const [student, plan, events] = await Promise.all([
+        env.DB.prepare("SELECT profile,selected_topic FROM students WHERE id=?")
+          .bind(project.student_id)
+          .first(),
+        env.DB.prepare(
+          "SELECT current_plan FROM research_plans WHERE research_id=?",
+        )
+          .bind(project.id)
+          .first(),
+        env.DB.prepare(
+          "SELECT event_type,content FROM thought_events WHERE research_id=? ORDER BY created_at",
+        )
+          .bind(project.id)
+          .all(),
+      ]);
+      const fields = [
+        "question",
+        "hypothesis",
+        "variables",
+        "materials",
+        "procedure",
+        "analysis",
+        "safety",
+      ];
+      const schema = {
+        type: "object",
+        additionalProperties: false,
+        required: ["comment", "proposedPlan"],
+        properties: {
+          comment: { type: "string" },
+          proposedPlan: {
+            type: "object",
+            additionalProperties: false,
+            required: fields,
+            properties: Object.fromEntries(
+              fields.map((key) => [key, { type: "string" }]),
+            ),
+          },
+        },
+      };
+      const prompt = `請依學生研究資料提出具體、可行、安全的研究架構修改草稿。學生資料：${JSON.stringify(mapRow(student, ["profile", "selected_topic"]))}；目前架構：${plan?.current_plan || "{}"}；近期歷程：${JSON.stringify(events.results.slice(-20).map((x) => mapRow(x, ["content"])))}`;
+      const result = await callOpenAI(env, {
+        model: env.OPENAI_MODEL || "gpt-5.6",
+        reasoning: { effort: "low" },
+        input: [
+          {
+            role: "developer",
+            content:
+              "你是臺灣國小科展教師助理。只產生供教師審閱的繁體中文草稿，不可假裝已修改學生資料。",
+          },
+          { role: "user", content: prompt },
+        ],
+        text: {
+          format: {
+            type: "json_schema",
+            name: "teacher_plan_suggestion",
+            strict: true,
+            schema,
+          },
+        },
+      });
+      if (result.error)
+        return reply(req, env, { error: result.error }, result.status);
+      const output = jsonParse(result.text);
+      if (!output) return reply(req, env, { error: "AI回傳格式不正確" }, 502);
+      return reply(req, env, output);
     }
     const [student, events, plan, suggestions, experiments] = await Promise.all(
       [

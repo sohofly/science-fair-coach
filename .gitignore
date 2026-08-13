@@ -4,3 +4,4 @@
 cloudflare/exports/
 node_modules/
 supabase/.temp/
+worker-startup.cpuprofile

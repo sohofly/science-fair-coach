@@ -125,16 +125,6 @@ portalDom.window.fetch = async () => ({
   ok: true,
   json: async () => ({ teacherGoogleLogin: false }),
 });
-portalDom.window.supabase = {
-  createClient: () => ({
-    auth: {
-      getSession: async () => ({ data: { session: null } }),
-      onAuthStateChange: () => ({
-        data: { subscription: { unsubscribe() {} } },
-      }),
-    },
-  }),
-};
 portalDom.window.eval(fs.readFileSync("portal.js", "utf8"));
 await new Promise((resolve) => setTimeout(resolve, 0));
 assert.doesNotMatch(portalDom.window.document.querySelector("#portal").textContent, /後端尚未連線/);
@@ -166,8 +156,8 @@ assert.match(portalJs, /證據充足/);
 assert.match(portalJs, /學生心得歷程/);
 assert.match(portalJs, /帳號管理/);
 assert.match(portalJs, /不可查看（已加密保存）/);
-assert.match(portalJs, /teacher-student-account/);
-assert.match(portalJs, /ensure_teacher_access/);
+assert.match(portalJs, /teacher-api/);
+assert.match(portalJs, /x-teacher-token/);
 assert.match(portalJs, /使用教師 Email 與密碼登入/);
 assert.match(portalJs, /新增學生帳密/);
 assert.match(fs.readFileSync("supabase/functions/teacher-student-account/index.ts", "utf8"), /create_student_account/);
@@ -180,7 +170,7 @@ assert.match(teacherAccountFunction, /OPENAI_API_KEY/);
 assert.match(teacherAccountFunction, /teacher_plan_suggestion/);
 assert.match(portalJs, /教師個別回饋|一般教師留言/);
 assert.match(portalJs, /chooseResearch/);
-assert.match(portalJs, /research_projects/);
+assert.match(portalJs, /student_projects/);
 assert.match(portalJs, /查看此主題的心得與回饋/);
 assert.match(portalJs, /以下只顯示這個主題的心得、教師回饋與研究紀錄/);
 assert.match(portalJs, /back-student/);
@@ -190,11 +180,11 @@ assert.match(fs.readFileSync("index.html", "utf8"), /data-action="logout"[^>]*>�
 assert.match(fs.readFileSync("index.html", "utf8"), /logged-out-only/);
 assert.match(fs.readFileSync("app.js", "utf8"), /projects:\s*projectList/);
 assert.match(fs.readFileSync("app.js", "utf8"), /目前保存 \$\{projects.length\}／5 個研究主題/);
-assert.match(fs.readFileSync("index.html", "utf8"), /supabase-js/);
+assert.doesNotMatch(fs.readFileSync("index.html", "utf8"), /supabase-js/);
 assert.match(fs.readFileSync("app.js", "utf8"), /restoreSignedInUser/);
 assert.match(fs.readFileSync("backend.js", "utf8"), /createProject/);
 assert.match(fs.readFileSync("backend.js", "utf8"), /deleteProject/);
-assert.match(fs.readFileSync("backend.js", "utf8"), /authClient\.auth\.signOut/);
+assert.match(fs.readFileSync("backend.js", "utf8"), /apiUrl/);
 assert.match(fs.readFileSync("app.js", "utf8"), /下載 PDF/);
 assert.match(fs.readFileSync("app.js", "utf8"), /未滿 5 個前不能刪除/);
 const reflectionMigration = fs.readFileSync("supabase/migrations/202608090001_reflection_history.sql", "utf8");

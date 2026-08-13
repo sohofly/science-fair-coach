@@ -1,5 +1,3 @@
-// Supabase anon key is intentionally public. Never put a service-role key here.
-window.SFC_CONFIG={
-  supabaseUrl:'https://mzdcbcpartvuwyvdunrn.supabase.co',
-  supabaseAnonKey:'sb_publishable_mCqTVdtCN_-Nu42aQTtOdQ_FZtgL4s6'
+window.SFC_CONFIG = {
+  apiUrl: "https://science-fair-coach-api.sohofly.workers.dev",
 };
