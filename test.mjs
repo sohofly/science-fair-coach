@@ -8,8 +8,19 @@ const dom = new JSDOM(html, {
 });
 dom.window.confirm = () => true;
 dom.window.scrollTo = () => {};
+dom.window.eval(fs.readFileSync("coach-format.js", "utf8"));
 dom.window.eval(fs.readFileSync("app.js", "utf8"));
 const { document } = dom.window;
+const formattedCoachReply = dom.window.renderCoachResponse(`# AI 教練回覆
+## 快速結論
+| 項目 | 判定 | 重點 |
+|---|---|---|
+| 變因 | ✅ | 清楚 |
+## 下一步
+<img src=x onerror=alert(1)>`);
+assert.match(formattedCoachReply, /<table>/);
+assert.match(formattedCoachReply, /<h3>AI 教練回覆<\/h3>/);
+assert.doesNotMatch(formattedCoachReply, /<img/);
 const click = (selector) => {
   const el = document.querySelector(selector);
   assert.ok(el, `找不到 ${selector}`);

@@ -360,6 +360,32 @@ footer {
 footer a {
   color: var(--purple);
 }
+.coach-response {
+  margin-top: 16px;
+  padding: 18px;
+  border: 2px solid #d9d0f2;
+  border-radius: 18px;
+  background: #fbfaff;
+  line-height: 1.7;
+}
+.coach-response h3,
+.coach-response h4,
+.coach-response h5 { margin: 18px 0 8px; color: var(--purple); }
+.coach-response > h3:first-child { margin-top: 0; }
+.coach-response ul,
+.coach-response ol { padding-left: 24px; }
+.coach-response blockquote {
+  margin: 14px 0;
+  padding: 12px 16px;
+  border-left: 5px solid #f0cc64;
+  border-radius: 8px;
+  background: #fff8dc;
+}
+.coach-table-wrap { max-width: 100%; margin: 12px 0 18px; overflow-x: auto; }
+.coach-response table { width: 100%; border-collapse: collapse; background: #fff; font-size: 15px; }
+.coach-response th,
+.coach-response td { padding: 10px 12px; border: 1px solid #d9d0f2; text-align: left; vertical-align: top; }
+.coach-response th { background: #eee9fb; color: #3e286b; }
 @media (max-width: 700px) {
   .topbar {
     align-items: flex-start;
