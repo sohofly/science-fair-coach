@@ -1,0 +1,24 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "science-fair-coach-api",
+  "main": "cloudflare/src/index.js",
+  "compatibility_date": "2026-08-13",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": true,
+  "observability": { "enabled": true },
+  "vars": {
+    "ALLOWED_ORIGINS": "https://sohofly.github.io,http://localhost:8787,http://127.0.0.1:8787",
+    "OPENAI_MODEL": "gpt-5.6"
+  },
+  "d1_databases": [{
+    "binding": "DB",
+    "database_name": "science-fair-coach",
+    "database_id": "7e75465d-48d8-487e-ab3e-836c92e87e15",
+    "migrations_dir": "cloudflare/migrations"
+  }],
+  "r2_buckets": [{
+    "binding": "FILES",
+    "bucket_name": "science-fair-coach-files"
+  }],
+  "triggers": { "crons": ["17 3 * * *"] }
+}

@@ -1,0 +1,762 @@
+const cfg = window.SFC_CONFIG || {};
+const root = document.querySelector("#portal");
+const auth = document.querySelector("#auth-actions");
+const currentUser = document.querySelector("#current-user");
+document.head.insertAdjacentHTML(
+  "beforeend",
+  '<link rel="stylesheet" href="reflections.css">',
+);
+const configured = Boolean(cfg.apiUrl);
+const teacherTokenKey = "sfcTeacherToken";
+let teacherToken = localStorage.getItem(teacherTokenKey) || "",
+  teacher = null,
+  currentClass = null,
+  googleTeacherLogin = false;
+const esc = (v = "") =>
+  String(v).replace(
+    /[&<>'"]/g,
+    (c) =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" })[
+        c
+      ],
+  );
+const studentTokenKey = "sfcStudentToken";
+async function api(body, token = "") {
+  const response = await fetch(`${cfg.apiUrl}/student-api`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { "x-student-token": token } : {}),
+    },
+    body: JSON.stringify(body),
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.error || "操作失敗");
+  return data;
+}
+async function teacherAccountApi(body) {
+  if (!teacherToken) throw new Error("教師登入已失效");
+  const response = await fetch(`${cfg.apiUrl}/teacher-api`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-teacher-token": teacherToken,
+    },
+    body: JSON.stringify(body),
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.error || "操作失敗");
+  return data;
+}
+function message(text, type = "error") {
+  return `<p class="status-${type}">${esc(text)}</p>`;
+}
+function landing() {
+  currentUser.textContent = "（未登入）";
+  auth.innerHTML = "";
+  root.innerHTML = `<section class="panel"><div class="eyebrow">班級與學生入口</div><h1>從這裡繼續</h1>${!configured ? message("後端尚未連線。管理者需先完成Supabase設定；目前仍可返回首頁使用本機試用版。") : ""}<div class="portal-grid"><article class="login-card"><h2>👩‍🏫 我是教師</h2><p>使用已由總管理者建立的教師帳號登入，管理自己的班級與學生。</p><div class="portal-form"><button class="primary" id="teacher-email" ${configured ? "" : "disabled"}>使用教師 Email 與密碼登入</button>${googleTeacherLogin ? `<button class="secondary" id="google" ${configured ? "" : "disabled"}>使用 Google 登入</button>` : ""}</div></article><article class="login-card"><h2>🧒 我是學生</h2><div class="portal-form"><button class="primary" id="new-student" ${configured ? "" : "disabled"}>第一次加入班級</button><button class="secondary" id="resume-student" ${configured ? "" : "disabled"}>使用 Email 與密碼登入</button></div></article></div></section>`;
+  document
+    .querySelector("#google")
+    ?.addEventListener("click", () =>
+      alert("Google 登入仍在遷移中，請先使用教師 Email 與密碼登入。"),
+    );
+  document
+    .querySelector("#teacher-email")
+    ?.addEventListener("click", teacherLoginForm);
+  document.querySelector("#new-student")?.addEventListener("click", joinForm);
+  document
+    .querySelector("#resume-student")
+    ?.addEventListener("click", resumeForm);
+}
+function teacherLoginForm() {
+  root.innerHTML = `<section class="panel"><h2>教師登入</h2><p>只有總管理者已建立或核准的教師帳號可以登入。</p><form class="portal-form" id="teacher-login"><label>教師 Email<input name="email" type="email" required autocomplete="username"></label><label>密碼<input name="password" type="password" required autocomplete="current-password"></label><button class="primary">登入</button><button class="secondary" type="button" data-back>返回</button></form><div id="result"></div></section>`;
+  document.querySelector("[data-back]").onclick = landing;
+  document.querySelector("#teacher-login").onsubmit = async (e) => {
+    e.preventDefault();
+    const f = new FormData(e.target),
+      out = document.querySelector("#result");
+    try {
+      const response = await fetch(`${cfg.apiUrl}/teacher-api`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "login",
+            email: String(f.get("email") || "").trim(),
+            password: String(f.get("password") || ""),
+          }),
+        }),
+        data = await response.json();
+      if (!response.ok) throw new Error(data.error || "登入失敗");
+      teacherToken = data.token;
+      teacher = data.teacher;
+      localStorage.setItem(teacherTokenKey, teacherToken);
+      await enterTeacherDashboard();
+    } catch (error) {
+      teacherToken = "";
+      localStorage.removeItem(teacherTokenKey);
+      teacher = null;
+      out.innerHTML = message(error.message);
+    }
+  };
+}
+async function enterTeacherDashboard() {
+  const data = await teacherAccountApi({ action: "dashboard" });
+  teacher = data.teacher;
+  currentUser.textContent = `（${teacher?.email || "教師"}）`;
+  await dashboard(data);
+}
+function joinForm() {
+  root.innerHTML = `<section class="panel"><h2>第一次加入班級</h2><p>輸入 Email、自己設定的密碼，以及老師提供的 6 位班級加入碼。</p><form class="portal-form" id="join"><label>登入 Email<input name="loginEmail" type="email" required autocomplete="email"></label><label>設定密碼（至少 6 個字元）<input name="password" type="password" minlength="6" maxlength="72" required autocomplete="new-password"></label><label>再次輸入密碼<input name="passwordConfirm" type="password" minlength="6" maxlength="72" required autocomplete="new-password"></label><label>班級加入碼<input name="classCode" maxlength="6" required autocomplete="off"></label><button class="primary">建立學生帳號</button><button class="secondary" type="button" data-back>返回</button></form><div id="result"></div></section>`;
+  document.querySelector("[data-back]").onclick = landing;
+  document.querySelector("#join").onsubmit = async (e) => {
+    e.preventDefault();
+    const out = document.querySelector("#result"),
+      form = new FormData(e.target),
+      password = String(form.get("password") || "");
+    if (password !== form.get("passwordConfirm")) {
+      out.innerHTML = message("兩次輸入的密碼不一致");
+      return;
+    }
+    try {
+      const data = await api({
+        action: "join",
+        loginEmail: form.get("loginEmail"),
+        password,
+        classCode: form.get("classCode"),
+      });
+      localStorage.setItem(studentTokenKey, data.token);
+      localStorage.setItem("sfcResearchId", data.project.id);
+      out.innerHTML = `<div class="credentials"><h3>學生帳號已建立</h3><p>Email<br><strong>${esc(data.student.login_email)}</strong></p><p>匿名學生代號<br><strong>${esc(data.student.student_code)}</strong></p><p>之後只需要 Email 與密碼即可登入。</p><a class="primary portal-link" href="index.html">開始找題目</a></div>`;
+    } catch (error) {
+      out.innerHTML = message(error.message);
+    }
+  };
+}
+function resumeForm() {
+  root.innerHTML = `<section class="panel"><h2>繼續上次的紀錄</h2><form class="portal-form" id="resume"><label>登入 Email<input name="loginEmail" type="email" required autocomplete="username"></label><label>密碼<input name="password" type="password" required autocomplete="current-password"></label><button class="primary">登入</button><button class="secondary" type="button" data-back>返回</button></form><div id="result"></div><p>舊學生第一次使用新版登入時，請輸入要綁定的 Email，並將原本的 6 位 PIN 當作密碼；舊研究資料會完整保留。</p></section>`;
+  document.querySelector("[data-back]").onclick = landing;
+  document.querySelector("#resume").onsubmit = async (e) => {
+    e.preventDefault();
+    const f = new FormData(e.target),
+      out = document.querySelector("#result");
+    try {
+      const login = await api(
+        {
+          action: "resume",
+          loginEmail: f.get("loginEmail"),
+          password: f.get("password"),
+        },
+        localStorage.getItem(studentTokenKey) || "",
+      );
+      localStorage.setItem(studentTokenKey, login.token);
+      location.href = "index.html";
+    } catch (error) {
+      out.innerHTML = message(error.message);
+    }
+  };
+}
+async function dashboard(prefetched) {
+  try {
+    const data =
+        prefetched || (await teacherAccountApi({ action: "dashboard" })),
+      classes = data.classes || [];
+    teacher = data.teacher || teacher;
+    auth.innerHTML = `<button class="soft" id="logout">登出</button>`;
+    document.querySelector("#logout").onclick = async () => {
+      try {
+        await teacherAccountApi({ action: "logout" });
+      } catch {}
+      teacherToken = "";
+      teacher = null;
+      localStorage.removeItem(teacherTokenKey);
+      landing();
+    };
+    root.innerHTML = `<section class="panel"><div class="dashboard-head"><div><div class="eyebrow">教師控制台</div><h2>我的班級</h2></div><button class="primary" id="create-class">建立班級</button></div><div id="classes">${classes.length ? classes.map((c) => `<article class="class-card"><h3>${esc(c.name)}</h3><p>加入碼 <span class="join-code">${c.join_code}</span></p><button class="secondary" data-class="${c.id}">查看學生</button></article>`).join("") : "<p>尚未建立班級。</p>"}</div></section>`;
+    document.querySelector("#create-class").onclick = createClass;
+    document
+      .querySelectorAll("[data-class]")
+      .forEach((b) => (b.onclick = () => openClass(b.dataset.class)));
+  } catch (error) {
+    teacherToken = "";
+    localStorage.removeItem(teacherTokenKey);
+    teacher = null;
+    landing();
+    root.insertAdjacentHTML("afterbegin", message(error.message));
+  }
+}
+function createClass() {
+  root.innerHTML = `<section class="panel"><h2>建立班級／科展梯次</h2><form id="class-form" class="portal-form"><label>名稱<input name="name" maxlength="80" required placeholder="例如：六年級科展2026"></label><button class="primary">建立並產生加入碼</button><button class="secondary" type="button" data-back>取消</button></form><div id="result"></div></section>`;
+  document.querySelector("[data-back]").onclick = dashboard;
+  document.querySelector("#class-form").onsubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const data = await teacherAccountApi({
+        action: "create_class",
+        name: new FormData(e.target).get("name"),
+      });
+      openClass(data.class.id);
+    } catch (error) {
+      document.querySelector("#result").innerHTML = message(error.message);
+    }
+  };
+}
+function retention(s) {
+  const now = Date.now(),
+    active = new Date(s.active_until).getTime(),
+    del = new Date(s.delete_after).getTime();
+  if (now >= del) return ["expired", "已到刪除日"];
+  if (now >= active)
+    return [
+      "readonly",
+      `唯讀匯出期，${Math.ceil((del - now) / 86400000)}天後刪除`,
+    ];
+  return ["", `${Math.ceil((active - now) / 86400000)}天後轉唯讀`];
+}
+async function openClass(id) {
+  currentClass = id;
+  try {
+    const data = await teacherAccountApi({
+        action: "class_detail",
+        classId: id,
+      }),
+      klass = data.class,
+      students = data.students || [];
+    root.innerHTML = `<section class="panel"><button class="secondary" id="back">← 所有班級</button><div class="dashboard-head"><div><h2>${esc(klass.name)}</h2><p>學生加入碼：<span class="join-code">${klass.join_code}</span></p></div><button class="primary" id="add-student">＋ 新增學生帳密</button></div><div class="actions"><button class="secondary" id="export-class">下載全班JSON</button></div><div>${
+      students.length
+        ? students
+            .map((s) => {
+              const [cls, label] = retention(s);
+              return `<article class="student-row"><div><h3>${esc(s.display_label || s.student_code)}</h3><p>帳號：${esc(s.login_email || "尚未綁定 Email")}<br>密碼：不可查看（已加密保存）<br>${esc(s.student_code)}｜建立於 ${new Date(s.created_at).toLocaleDateString("zh-TW")}</p><span class="retention ${cls}">${label}</span></div><div><button class="secondary" data-account="${s.id}" data-email="${esc(s.login_email || "")}">帳號管理</button><button class="secondary" data-label="${s.id}" data-current="${esc(s.display_label || "")}">教師標籤</button><button class="secondary" data-student="${s.id}">思考歷程</button><button class="danger" data-delete="${s.id}">刪除</button></div></article>`;
+            })
+            .join("")
+        : "<p>還沒有學生加入。</p>"
+    }</div></section>`;
+    document.querySelector("#back").onclick = dashboard;
+    document.querySelector("#add-student").onclick = addStudentForm;
+    document
+      .querySelectorAll("[data-student]")
+      .forEach((b) => (b.onclick = () => chooseResearch(b.dataset.student)));
+    document
+      .querySelectorAll("[data-account]")
+      .forEach(
+        (b) =>
+          (b.onclick = () =>
+            studentAccountForm(b.dataset.account, b.dataset.email)),
+      );
+    document
+      .querySelectorAll("[data-label]")
+      .forEach(
+        (b) =>
+          (b.onclick = () => labelStudent(b.dataset.label, b.dataset.current)),
+      );
+    document
+      .querySelectorAll("[data-delete]")
+      .forEach((b) => (b.onclick = () => deleteStudent(b.dataset.delete)));
+    document.querySelector("#export-class").onclick = () =>
+      exportClass(klass, students);
+  } catch (error) {
+    root.innerHTML = message(error.message);
+  }
+}
+function addStudentForm() {
+  root.innerHTML = `<section class="panel"><button class="secondary" id="back">← 返回班級</button><div class="eyebrow">教師建立學生帳號</div><h2>新增學生帳密</h2><form id="add-student-form" class="portal-form"><label>學生登入 Email<input name="loginEmail" type="email" required autocomplete="off"></label><label>設定密碼（6 至 72 個字元）<input name="password" type="password" minlength="6" maxlength="72" required autocomplete="new-password"></label><label>再次輸入密碼<input name="passwordConfirm" type="password" minlength="6" maxlength="72" required autocomplete="new-password"></label><button class="primary">建立學生帳號</button></form><div id="result"></div></section>`;
+  document.querySelector("#back").onclick = () => openClass(currentClass);
+  document.querySelector("#add-student-form").onsubmit = async (e) => {
+    e.preventDefault();
+    const form = new FormData(e.target),
+      password = String(form.get("password") || ""),
+      out = document.querySelector("#result");
+    if (password !== String(form.get("passwordConfirm") || "")) {
+      out.innerHTML = message("兩次輸入的密碼不一致");
+      return;
+    }
+    try {
+      const data = await teacherAccountApi({
+        action: "create_student_account",
+        classId: currentClass,
+        loginEmail: form.get("loginEmail"),
+        password,
+      });
+      out.innerHTML = message(
+        `學生帳號 ${data.loginEmail} 已建立。`,
+        "success",
+      );
+      setTimeout(() => openClass(currentClass), 1000);
+    } catch (error) {
+      out.innerHTML = message(error.message);
+    }
+  };
+}
+function studentAccountForm(id, email) {
+  root.innerHTML = `<section class="panel"><button class="secondary" id="back">← 返回班級</button><div class="eyebrow">學生帳號管理</div><h2>修改登入資料</h2><div class="notice">基於安全，系統不保存可讀取的密碼，因此教師無法查看學生原密碼。可在下方直接設定新密碼。</div><form id="student-account" class="portal-form"><label>學生登入 Email<input name="loginEmail" type="email" required autocomplete="off" value="${esc(email)}"></label><label>新密碼（不修改請留空）<input name="password" type="password" minlength="6" maxlength="72" autocomplete="new-password"></label><label>再次輸入新密碼<input name="passwordConfirm" type="password" minlength="6" maxlength="72" autocomplete="new-password"></label><button class="primary">儲存帳號設定</button></form><div id="result"></div></section>`;
+  document.querySelector("#back").onclick = () => openClass(currentClass);
+  document.querySelector("#student-account").onsubmit = async (e) => {
+    e.preventDefault();
+    const form = new FormData(e.target),
+      password = String(form.get("password") || ""),
+      out = document.querySelector("#result");
+    if (password !== String(form.get("passwordConfirm") || "")) {
+      out.innerHTML = message("兩次輸入的新密碼不一致");
+      return;
+    }
+    if (
+      !confirm(
+        password
+          ? "確定修改帳號資料並重設密碼？學生目前的登入狀態會失效。"
+          : "確定修改學生登入 Email？",
+      )
+    )
+      return;
+    try {
+      const data = await teacherAccountApi({
+        action: "update_student_account",
+        studentId: id,
+        loginEmail: form.get("loginEmail"),
+        password,
+      });
+      out.innerHTML = message(
+        data.passwordChanged
+          ? "帳號與新密碼已更新，請學生重新登入。"
+          : "學生登入 Email 已更新。",
+        "success",
+      );
+      setTimeout(() => openClass(currentClass), 1200);
+    } catch (error) {
+      out.innerHTML = message(error.message);
+    }
+  };
+}
+const eventNames = {
+  joined: "加入班級",
+  division_selected: "選擇科別",
+  profile_updated: "更新條件",
+  interest_selected: "選擇興趣",
+  observation_entered: "生活觀察",
+  question_shown: "系統提問",
+  answer_submitted: "學生回答",
+  topics_recommended: "推薦題目",
+  topic_selected: "選擇題目",
+  topic_rejected: "排除題目",
+  source_opened: "查閱資料",
+  teacher_comment: "教師留言",
+  plan_created: "建立研究架構",
+  plan_suggested: "教師提出架構建議",
+  plan_suggestion_accepted: "學生採用教師建議",
+  plan_suggestion_declined: "學生暫不採用教師建議",
+  experiment_uploaded: "上傳實驗紀錄",
+  experiment_reviewed: "實驗分析回饋",
+  reflection_added: "學生心得歷程",
+  exported: "匯出",
+};
+const planFields = [
+  ["question", "研究問題"],
+  ["hypothesis", "研究假設"],
+  ["variables", "變因設計"],
+  ["materials", "材料與工具"],
+  ["procedure", "建議步驟"],
+  ["analysis", "資料整理與判讀"],
+  ["safety", "安全檢查"],
+];
+function planEditor(plan) {
+  return planFields
+    .map(
+      ([key, label]) =>
+        `<label>${label}<textarea name="${key}" rows="5" maxlength="5000" required>${esc(plan?.[key] || "")}</textarea></label>`,
+    )
+    .join("");
+}
+function compact(values, fallback = "尚無紀錄") {
+  const text = values
+    .flatMap((x) => (Array.isArray(x) ? x : [x]))
+    .filter(Boolean)
+    .map((x) => String(x).trim())
+    .filter(Boolean);
+  return text.length ? text.slice(0, 3).join("；") : fallback;
+}
+function thinkingSummary(student, events, researchPlan, suggestions) {
+  const profile = student.profile || {},
+    guidance = profile.guidance || [],
+    plan = researchPlan?.current_plan || researchPlan?.currentPlan || {},
+    of = (type) => events.filter((e) => e.event_type === type),
+    contents = (type) => of(type).map((e) => e.content || {}),
+    answers = contents("answer_submitted"),
+    experiments = contents("experiment_uploaded"),
+    sources = contents("source_opened"),
+    comments = contents("teacher_comment"),
+    decisions = events.filter((e) =>
+      ["plan_suggestion_accepted", "plan_suggestion_declined"].includes(
+        e.event_type,
+      ),
+    );
+  const questions = compact([
+    ...guidance.map((x) => x.question),
+    ...answers.map((x) => x.question),
+    ...comments.map((x) => x.text),
+  ]);
+  const observation =
+    profile.observation || contents("observation_entered")[0]?.text;
+  const original = compact([
+    observation,
+    guidance[0]?.answer,
+    answers[0]?.answer,
+  ]);
+  const laterAnswers = compact([
+    ...guidance.slice(1).map((x) => x.answer),
+    ...answers.slice(1).map((x) => x.answer),
+  ]);
+  const experimentEvidence = compact(experiments.map((x) => x.result));
+  const sourceEvidence = compact(sources.map((x) => x.title));
+  const decisionText = compact(
+    decisions.map((e) =>
+      e.event_type === "plan_suggestion_accepted"
+        ? `採用教師建議：${e.content?.comment || ""}`
+        : `未採用教師建議：${e.content?.comment || ""}`,
+    ),
+  );
+  const planChange = (suggestions || []).some((x) => x.status === "accepted")
+    ? "學生採用教師建議後，研究架構已產生新版。"
+    : decisionText;
+  const cards = [
+    {
+      title: "發現問題",
+      skills: "觀察・提問・好奇心",
+      original,
+      question: questions,
+      evidence: compact([observation, guidance[0]?.answer, answers[0]?.answer]),
+      change:
+        guidance.length > 1 || answers.length > 1
+          ? `後續聚焦為：${laterAnswers}`
+          : "尚未看到從觀察收斂成研究問題的變化。",
+      followup:
+        observation && (guidance.length >= 2 || answers.length >= 2)
+          ? ""
+          : "請學生說明：從原始觀察中，最後最想研究的是哪一個可以測量的問題？",
+    },
+    {
+      title: "拆解問題",
+      skills: "分析・比較・分類・抽象化・變因辨識",
+      original: compact(
+        [guidance[1]?.answer, answers[1]?.answer, plan.question],
+        original,
+      ),
+      question: compact([
+        guidance[2]?.question,
+        answers[2]?.question,
+        "哪些因素可能影響結果？實驗中只改變哪一項？",
+      ]),
+      evidence: compact([plan.variables, plan.hypothesis, laterAnswers]),
+      change: plan.variables
+        ? "想法已整理成研究假設與操縱、應變及控制變因。"
+        : "尚未形成清楚的變因關係。",
+      followup:
+        plan.variables && plan.hypothesis
+          ? ""
+          : "請學生區分：想改變什麼、要測量什麼，以及哪些條件必須保持相同？",
+    },
+    {
+      title: "用證據判斷",
+      skills: "資料分析・來源查證・批判思考・替代解釋",
+      original: compact([
+        plan.hypothesis,
+        guidance[1]?.answer,
+        answers[1]?.answer,
+      ]),
+      question: compact([
+        comments.map((x) => x.text),
+        plan.analysis,
+        "結果是否支持原先假設？還有沒有其他可能解釋？",
+      ]),
+      evidence: compact([experimentEvidence, sourceEvidence]),
+      change: experiments.length
+        ? `學生已取得結果；下一步需比較結果與原假設。${plan.analysis ? `目前分析方式：${plan.analysis}` : ""}`
+        : "尚無實驗結果可用來檢驗原先想法。",
+      followup:
+        experiments.length && plan.analysis
+          ? ""
+          : "請學生提供可核對的數字、單位或觀察紀錄，並說明結果是否支持假設及可能的其他解釋。",
+    },
+    {
+      title: "反思與負責",
+      skills: "想法修正・價值判斷・安全倫理・研究自主性",
+      original: compact([
+        plan.safety,
+        profile.selectedTopic?.safety,
+        student.selected_topic?.safety,
+      ]),
+      question: compact([
+        comments.map((x) => x.text),
+        (suggestions || []).map((x) => x.comment),
+        "這個做法安全、公平且合適嗎？你為什麼接受或不接受修改？",
+      ]),
+      evidence: compact([plan.safety, decisionText]),
+      change: planChange,
+      followup:
+        plan.safety && decisions.length
+          ? ""
+          : "請學生說明安全、倫理或環境影響，並留下接受或不接受修改建議的理由。",
+    },
+  ];
+  return cards.map((card) => ({
+    ...card,
+    status: card.followup ? "需要追問" : "證據充足",
+    followup: card.followup || "證據充足",
+  }));
+}
+function thinkingCards(cards) {
+  return `<section class="thinking-section"><div class="thinking-head"><div><div class="eyebrow">高層次思考能力</div><h3>四個主類別的思考證據鏈</h3></div><p>依學生目前紀錄自動整理；「證據充足」表示現階段不需追加問題，不代表能力評分。</p></div><div class="thinking-grid">${cards.map((c) => `<article class="thinking-card"><header><div><h4>${esc(c.title)}</h4><small>${esc(c.skills)}</small></div><span class="thinking-status ${c.status === "證據充足" ? "enough" : "followup"}">${c.status}</span></header><ol class="evidence-chain"><li><strong>學生的原始想法</strong><p>${esc(c.original)}</p></li><li><strong>教師或系統提問</strong><p>${esc(c.question)}</p></li><li><strong>學生提供的證據</strong><p>${esc(c.evidence)}</p></li><li><strong>想法如何改變</strong><p>${esc(c.change)}</p></li><li class="next-question"><strong>目前仍需追問之處</strong><p>${esc(c.followup)}</p></li></ol></article>`).join("")}</div></section>`;
+}
+function portalReflectionCards(events) {
+  const items = (events || []).filter(
+    (e) => e.event_type === "reflection_added",
+  );
+  return `<section class="teacher-reflections"><h3>學生心得歷程（${items.length} 筆）</h3>${
+    items
+      .slice()
+      .reverse()
+      .map(
+        (e) =>
+          `<article class="reflection-card"><time>${esc(e.content?.date || new Date(e.created_at).toLocaleDateString("zh-TW"))}</time><h3>我學到了什麼</h3><p>${esc(e.content?.learned || "")}</p><h3>我覺得比較困難的地方</h3><p>${esc(e.content?.difficult || "")}</p></article>`,
+      )
+      .join("") || '<div class="notice">這個研究歷程尚無學生心得。</div>'
+  }</section>`;
+}
+function addResearchNavigation(studentId, studentLabel, projectTitle) {
+  const back = document.querySelector("#back");
+  if (!back) return;
+  back.id = "back-class";
+  back.onclick = () => openClass(currentClass);
+  back.insertAdjacentHTML(
+    "afterend",
+    ` <button class="secondary" id="back-student">← 返回 ${esc(studentLabel)} 的主題列表</button><div class="topic-context"><div class="eyebrow">目前查看的研究主題</div><h2>${esc(projectTitle)}</h2><p>以下只顯示這個主題的心得、教師回饋與研究紀錄。</p></div>`,
+  );
+  document.querySelector("#back-student").onclick = () =>
+    chooseResearch(studentId);
+}
+async function chooseResearch(id) {
+  let student, projects;
+  try {
+    ({ student, projects } = await teacherAccountApi({
+      action: "student_projects",
+      studentId: id,
+    }));
+  } catch (error) {
+    root.innerHTML = message(error.message);
+    return;
+  }
+  const studentLabel =
+    student.display_label || student.login_email || student.student_code;
+  root.innerHTML = `<section class="panel"><button class="secondary" id="back">← 返回班級</button><div class="eyebrow">選擇個別研究歷程</div><h2>${esc(studentLabel)}</h2><p>每個主題的心得、教師回饋與研究紀錄會分開顯示。</p><div>${(projects || []).map((p) => `<article class="student-row"><div><h3>${esc(p.title)}</h3><p>建立於 ${new Date(p.created_at).toLocaleString("zh-TW")}</p></div><button class="primary" data-project="${p.id}">查看此主題的心得與回饋</button></article>`).join("") || "<p>尚無研究歷程。</p>"}</div></section>`;
+  document.querySelector("#back").onclick = () => openClass(currentClass);
+  document.querySelectorAll("[data-project]").forEach(
+    (b) =>
+      (b.onclick = async () => {
+        const project = (projects || []).find(
+          (p) => p.id === b.dataset.project,
+        );
+        await timeline(id, b.dataset.project);
+        addResearchNavigation(
+          id,
+          studentLabel,
+          project?.title || "未命名研究主題",
+        );
+      }),
+  );
+}
+async function timeline(id, researchId) {
+  let detail;
+  try {
+    detail = await teacherAccountApi({ action: "research_detail", researchId });
+  } catch (error) {
+    root.innerHTML = message(error.message);
+    return;
+  }
+  const {
+    student,
+    currentProject: project,
+    events = [],
+    researchPlan,
+    suggestions = [],
+  } = detail;
+  if (project) {
+    student.profile = project.profile || {};
+    student.selected_topic = project.selected_topic || null;
+  }
+  const current = researchPlan?.current_plan,
+    cards = thinkingSummary(
+      student,
+      events || [],
+      researchPlan,
+      suggestions || [],
+    );
+  root.innerHTML = `<section class="panel"><button class="secondary" id="back">← 返回班級</button><div class="dashboard-head"><div><div class="eyebrow">學生思考歷程</div><h2>${esc(student.display_label || student.student_code)}</h2></div><div><button class="secondary" id="json">JSON</button><button class="secondary" id="csv">CSV</button><button class="primary" onclick="window.print()">PDF</button></div></div>${thinkingCards(cards)}${portalReflectionCards(events)}${current ? `<section class="teacher-plan"><h3>提供研究架構修改建議</h3><p>下方已帶入學生目前版本。請直接修改需要調整的欄位，並說明原因；學生同意後才會成為新版本。</p><form id="plan-suggestion" class="portal-form"><label>給學生的建議說明<textarea name="comment" rows="4" maxlength="2000" required placeholder="請說明為什麼要修改，以及學生要特別注意什麼"></textarea></label>${planEditor(current)}<div class="ai-plan-actions"><button class="secondary" type="button" id="ai-plan-suggestion">✨ AI 修改建議</button><p class="ai-note">AI 只會填入草稿，不會自動送出或寫入資料庫；請教師確認、修改後再送出。</p><div id="ai-plan-result"></div></div><button class="primary">送出研究架構建議</button></form><div class="suggestion-history"><h3>建議紀錄</h3>${(suggestions || []).map((s) => `<p><strong>${s.status === "pending" ? "等待學生決定" : s.status === "accepted" ? "學生已採用" : "學生未採用"}</strong>｜${new Date(s.created_at).toLocaleString("zh-TW")}<br>${esc(s.comment)}</p>`).join("") || "<p>尚未提出建議。</p>"}</div></section>` : '<div class="notice">學生確認題目並建立研究架構後，這裡會出現可編輯的教師建議表單。</div>'}<form id="comment" class="portal-form"><label>一般教師留言<input name="text" maxlength="1000" required></label><button class="secondary">加入時間軸</button></form><details class="raw-timeline"><summary>查看完整原始事件時間軸（${events.length} 筆）</summary><div>${events.map((e) => `<article class="event"><strong>${eventNames[e.event_type] || e.event_type}</strong><br><time>${new Date(e.created_at).toLocaleString("zh-TW")}｜${esc(e.source)}</time><pre>${esc(JSON.stringify(e.content, null, 2))}</pre></article>`).join("") || "<p>尚無歷程。</p>"}</div></details></section>`;
+  document.querySelector("#back").onclick = () => openClass(currentClass);
+  document.querySelector("#json").onclick = () =>
+    download(
+      `${student.student_code}.json`,
+      JSON.stringify(
+        { student, researchPlan, suggestions, thinkingSummary: cards, events },
+        null,
+        2,
+      ),
+      "application/json",
+    );
+  document.querySelector("#csv").onclick = () =>
+    download(`${student.student_code}.csv`, toCsv(events), "text/csv");
+  document.querySelector("#comment").onsubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await teacherAccountApi({
+        action: "teacher_comment",
+        researchId,
+        text: new FormData(e.target).get("text"),
+      });
+      await timeline(id, researchId);
+    } catch (error) {
+      alert(error.message);
+    }
+  };
+  document
+    .querySelector("#ai-plan-suggestion")
+    ?.addEventListener("click", async (e) => {
+      const button = e.currentTarget,
+        out = document.querySelector("#ai-plan-result"),
+        form = document.querySelector("#plan-suggestion");
+      button.disabled = true;
+      button.textContent = "AI 正在分析學生資料…";
+      out.innerHTML = "";
+      try {
+        const data = await teacherAccountApi({
+          action: "ai_plan_suggestion",
+          researchId,
+        });
+        form.elements.comment.value = data.comment;
+        for (const [key] of planFields)
+          form.elements[key].value = data.proposedPlan[key] || "";
+        out.innerHTML = message(
+          "AI 草稿已填入。請教師逐欄確認與修改；目前尚未寫入資料庫。",
+          "success",
+        );
+      } catch (error) {
+        out.innerHTML = message(error.message);
+      } finally {
+        button.disabled = false;
+        button.textContent = "✨ AI 修改建議";
+      }
+    });
+  document
+    .querySelector("#plan-suggestion")
+    ?.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const form = new FormData(e.target),
+        proposed_plan = Object.fromEntries(
+          planFields.map(([key]) => [key, String(form.get(key) || "").trim()]),
+        );
+      const comment = String(form.get("comment") || "").trim();
+      try {
+        await teacherAccountApi({
+          action: "plan_suggestion",
+          researchId,
+          comment,
+          proposedPlan: proposed_plan,
+        });
+        await timeline(id, researchId);
+      } catch (error) {
+        alert(error.message);
+      }
+    });
+}
+function toCsv(events) {
+  const quote = (v) => `"${String(v).replaceAll('"', '""')}"`;
+  return (
+    "\ufeff" +
+    [
+      "時間,來源,類型,內容",
+      ...events.map((e) =>
+        [
+          e.created_at,
+          e.source,
+          eventNames[e.event_type] || e.event_type,
+          JSON.stringify(e.content),
+        ]
+          .map(quote)
+          .join(","),
+      ),
+    ].join("\n")
+  );
+}
+function download(name, text, type) {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([text], { type }));
+  a.download = name;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+async function exportClass(klass, students) {
+  const histories = [];
+  for (const student of students) {
+    const data = await teacherAccountApi({
+      action: "student_projects",
+      studentId: student.id,
+    });
+    for (const project of data.projects || [])
+      histories.push(
+        await teacherAccountApi({
+          action: "research_detail",
+          researchId: project.id,
+        }),
+      );
+  }
+  download(
+    `${klass.name}.json`,
+    JSON.stringify({ class: klass, students, histories }, null, 2),
+    "application/json",
+  );
+}
+async function deleteStudent(id) {
+  if (!confirm("確定永久刪除這位學生及全部思考歷程？此操作無法復原。")) return;
+  try {
+    await teacherAccountApi({ action: "delete_student", studentId: id });
+    await openClass(currentClass);
+  } catch (error) {
+    alert(error.message);
+  }
+}
+async function labelStudent(id, current) {
+  const label = prompt("輸入只有教師看得到的辨識標籤（可留空）：", current);
+  if (label === null) return;
+  try {
+    await teacherAccountApi({ action: "label_student", studentId: id, label });
+    await openClass(currentClass);
+  } catch (error) {
+    alert(error.message);
+  }
+}
+async function start() {
+  if (!configured) {
+    landing();
+    return;
+  }
+  try {
+    const response = await fetch(`${cfg.apiUrl}/admin-api`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "config" }),
+    });
+    if (response.ok)
+      googleTeacherLogin = Boolean((await response.json()).teacherGoogleLogin);
+  } catch (error) {
+    console.warn("無法取得登入設定", error);
+  }
+  if (teacherToken) {
+    try {
+      await enterTeacherDashboard();
+    } catch (error) {
+      teacherToken = "";
+      localStorage.removeItem(teacherTokenKey);
+      teacher = null;
+      landing();
+      root.insertAdjacentHTML("afterbegin", message(error.message));
+    }
+  } else landing();
+}
+start();

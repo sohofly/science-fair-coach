@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="科展小助手的前端、Supabase、AI 服務、資料模型與權限架構。">
+  <title>科展小助手｜系統架構</title>
+  <style>
+    :root{--bg:#f6f8fc;--ink:#172033;--muted:#5b6475;--line:#d8deea;--paper:#fff;--client:#eaf2ff;--service:#f1edff;--data:#e5faf5;--external:#fff5d9;--danger:#fff0f0;--shadow:0 12px 34px rgba(35,48,75,.08)}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.65 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}a{color:inherit}header,main,footer{max-width:1180px;margin:auto;padding-inline:22px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:20px;padding-block:22px}.brand{font-weight:850;text-decoration:none}.nav{display:flex;gap:8px;flex-wrap:wrap}.nav a{padding:7px 12px;border-radius:999px;text-decoration:none;color:var(--muted)}.nav a[aria-current="page"]{background:var(--ink);color:#fff}.hero{padding-block:58px 42px}.eyebrow{font-size:12px;font-weight:850;letter-spacing:.14em;color:#7c3aed}h1{max-width:850px;margin:10px 0 16px;font-size:clamp(34px,6vw,66px);line-height:1.05;letter-spacing:-.04em}.lede{max-width:790px;margin:0;color:var(--muted);font-size:18px}.chips{display:flex;gap:9px;flex-wrap:wrap;margin-top:25px}.chip{padding:7px 12px;border:1px solid var(--line);border-radius:999px;background:#fff;font-weight:700;font-size:13px}section{padding-block:38px}.section-head{display:flex;align-items:end;justify-content:space-between;gap:20px;margin-bottom:20px}.section-head h2{margin:0;font-size:clamp(25px,4vw,38px);letter-spacing:-.025em}.section-head p{max-width:540px;margin:0;color:var(--muted)}.stack{display:grid;gap:12px}.layer{display:grid;grid-template-columns:180px 1fr;gap:14px;align-items:stretch}.layer-label{display:flex;align-items:center;padding:22px;border-radius:18px;font-size:18px;font-weight:850}.layer-content{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:12px;border:1px solid var(--line);border-radius:18px}.layer-content article{padding:17px;background:rgba(255,255,255,.78);border:1px solid rgba(216,222,234,.9);border-radius:13px}.layer-content b{display:block;margin-bottom:4px}.layer-content span{color:var(--muted);font-size:14px}.client .layer-label,.client .layer-content{background:var(--client)}.service .layer-label,.service .layer-content{background:var(--service)}.data .layer-label,.data .layer-content{background:var(--data)}.external .layer-label,.external .layer-content{background:var(--external)}.flow-note{text-align:center;color:var(--muted);font-size:13px}.flows{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.flow{counter-reset:item;padding:23px;border:1px solid var(--line);border-radius:18px;background:var(--paper);box-shadow:var(--shadow)}.flow h3{margin:0 0 16px;font-size:20px}.flow ol{margin:0;padding:0;list-style:none}.flow li{counter-increment:item;display:grid;grid-template-columns:27px 1fr;gap:9px;padding:9px 0;border-top:1px solid var(--line)}.flow li:before{content:counter(item);display:grid;place-items:center;width:23px;height:23px;border-radius:50%;background:var(--ink);color:#fff;font-size:11px;font-weight:800}.model{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.entity{padding:18px;border:1px solid var(--line);border-radius:16px;background:var(--paper)}.entity strong{display:block;font-size:17px}.entity code{color:#0f766e;font-size:12px}.entity p{margin:8px 0 0;color:var(--muted);font-size:14px}.entity.core{grid-column:span 2;background:var(--data)}.legend{margin-top:14px;color:var(--muted);font-size:13px}.security-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.security-card{padding:22px;border:1px solid var(--line);border-radius:18px;background:var(--paper)}.security-card h3{margin:0 0 8px}.security-card p{margin:0;color:var(--muted)}.security-card.warning{background:var(--danger)}.retention{display:grid;grid-template-columns:365fr 30fr;min-height:100px;border:1px solid var(--line);border-radius:18px;overflow:hidden}.retention div{display:flex;flex-direction:column;justify-content:center;padding:20px}.retention .active{background:var(--data)}.retention .readonly{min-width:185px;background:var(--external)}.retention strong{font-size:18px}.retention span{color:var(--muted)}.delete{margin-top:10px;padding:14px;text-align:center;border-radius:14px;background:var(--danger);font-weight:750}footer{padding-block:46px;color:var(--muted);font-size:13px}.footer-inner{display:flex;justify-content:space-between;gap:20px;border-top:1px solid var(--line);padding-top:22px}.footer-inner a{font-weight:750}.skip{position:absolute;left:-9999px}.skip:focus{left:10px;top:10px;z-index:10;background:#fff;padding:10px}
+    @media(max-width:900px){.layer{grid-template-columns:1fr}.layer-content,.flows{grid-template-columns:1fr}.model{grid-template-columns:repeat(2,1fr)}.entity.core{grid-column:span 1}}
+    @media(max-width:560px){.topbar,.section-head,.footer-inner{align-items:flex-start;flex-direction:column}.hero{padding-top:34px}.layer-content,.model,.security-grid{grid-template-columns:1fr}.nav{font-size:13px}.retention{grid-template-columns:1fr}.retention .readonly{min-width:0}}
+  </style>
+</head>
+<body>
+  <a class="skip" href="#content">跳到主要內容</a>
+  <header class="topbar">
+    <a class="brand" href="index.html">🔎 科展小助手</a>
+    <nav class="nav" aria-label="架構文件">
+      <a href="function-architecture.html">功能藍圖</a>
+      <a href="architecture.html" aria-current="page">系統架構</a>
+      <a href="index.html">開啟網站</a>
+    </nav>
+  </header>
+  <main id="content">
+    <div class="hero">
+      <div class="eyebrow">SYSTEM ARCHITECTURE · 系統架構</div>
+      <h1>靜態前端，受控後端，研究資料逐層隔離。</h1>
+      <p class="lede">GitHub Pages 負責三個操作介面；Supabase 負責身分、資料、檔案與 Edge Functions；OpenAI 只在需要動態建議時由後端呼叫，API 金鑰不進入瀏覽器。</p>
+      <div class="chips" aria-label="技術摘要"><span class="chip">GitHub Pages</span><span class="chip">Vanilla HTML / CSS / JS</span><span class="chip">Supabase Auth + PostgreSQL</span><span class="chip">Edge Functions</span><span class="chip">OpenAI Responses API</span></div>
+    </div>
+
+    <section aria-labelledby="stack-title">
+      <div class="section-head"><h2 id="stack-title">系統分層</h2><p>箭頭方向為瀏覽器提出請求；教師可在 RLS 保護下讀寫授權資料，學生的自訂 session 則一律經 Edge Function 驗證。</p></div>
+      <div class="stack">
+        <div class="layer client"><div class="layer-label">① 操作介面</div><div class="layer-content"><article><b>學生網站</b><span>index.html：探索、選題、研究計畫、子題、實驗與心得</span></article><article><b>教師入口</b><span>portal.html：Google 登入、班級、歷程、回饋與匯出</span></article><article><b>總管理者</b><span>admin.html：教師核准、帳號設定與全站管理</span></article></div></div>
+        <div class="flow-note">HTTPS / Supabase SDK / JSON API ↓</div>
+        <div class="layer service"><div class="layer-label">② 服務與授權</div><div class="layer-content"><article><b>Supabase Auth</b><span>教師 Google OAuth；登入後仍檢查 teacher_profiles 核准狀態</span></article><article><b>Edge Functions</b><span>學生帳號、推薦、實驗檢核、教師帳號操作、管理與清除排程</span></article><article><b>RLS 與角色檢查</b><span>教師僅可操作自己的班級；管理 API 另以管理者 session 保護</span></article></div></div>
+        <div class="flow-note">Service role 僅留在伺服器端 ↓</div>
+        <div class="layer data"><div class="layer-label">③ 資料與檔案</div><div class="layer-content"><article><b>PostgreSQL</b><span>班級、學生、研究主題、事件、計畫、建議、實驗與用量</span></article><article><b>Storage</b><span>私有 experiment-files bucket；限制檔案大小與允許類型</span></article><article><b>排程清除</b><span>purge-expired 依 active_until / delete_after 執行保存政策</span></article></div></div>
+        <div class="flow-note">只有伺服器端按需呼叫 ↓</div>
+        <div class="layer external"><div class="layer-label">④ 外部服務</div><div class="layer-content"><article><b>Google OAuth</b><span>驗證教師 Google 身分，不作為學生登入方式</span></article><article><b>OpenAI Responses API</b><span>動態題目、Web Search、實驗回饋與教師架構草稿</span></article><article><b>科教館與公開來源</b><span>作為研究背景線索；作品、日期、科別與網址仍需人工核對</span></article></div></div>
+      </div>
+    </section>
+
+    <section aria-labelledby="flows-title">
+      <div class="section-head"><h2 id="flows-title">三條關鍵資料流</h2><p>不同身分使用不同驗證方式，避免讓學生自訂憑證直接存取資料庫。</p></div>
+      <div class="flows">
+        <article class="flow"><h3>學生研究流程</h3><ol><li>學生帳號登入取得不透明 session token</li><li>瀏覽器以 x-student-token 呼叫 student-api</li><li>函式驗證 token 雜湊、期限與研究擁有權</li><li>更新研究資料並追加 thought_events</li><li>需要 AI 時再由專用函式呼叫模型</li></ol></article>
+        <article class="flow"><h3>教師指導流程</h3><ol><li>Google OAuth 取得 Supabase JWT</li><li>確認教師已核准且狀態有效</li><li>RLS 限制為教師自己的班級與學生</li><li>查看單一學生、單一研究的完整證據鏈</li><li>留言或送出建議，等待學生採用／婉拒</li></ol></article>
+        <article class="flow"><h3>AI 建議流程</h3><ol><li>後端先驗證身分、研究與每日用量</li><li>只整理該研究所需的最小脈絡</li><li>以 JSON Schema 限定結構化輸出</li><li>結果作為建議或草稿，不自動代替決策</li><li>記錄來源事件與 AI 用量供追蹤</li></ol></article>
+      </div>
+    </section>
+
+    <section aria-labelledby="model-title">
+      <div class="section-head"><h2 id="model-title">核心資料模型</h2><p>資料的主幹是「班級 → 學生 → 研究主題」。所有研究內容都帶 research_id，因此新增主題不會覆蓋舊歷程。</p></div>
+      <div class="model">
+        <article class="entity"><strong>班級</strong><code>classes</code><p>屬於一位教師；提供加入碼。</p></article>
+        <article class="entity"><strong>學生</strong><code>students / student_sessions</code><p>匿名代號、登入帳號、密碼雜湊與保留期限。</p></article>
+        <article class="entity core"><strong>研究主題（資料主幹）</strong><code>research_projects</code><p>一位學生可有多個研究；保存題目、條件與目前選擇。</p></article>
+        <article class="entity"><strong>思考時間軸</strong><code>thought_events</code><p>追加式保存問答、選擇、心得、留言與系統事件。</p></article>
+        <article class="entity"><strong>研究架構</strong><code>research_plans</code><p>系統初版、目前版本與修訂版號。</p></article>
+        <article class="entity"><strong>教師建議</strong><code>research_plan_suggestions</code><p>修改草稿、理由、狀態及學生決定時間。</p></article>
+        <article class="entity"><strong>子題與實驗</strong><code>experiment_records</code><p>以 subtopic_id 分組問題、做法、結果、附件與 AI 回饋。</p></article>
+        <article class="entity"><strong>AI 用量</strong><code>ai_usage</code><p>限制每日動態請求並保留模型與 request ID。</p></article>
+        <article class="entity"><strong>治理資料</strong><code>teacher_profiles / administrators / app_settings</code><p>教師核准狀態、管理者 session 與全站登入設定。</p></article>
+      </div>
+      <p class="legend">關聯刪除以資料庫外鍵 cascade 為主；清除單一研究時，該研究的事件、計畫、建議與實驗紀錄一併移除。</p>
+    </section>
+
+    <section aria-labelledby="security-title">
+      <div class="section-head"><h2 id="security-title">權限與安全邊界</h2></div>
+      <div class="security-grid">
+        <article class="security-card"><h3>瀏覽器可以持有</h3><p>Supabase URL、公開 anon key、教師 JWT、學生不透明 session token，以及本機介面狀態。公開 anon key 不是管理權限。</p></article>
+        <article class="security-card warning"><h3>永遠留在伺服器</h3><p>SUPABASE_SERVICE_ROLE_KEY、OPENAI_API_KEY、CRON_SECRET、學生密碼雜湊與管理者密碼雜湊，不寫入 GitHub Pages。</p></article>
+        <article class="security-card"><h3>學生存取</h3><p>PIN／密碼只存 PBKDF2 雜湊；session token 也以雜湊比對。每個請求再次確認學生與 research_id 的擁有關係。</p></article>
+        <article class="security-card"><h3>教師與管理者存取</h3><p>Google 登入不等於教師授權；teacher_profiles 必須為有效狀態。管理者使用獨立 API 與 session，不共用教師權限。</p></article>
+      </div>
+    </section>
+
+    <section aria-labelledby="retention-title">
+      <div class="section-head"><h2 id="retention-title">資料生命週期</h2><p>期限以學生資料為單位，由後端強制執行；前端顯示不能取代資料庫與排程限制。</p></div>
+      <div class="retention"><div class="active"><strong>第 0–365 天｜可編輯</strong><span>學生持續研究；教師查看、回饋與匯出。</span></div><div class="readonly"><strong>第 366–395 天</strong><span>唯讀，供教師匯出。</span></div></div>
+      <div class="delete">第 395 天｜排程永久刪除學生、研究、事件、檔案、session 與 AI 用量</div>
+    </section>
+  </main>
+  <footer><div class="footer-inner"><span>架構依目前程式碼與 Supabase migrations 整理</span><span><a href="function-architecture.html">← 回到功能藍圖</a></span></div></footer>
+</body>
+</html>
