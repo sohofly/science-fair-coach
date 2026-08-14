@@ -22,6 +22,10 @@ assert.match(formattedCoachReply, /<table>/);
 assert.match(formattedCoachReply, /<h3 class="coach-heading-main">AI 教練回覆<\/h3>/);
 assert.match(formattedCoachReply, /<h4 class="coach-heading-next">下一步<\/h4>/);
 assert.match(dom.window.renderCoachResponse("# AI 教練回覆\\n\\n## 快速結論\\n立即正確排版"), /<h4 class="coach-heading-section">快速結論<\/h4>/);
+const alertReply = dom.window.renderCoachResponse("## 重要提醒\n這是錯誤內容\n\n- 需要修正");
+assert.match(alertReply, /<h4 class="coach-heading-alert">重要提醒<\/h4>/);
+assert.match(alertReply, /<p class="coach-alert-content">這是錯誤內容<\/p>/);
+assert.match(alertReply, /<ul class="coach-alert-content">/);
 assert.doesNotMatch(formattedCoachReply, /<img/);
 const click = (selector) => {
   const el = document.querySelector(selector);
