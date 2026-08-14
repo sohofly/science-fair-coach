@@ -19,7 +19,9 @@ const formattedCoachReply = dom.window.renderCoachResponse(`# AI 教練回覆
 ## 下一步
 <img src=x onerror=alert(1)>`);
 assert.match(formattedCoachReply, /<table>/);
-assert.match(formattedCoachReply, /<h3>AI 教練回覆<\/h3>/);
+assert.match(formattedCoachReply, /<h3 class="coach-heading-main">AI 教練回覆<\/h3>/);
+assert.match(formattedCoachReply, /<h4 class="coach-heading-next">下一步<\/h4>/);
+assert.match(dom.window.renderCoachResponse("# AI 教練回覆\\n\\n## 快速結論\\n立即正確排版"), /<h4 class="coach-heading-section">快速結論<\/h4>/);
 assert.doesNotMatch(formattedCoachReply, /<img/);
 const click = (selector) => {
   const el = document.querySelector(selector);

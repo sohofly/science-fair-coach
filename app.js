@@ -574,7 +574,7 @@ function researchWorkspace(subtopic) {
     records
       .slice()
       .reverse()
-      .map((r, i) => `<article class="record"><h3>${r.recordKind === "discussion" ? "問題討論" : "實驗紀錄"} ${records.length - i}</h3>${r.recordKind === "discussion" ? `<p><strong>學生問題：</strong>${esc(r.result)}</p>` : `<p><strong>做法：</strong>${esc(r.method)}</p><p><strong>結果：</strong>${esc(r.result)}</p>${r.fileName ? `<p>📎 ${esc(r.fileName)}</p>` : ""}`} ${r.review ? `<div class="review coach-response"><h3>AI 教練回覆</h3>${window.renderCoachResponse(r.review)}</div>` : "<p>等待分析中……</p>"}</article>`)
+      .map((r, i) => `<article class="record"><h3>${r.recordKind === "discussion" ? "問題討論" : "實驗紀錄"} ${records.length - i}</h3>${r.recordKind === "discussion" ? `<p><strong>學生問題：</strong>${esc(r.result)}</p>` : `<p><strong>做法：</strong>${esc(r.method)}</p><p><strong>結果：</strong>${esc(r.result)}</p>${r.fileName ? `<p>📎 ${esc(r.fileName)}</p>` : ""}`} ${r.review ? `<div class="review coach-response">${window.renderCoachResponse(r.review)}</div>` : "<p>等待分析中……</p>"}</article>`)
       .join("") || `<div class="notice">這個${subtopic ? "子題" : "主題"}還沒有討論或上傳資料，可以先提出第一個問題。</div>`
   }</div><div class="actions"><button class="secondary" data-go="plan">← 返回研究摘要與子題列表</button></div></section>`;
 }

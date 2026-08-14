@@ -6,13 +6,18 @@
     const rows = lines.map((line) => line.trim().replace(/^\||\|$/g, "").split("|").map((cell) => cell.trim()));
     if (rows.length < 2 || !rows[1].every((cell) => /^:?-{3,}:?$/.test(cell))) return null;
     const head = `<thead><tr>${rows[0].map((cell) => `<th>${inline(cell)}</th>`).join("")}</tr></thead>`;
-    const body = rows.slice(2).map((row) => `<tr>${row.map((cell) => `<td>${inline(cell)}</td>`).join("")}</tr>`).join("");
+    const body = rows.slice(2).map((row) => `<tr>${row.map((cell, index) => `<td${index === 1 ? ' class="coach-judgement"' : ""}>${inline(cell)}</td>`).join("")}</tr>`).join("");
     return `<div class="coach-table-wrap"><table>${head}<tbody>${body}</tbody></table></div>`;
   }
 
   function renderCoachResponse(value = "") {
     let source = String(value || "").trim();
     try { const parsed = JSON.parse(source); if (typeof parsed === "string") source = parsed; } catch {}
+    // Some API/client combinations return Markdown with escaped line breaks.
+    // Normalize them before parsing so a newly received reply renders exactly
+    // like the same reply loaded from history.
+    if (!source.includes("\n") && source.includes("\\n")) source = source.replace(/\\r\\n|\\n|\\r/g, "\n");
+    if (!/^#\s+AI 教練回覆\s*$/m.test(source)) source = `# AI 教練回覆\n\n${source}`;
     if (!source) return "";
     const lines = source.replace(/\r\n?/g, "\n").split("\n"), html = [];
     for (let index = 0; index < lines.length;) {
@@ -26,7 +31,11 @@
         continue;
       }
       const heading = line.match(/^(#{1,3})\s+(.+)$/);
-      if (heading) { const level = Math.min(heading[1].length + 2, 5); html.push(`<h${level}>${inline(heading[2])}</h${level}>`); index += 1; continue; }
+      if (heading) {
+        const level = Math.min(heading[1].length + 2, 5), title = heading[2].trim();
+        const kind = /下一步/.test(title) ? " coach-heading-next" : /限制|注意|待確認|需修正|問題/.test(title) ? " coach-heading-alert" : heading[1].length === 1 ? " coach-heading-main" : " coach-heading-section";
+        html.push(`<h${level} class="${kind.trim()}">${inline(title)}</h${level}>`); index += 1; continue;
+      }
       if (/^>\s?/.test(line)) {
         const quote = [];
         while (index < lines.length && /^\s*>\s?/.test(lines[index])) quote.push(lines[index++].replace(/^\s*>\s?/, ""));
