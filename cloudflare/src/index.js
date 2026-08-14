@@ -1523,6 +1523,44 @@ async function experimentApi(req, env, body) {
   }
   return reply(req, env, { recordId, review });
 }
+async function recordFileApi(req, env, body) {
+  const recordId = String(body.recordId || "");
+  if (!recordId) return reply(req, env, { error: "缺少附件紀錄" }, 400);
+  const [student, teacher, admin] = await Promise.all([
+    session(env, "student", req.headers.get("x-student-token")),
+    session(env, "teacher", req.headers.get("x-teacher-token")),
+    session(env, "admin", req.headers.get("x-admin-token")),
+  ]);
+  if (!student && !teacher && !admin)
+    return reply(req, env, { error: "請先登入後再讀取附件" }, 401);
+  const record = await env.DB.prepare(
+    "SELECT e.id,e.student_id,e.file_name,e.file_key,e.mime_type,s.class_id FROM experiment_records e JOIN students s ON s.id=e.student_id WHERE e.id=?",
+  ).bind(recordId).first();
+  if (!record?.file_key) return reply(req, env, { error: "找不到附件" }, 404);
+
+  let allowed = false;
+  if (student?.id === record.student_id) allowed = true;
+  if (!allowed) {
+    if (teacher?.is_active) {
+      const klass = await env.DB.prepare("SELECT id FROM classes WHERE id=? AND teacher_id=?")
+        .bind(record.class_id, teacher.id).first();
+      allowed = Boolean(klass);
+    }
+  }
+  if (!allowed) {
+    allowed = Boolean(admin?.is_active);
+  }
+  if (!allowed) return reply(req, env, { error: "沒有權限讀取這個附件" }, 403);
+
+  const object = await env.FILES.get(record.file_key);
+  if (!object?.body) return reply(req, env, { error: "附件檔案不存在" }, 404);
+  const responseHeaders = new Headers(headers(req, env));
+  responseHeaders.set("Content-Type", record.mime_type || "application/octet-stream");
+  responseHeaders.set("Content-Disposition", `inline; filename*=UTF-8''${encodeURIComponent(record.file_name || "attachment")}`);
+  responseHeaders.set("ETag", object.httpEtag);
+  responseHeaders.set("Cache-Control", "private, no-store");
+  return new Response(object.body, { headers: responseHeaders });
+}
 async function handle(req, env) {
   if (req.method === "OPTIONS")
     return new Response(null, { status: 204, headers: headers(req, env) });
@@ -1540,6 +1578,7 @@ async function handle(req, env) {
   if (path.endsWith("/admin-api")) return adminApi(req, env, body);
   if (path.endsWith("/recommend-topics")) return recommendApi(req, env, body);
   if (path.endsWith("/experiment-review")) return experimentApi(req, env, body);
+  if (path.endsWith("/record-file")) return recordFileApi(req, env, body);
   return reply(req, env, { error: "找不到 API" }, 404);
 }
 export default {

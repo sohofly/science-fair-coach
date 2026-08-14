@@ -520,6 +520,13 @@ function portalReflectionCards(events) {
       .join("") || '<div class="notice">這個研究歷程尚無學生心得。</div>'
   }</section>`;
 }
+function teacherExperimentSection(records = []) {
+  return `<section><h3>實驗與討論紀錄（${records.length} 筆）</h3>${records
+    .slice()
+    .reverse()
+    .map((record) => `<article class="history-card"><time>${new Date(record.created_at).toLocaleString("zh-TW")}</time><h3>${record.record_kind === "discussion" ? "討論紀錄" : "實驗紀錄"}</h3><p><strong>做法／問題</strong><br>${esc(record.method || "尚未填寫")}</p><p><strong>結果／想法</strong><br>${esc(record.result || "尚未填寫")}</p>${window.SFCAttachments?.render(record) || ""}${record.ai_review ? `<div class="coach-response">${window.renderCoachResponse(typeof record.ai_review === "string" ? record.ai_review : JSON.stringify(record.ai_review))}</div>` : ""}</article>`)
+    .join("") || '<div class="notice">這個研究歷程尚無實驗或討論紀錄。</div>'}</section>`;
+}
 function addResearchNavigation(studentId, studentLabel, projectTitle) {
   const back = document.querySelector("#back");
   if (!back) return;
@@ -576,6 +583,7 @@ async function timeline(id, researchId) {
     events = [],
     researchPlan,
     suggestions = [],
+    experimentRecords = [],
   } = detail;
   if (project) {
     student.profile = project.profile || {};
@@ -589,6 +597,10 @@ async function timeline(id, researchId) {
       suggestions || [],
     );
   root.innerHTML = `<section class="panel"><button class="secondary" id="back">← 返回班級</button><div class="dashboard-head"><div><div class="eyebrow">學生思考歷程</div><h2>${esc(student.display_label || student.student_code)}</h2></div><div><button class="secondary" id="json">JSON</button><button class="secondary" id="csv">CSV</button><button class="primary" onclick="window.print()">PDF</button></div></div>${thinkingCards(cards)}${portalReflectionCards(events)}${current ? `<section class="teacher-plan"><h3>提供研究架構修改建議</h3><p>下方已帶入學生目前版本。請直接修改需要調整的欄位，並說明原因；學生同意後才會成為新版本。</p><form id="plan-suggestion" class="portal-form"><label>給學生的建議說明<textarea name="comment" rows="4" maxlength="2000" required placeholder="請說明為什麼要修改，以及學生要特別注意什麼"></textarea></label>${planEditor(current)}<div class="ai-plan-actions"><button class="secondary" type="button" id="ai-plan-suggestion">✨ AI 修改建議</button><p class="ai-note">AI 只會填入草稿，不會自動送出或寫入資料庫；請教師確認、修改後再送出。</p><div id="ai-plan-result"></div></div><button class="primary">送出研究架構建議</button></form><div class="suggestion-history"><h3>建議紀錄</h3>${(suggestions || []).map((s) => `<p><strong>${s.status === "pending" ? "等待學生決定" : s.status === "accepted" ? "學生已採用" : "學生未採用"}</strong>｜${new Date(s.created_at).toLocaleString("zh-TW")}<br>${esc(s.comment)}</p>`).join("") || "<p>尚未提出建議。</p>"}</div></section>` : '<div class="notice">學生確認題目並建立研究架構後，這裡會出現可編輯的教師建議表單。</div>'}<form id="comment" class="portal-form"><label>一般教師留言<input name="text" maxlength="1000" required></label><button class="secondary">加入時間軸</button></form><details class="raw-timeline"><summary>查看完整原始事件時間軸（${events.length} 筆）</summary><div>${events.map((e) => `<article class="event"><strong>${eventNames[e.event_type] || e.event_type}</strong><br><time>${new Date(e.created_at).toLocaleString("zh-TW")}｜${esc(e.source)}</time><pre>${esc(JSON.stringify(e.content, null, 2))}</pre></article>`).join("") || "<p>尚無歷程。</p>"}</div></details></section>`;
+  document.querySelector(".teacher-reflections")?.insertAdjacentHTML(
+    "afterend",
+    teacherExperimentSection(experimentRecords),
+  );
   document.querySelector("#back").onclick = () => openClass(currentClass);
   document.querySelector("#json").onclick = () =>
     download(

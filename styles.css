@@ -406,6 +406,16 @@ footer a {
 .coach-response th,
 .coach-response td { padding: 10px 12px; border: 1px solid #d9d0f2; text-align: left; vertical-align: top; }
 .coach-response th { background: #eee9fb; color: #3e286b; }
+.record-attachment { margin: 14px 0; padding: 14px; border: 2px solid #d9d0f2; border-radius: 16px; background: #f8f6ff; }
+.attachment-head { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+.attachment-head > div:first-child { min-width: 0; display: grid; gap: 4px; }
+.attachment-head span { overflow-wrap: anywhere; color: var(--muted); }
+.attachment-actions { display: flex; flex-wrap: wrap; gap: 8px; flex: none; }
+.attachment-preview { margin-top: 14px; overflow: hidden; border: 1px solid #d9d0f2; border-radius: 12px; background: #fff; }
+.attachment-preview img { display: block; width: 100%; max-height: 520px; object-fit: contain; background: #f2f0f7; }
+.attachment-preview iframe { display: block; width: 100%; height: min(68vh, 620px); border: 0; }
+.attachment-preview p { margin: 0; padding: 18px; }
+.attachment-error { color: var(--danger); font-weight: 800; }
 @media (max-width: 700px) {
   .topbar {
     align-items: flex-start;
@@ -413,6 +423,9 @@ footer a {
   .top-actions {
     flex-direction: column;
   }
+  .attachment-head { align-items: stretch; flex-direction: column; }
+  .attachment-actions { width: 100%; }
+  .attachment-actions button { flex: 1; }
   .options,
   .form-grid,
   .summary {

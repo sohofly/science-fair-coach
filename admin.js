@@ -398,7 +398,7 @@ function planSection(plan) {
     .join("")}</article></section>`;
 }
 function experimentSection(records = []) {
-  return `<section><h2>實驗與討論紀錄（${records.length} 筆）</h2>${records.map((r) => `<article class="history-card"><time>${new Date(r.created_at).toLocaleString("zh-TW")}</time><h3>${r.record_kind === "discussion" ? "討論紀錄" : "實驗紀錄"}</h3><p><strong>做法／問題</strong><br>${esc(r.method || "尚未填寫")}</p><p><strong>結果／想法</strong><br>${esc(r.result || "尚未填寫")}</p>${r.ai_review ? `<div class="coach-response">${window.renderCoachResponse(valueText(r.ai_review))}</div>` : ""}</article>`).join("") || '<div class="notice">這個主題尚無實驗或討論紀錄。</div>'}</section>`;
+  return `<section><h2>實驗與討論紀錄（${records.length} 筆）</h2>${records.map((r) => `<article class="history-card"><time>${new Date(r.created_at).toLocaleString("zh-TW")}</time><h3>${r.record_kind === "discussion" ? "討論紀錄" : "實驗紀錄"}</h3><p><strong>做法／問題</strong><br>${esc(r.method || "尚未填寫")}</p><p><strong>結果／想法</strong><br>${esc(r.result || "尚未填寫")}</p>${window.SFCAttachments?.render(r) || ""}${r.ai_review ? `<div class="coach-response">${window.renderCoachResponse(valueText(r.ai_review))}</div>` : ""}</article>`).join("") || '<div class="notice">這個主題尚無實驗或討論紀錄。</div>'}</section>`;
 }
 function createTeacher() {
   root.innerHTML = `<section class="panel"><button class="secondary" data-back>← 返回控制台</button><h2>新增教師</h2><form class="portal-form" id="teacher-form"><label>教師姓名<input name="displayName" maxlength="80"></label><label>教師 Email<input name="email" type="email" required></label><label>初始密碼（8 至 72 個字元）<input name="password" type="password" minlength="8" maxlength="72" required></label><button class="primary">建立教師帳號</button></form><div id="result"></div></section>`;

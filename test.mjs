@@ -9,6 +9,7 @@ const dom = new JSDOM(html, {
 dom.window.confirm = () => true;
 dom.window.scrollTo = () => {};
 dom.window.eval(fs.readFileSync("coach-format.js", "utf8"));
+dom.window.eval(fs.readFileSync("attachments.js", "utf8"));
 dom.window.eval(fs.readFileSync("app.js", "utf8"));
 const { document } = dom.window;
 const formattedCoachReply = dom.window.renderCoachResponse(`# AI 教練回覆
@@ -26,6 +27,11 @@ const alertReply = dom.window.renderCoachResponse("## 重要提醒\n這是錯誤
 assert.match(alertReply, /<h4 class="coach-heading-alert">重要提醒<\/h4>/);
 assert.match(alertReply, /<p class="coach-alert-content">這是錯誤內容<\/p>/);
 assert.match(alertReply, /<ul class="coach-alert-content">/);
+const attachmentCard = dom.window.SFCAttachments.render({ id: "record-1", fileName: "實驗照片.jpg", mimeType: "image/jpeg" });
+assert.match(attachmentCard, /data-attachment-preview/);
+assert.match(attachmentCard, /data-attachment-download/);
+assert.match(attachmentCard, /data-auto-preview/);
+assert.match(attachmentCard, /實驗照片\.jpg/);
 assert.doesNotMatch(formattedCoachReply, /<img/);
 const click = (selector) => {
   const el = document.querySelector(selector);
@@ -233,6 +239,10 @@ assert.match(cloudflareWorker, /lower\(username\)=\?/, "Worker 管理者登入�
 assert.match(cloudflareWorker, /type: "input_image"/, "Worker 應將圖片內容送入 AI 分析");
 assert.match(cloudflareWorker, /type: "input_file"/, "Worker 應將文件與試算表內容送入 AI 分析");
 assert.match(cloudflareWorker, /if \(ai\.error\)/, "AI 失敗時應明確回傳錯誤");
+assert.match(cloudflareWorker, /recordFileApi/, "Worker 應提供私有附件讀取 API");
+for (const header of ["x-student-token", "x-teacher-token", "x-admin-token"])
+  assert.ok(cloudflareWorker.includes(header), `附件權限驗證缺少 ${header}`);
+assert.match(cloudflareWorker, /沒有權限讀取這個附件/, "附件不得未經授權公開讀取");
 assert.doesNotMatch(cloudflareWorker, /紀錄已保存。請確認數字、單位、控制變因與重複次數。/, "AI 失敗時不可回傳假分析");
 const cloudflareMigration = fs.readFileSync("cloudflare/migrate-from-supabase.mjs", "utf8");
 assert.match(cloudflareMigration, /password_hash: resetPasswordHash\(\)/, "遷移時不可沿用 Supabase bcrypt 管理者密碼");
