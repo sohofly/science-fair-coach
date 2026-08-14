@@ -1183,18 +1183,40 @@ async function teacherApi(req, env, body) {
 }
 async function callOpenAI(env, payload) {
   if (!env.OPENAI_API_KEY) return { error: "AI服務尚未啟用", status: 503 };
-  const response = await fetch("https://api.openai.com/v1/responses", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${env.OPENAI_API_KEY}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(payload),
-  });
-  const data = await response.json();
+  let response;
+  try {
+    response = await fetch("https://api.openai.com/v1/responses", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${env.OPENAI_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+  } catch (error) {
+    console.error("OpenAI network error", error?.name || "unknown");
+    return { error: "AI服務暫時無法連線，紀錄尚未儲存，請稍後重試", status: 502 };
+  }
+  const data = await response.json().catch(() => null);
   if (!response.ok) {
-    console.error("OpenAI error", response.status, data?.error?.type);
-    return { error: "AI服務暫時無法回應", status: 502 };
+    console.error(
+      "OpenAI error",
+      JSON.stringify({
+        status: response.status,
+        type: data?.error?.type || "unknown",
+        code: data?.error?.code || null,
+        requestId: response.headers.get("x-request-id"),
+      }),
+    );
+    return {
+      error:
+        response.status === 401
+          ? "AI服務金鑰無效，紀錄尚未儲存，請通知管理者"
+          : response.status === 429
+            ? "AI服務目前額度不足或過於忙碌，紀錄尚未儲存，請稍後重試"
+            : "AI服務暫時無法分析，紀錄尚未儲存，請稍後重試",
+      status: 502,
+    };
   }
   const text =
     data.output_text ||
@@ -1202,7 +1224,38 @@ async function callOpenAI(env, payload) {
       ?.flatMap((x) => x.content || [])
       .find((x) => x.type === "output_text")?.text ||
     "";
+  if (!text.trim()) {
+    console.error("OpenAI empty response", data?.id || null);
+    return { error: "AI未產生分析內容，紀錄尚未儲存，請稍後重試", status: 502 };
+  }
   return { data, text };
+}
+
+const experimentFileTypes = {
+  pdf: "application/pdf",
+  csv: "text/csv",
+  txt: "text/plain",
+  xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  png: "image/png",
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  webp: "image/webp",
+  gif: "image/gif",
+};
+function experimentAttachment(body) {
+  if (!body.fileData) return { content: null, mimeType: null };
+  const fileName = String(body.fileName || "").normalize("NFKC");
+  const extension = fileName.split(".").pop()?.toLowerCase();
+  const mimeType = experimentFileTypes[extension];
+  if (!mimeType)
+    return { error: "不支援此檔案類型。請選擇 JPG、PNG、WEBP、GIF、PDF、CSV、TXT 或 XLSX 檔案。" };
+  const dataUrl = `data:${mimeType};base64,${body.fileData}`;
+  return {
+    mimeType,
+    content: mimeType.startsWith("image/")
+      ? { type: "input_image", image_url: dataUrl, detail: "auto" }
+      : { type: "input_file", filename: fileName, file_data: dataUrl },
+  };
 }
 async function recommendApi(req, env, body) {
   const student = await session(
@@ -1378,9 +1431,16 @@ async function experimentApi(req, env, body) {
   )
     return reply(req, env, { error: "實驗或討論紀錄不完整或過長" }, 400);
   let fileKey = null;
+  const attachment = experimentAttachment(body);
+  if (attachment.error) return reply(req, env, { error: attachment.error }, 415);
   if (body.fileData) {
-    const binary = atob(String(body.fileData)),
+    let bytes;
+    try {
+      const binary = atob(String(body.fileData));
       bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
+    } catch {
+      return reply(req, env, { error: "附件內容無法讀取" }, 400);
+    }
     if (bytes.length > 8388608)
       return reply(req, env, { error: "檔案超過 8 MB" }, 413);
     const clean = String(body.fileName || "record")
@@ -1390,24 +1450,33 @@ async function experimentApi(req, env, body) {
     fileKey = `${student.id}/${uuid()}-${clean}`;
     await env.FILES.put(fileKey, bytes, {
       httpMetadata: {
-        contentType: String(body.mimeType || "application/octet-stream"),
+        contentType: attachment.mimeType,
       },
     });
   }
   const prompt =
     kind === "discussion"
       ? `你是臺灣國小科展教練。題目：${JSON.stringify(body.topic)}。學生問題：${resultText}。先回答問題，再提出一個具體下一步；資料不足只追問一個關鍵問題。`
-      : `你是臺灣國小科展實驗教練。題目：${JSON.stringify(body.topic)}。做法：${method}。結果：${resultText}。附件名稱：${body.fileName || "無"}。檢查研究問題、變因、對照、樣本與量測，指出資料限制並給一個具體修正步驟，不可捏造附件內容。`;
+      : `你是臺灣國小科展實驗教練。題目：${JSON.stringify(body.topic)}。做法：${method}。結果：${resultText}。附件：${body.fileName || "無"}。請實際檢查提供的附件內容，連同文字紀錄評估研究問題、變因、對照、樣本、重複次數與量測；指出資料限制、文字與附件是否一致，並給一個具體修正步驟。附件若無法判讀要明說，不可捏造。`;
+  const userContent = [{ type: "input_text", text: prompt }];
+  if (attachment.content) userContent.push(attachment.content);
   const ai = await callOpenAI(env, {
     model: env.OPENAI_MODEL || "gpt-5.6",
     reasoning: { effort: "low" },
-    input: prompt,
+    input: [
+      {
+        role: "developer",
+        content:
+          "你是臺灣國小科展教師助理。用適合國小學生理解的繁體中文，根據實際提供的文字與附件誠實分析。",
+      },
+      { role: "user", content: userContent },
+    ],
   });
-  const review =
-    ai.text ||
-    (kind === "discussion"
-      ? "你的問題已保存。請和老師確認下一個可量測步驟。"
-      : "紀錄已保存。請確認數字、單位、控制變因與重複次數。");
+  if (ai.error) {
+    if (fileKey) await env.FILES.delete(fileKey);
+    return reply(req, env, { error: ai.error }, ai.status);
+  }
+  const review = ai.text.trim();
   const recordId = uuid();
   try {
     await env.DB.batch([
@@ -1424,7 +1493,7 @@ async function experimentApi(req, env, body) {
         resultText,
         body.fileName || null,
         fileKey,
-        body.mimeType || null,
+        attachment.mimeType || null,
         JSON.stringify(review),
       ),
       env.DB.prepare(

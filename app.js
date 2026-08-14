@@ -570,7 +570,7 @@ function researchWorkspace(subtopic) {
   const t = selected();
   if (!t) return empty("請先確認研究題目", "recommend");
   const records = (state.experimentRecords || []).filter((r) => (subtopic ? r.subtopicId === subtopic.id : !r.subtopicId));
-  return `<section class="panel"><div class="eyebrow">${subtopic ? "子題研究工作區" : "針對已選題目繼續研究"}</div><h2>${esc(subtopic?.title || t.title)}</h2>${subtopic ? `<div class="subtopic-question"><strong>子題研究問題</strong><p>${esc(subtopic.question)}</p></div>` : ""}<div class="research-tools"><section class="discussion-form"><h3>💬 有問題，繼續和 AI 教練討論</h3><p>問題會以${subtopic ? `子題「${esc(subtopic.title)}」` : "目前選定的主題"}為主，並只顯示這裡的討論紀錄。</p><label>我想問……<textarea id="discussion-question" placeholder="例如：倒水角度要分成幾組？聲音應該量頻率還是音量？"></textarea></label><button class="primary" data-discussion-submit>送出問題</button></section><section class="experiment-form"><h3>📎 上傳實驗過程或結果</h3><label>這次做了什麼？<textarea id="record-method" placeholder="日期、組別、材料、步驟、重複次數……"></textarea></label><label>得到什麼結果？<textarea id="record-result" placeholder="請寫數字、單位、觀察到的現象與意外狀況……"></textarea></label><label>附加檔案 <span class="file-hint">支援圖片、PDF、CSV、TXT、XLSX；單檔上限 8 MB</span><input id="record-file" type="file" accept="image/*,.pdf,.csv,.txt,.xlsx"></label><button class="primary" data-record-submit>上傳並請 AI 教練分析</button></section></div><p id="record-status"></p><div class="record-list">${
+  return `<section class="panel"><div class="eyebrow">${subtopic ? "子題研究工作區" : "針對已選題目繼續研究"}</div><h2>${esc(subtopic?.title || t.title)}</h2>${subtopic ? `<div class="subtopic-question"><strong>子題研究問題</strong><p>${esc(subtopic.question)}</p></div>` : ""}<div class="research-tools"><section class="discussion-form"><h3>💬 有問題，繼續和 AI 教練討論</h3><p>問題會以${subtopic ? `子題「${esc(subtopic.title)}」` : "目前選定的主題"}為主，並只顯示這裡的討論紀錄。</p><label>我想問……<textarea id="discussion-question" placeholder="例如：倒水角度要分成幾組？聲音應該量頻率還是音量？"></textarea></label><button class="primary" data-discussion-submit>送出問題</button></section><section class="experiment-form"><h3>📎 上傳實驗過程或結果</h3><label>這次做了什麼？<textarea id="record-method" placeholder="日期、組別、材料、步驟、重複次數……"></textarea></label><label>得到什麼結果？<textarea id="record-result" placeholder="請寫數字、單位、觀察到的現象與意外狀況……"></textarea></label><label>附加檔案 <span class="file-hint">支援 JPG、PNG、WEBP、GIF、PDF、CSV、TXT、XLSX；單檔上限 8 MB</span><input id="record-file" type="file" accept=".jpg,.jpeg,.png,.webp,.gif,.pdf,.csv,.txt,.xlsx"></label><button class="primary" data-record-submit>上傳並請 AI 教練分析</button></section></div><p id="record-status"></p><div class="record-list">${
     records
       .slice()
       .reverse()
@@ -1103,7 +1103,7 @@ document.addEventListener(
   true,
 );
 function isAllowedRecordFile(file) {
-  return /\.(pdf|csv|txt|xlsx)$/i.test(file.name) || file.type.startsWith("image/");
+  return /\.(jpg|jpeg|png|webp|gif|pdf|csv|txt|xlsx)$/i.test(file.name);
 }
 function fileToBase64(file) {
   return new Promise((resolve, reject) => {
